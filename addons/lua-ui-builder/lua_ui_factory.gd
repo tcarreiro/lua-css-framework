@@ -124,28 +124,6 @@ func _build_section(definition: Dictionary, context: LuaUiBuildContext) -> Contr
 		result.custom_minimum_size.y = float(definition["height"])
 	if definition.has("width"):
 		result.custom_minimum_size.x = float(definition["width"])
-	#match size_mode:
-		#"fill":
-			#result.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			#if definition.has("ratio"):
-				#result.size_flags_stretch_ratio = float(definition["ratio"])
-			#if definition.has("height"):
-				#result.custom_minimum_size.y = float(definition["height"])
-			#if definition.has("width"):
-				#result.custom_minimum_size.x = float(definition["width"])
-		#"fixed":
-			#result.size_flags_vertical = Control.SIZE_FILL
-			#if definition.has("height"):
-				#result.custom_minimum_size.y = float(definition["height"])
-			#if definition.has("width"):
-				#result.custom_minimum_size.x = float(definition["width"])
-			#result.clip_contents = true
-		#"fit":
-			#result.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-			#if definition.has("height"):
-				#result.custom_minimum_size.y = float(definition["height"])
-			#if definition.has("width"):
-				#result.custom_minimum_size.x = float(definition["width"])
 	return result
 
 

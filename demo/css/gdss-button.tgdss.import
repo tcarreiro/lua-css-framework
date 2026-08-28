@@ -1,0 +1,14 @@
+[remap]
+
+importer="gdss.tgdss"
+type="Resource"
+uid="uid://dwcmufx86vc8r"
+path="res://.godot/imported/gdss-button.tgdss-0dc74ef313a86fd08afe966e2e4a7e43.res"
+
+[deps]
+
+source_file="res://demo/css/gdss-button.tgdss"
+dest_files=["res://.godot/imported/gdss-button.tgdss-0dc74ef313a86fd08afe966e2e4a7e43.res"]
+
+[params]
+

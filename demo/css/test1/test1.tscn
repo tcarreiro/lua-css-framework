@@ -14,8 +14,23 @@ script = ExtResource("1_mcfhu")
 
 [node name="Button" type="Button" parent="." unique_id=1772004000]
 layout_mode = 0
-offset_right = 117.0
-offset_bottom = 44.0
-text = "Thiago"
+offset_right = 92.0
+offset_bottom = 33.0
+text = "Label"
 icon = ExtResource("1_yd6rk")
-metadata/gdss_classes = PackedStringArray("T1")
+metadata/gdss_classes = PackedStringArray("primary")
+metadata/gdss_mode = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=811640517]
+layout_mode = 0
+offset_top = 54.0
+offset_right = 366.0
+offset_bottom = 329.0
+metadata/gdss_mode = 1
+metadata/gdss_classes = PackedStringArray()
+
+[node name="Panel" type="PanelContainer" parent="HBoxContainer" unique_id=1442958407]
+layout_mode = 2
+size_flags_horizontal = 3
+metadata/gdss_classes = PackedStringArray("texture")
+metadata/gdss_mode = 1
