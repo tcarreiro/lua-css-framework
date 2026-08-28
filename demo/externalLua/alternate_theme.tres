@@ -1,0 +1,17 @@
+[gd_resource type="Theme" format=3 uid="uid://dnw0853m3kqpi"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n84kr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p4aca"]
+bg_color = Color(0.1689744, 0.17407706, 0.5205635, 1)
+
+[resource]
+Button/styles/focus = SubResource("StyleBoxEmpty_n84kr")
+Button/styles/hover = SubResource("StyleBoxEmpty_n84kr")
+Button/styles/hover_pressed = SubResource("StyleBoxEmpty_n84kr")
+Button/styles/normal = SubResource("StyleBoxEmpty_n84kr")
+Button/styles/pressed = SubResource("StyleBoxEmpty_n84kr")
+CheckBox/styles/hover = SubResource("StyleBoxFlat_p4aca")
+CheckBox/styles/hover_pressed = SubResource("StyleBoxFlat_p4aca")
+CheckBox/styles/normal = SubResource("StyleBoxFlat_p4aca")
+CheckBox/styles/pressed = SubResource("StyleBoxFlat_p4aca")

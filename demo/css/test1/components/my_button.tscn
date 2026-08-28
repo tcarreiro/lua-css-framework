@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://ch0w75tk7dgor"]
+
+[sub_resource type="GDScript" id="GDScript_grifs"]
+script/source = "class_name MyButton extends HBoxContainer
+"
+
+[node name="MyButton" type="HBoxContainer" unique_id=1169015412]
+offset_right = 32.0
+offset_bottom = 23.0
+script = SubResource("GDScript_grifs")
+
+[node name="Label" type="Label" parent="." unique_id=2065655946]
+layout_mode = 2
+text = "ASD"

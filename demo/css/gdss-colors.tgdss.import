@@ -1,0 +1,14 @@
+[remap]
+
+importer="gdss.tgdss"
+type="Resource"
+uid="uid://dmshcafkcpkun"
+path="res://.godot/imported/gdss-colors.tgdss-331fda088009f87c7a3a6c1ae20a8997.res"
+
+[deps]
+
+source_file="res://demo/css/gdss-colors.tgdss"
+dest_files=["res://.godot/imported/gdss-colors.tgdss-331fda088009f87c7a3a6c1ae20a8997.res"]
+
+[params]
+
