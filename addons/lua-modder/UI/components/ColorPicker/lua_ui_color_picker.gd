@@ -24,7 +24,7 @@ func build(definition: Dictionary, context: LuaUiBuildContext) -> Control:
 			"okhsl": picker.color_mode = ColorPicker.MODE_OKHSL
 
 	if definition.has("on_value_changed"):
-		var callback := LuaHelpers.make_callable(definition["on_value_changed"])
+		var callback := LuaHelper.make_callable(definition["on_value_changed"])
 		if callback.is_valid():
 			picker.color_changed.connect(callback)
 

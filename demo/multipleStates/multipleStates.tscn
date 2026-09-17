@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://cphbgx4dblqxw"]
+
+[ext_resource type="Script" uid="uid://ctrq2kknxpeax" path="res://demo/multipleStates/multiple_states.gd" id="1_nnc71"]
+[ext_resource type="Script" uid="uid://ccnhqlyrbjprv" path="res://demo/assets/lua/formScript.lua" id="2_0x6gu"]
+
+[node name="MultipleStates" type="Node2D" unique_id=1471274010]
+script = ExtResource("1_nnc71")
+lua_file = ExtResource("2_0x6gu")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1857848571]
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer" unique_id=270307878]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MarginContainer" unique_id=559964377]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/MarginContainer/VBoxContainer" unique_id=930043111]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Button" type="Button" parent="CanvasLayer/MarginContainer/VBoxContainer" unique_id=940562322]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Modal"
+metadata/gdss_mode = 1
+metadata/gdss_classes = PackedStringArray("primary")

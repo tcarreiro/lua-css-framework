@@ -13,7 +13,7 @@ func build(definition: Dictionary, context: LuaUiBuildContext) -> Control:
 	var group := ButtonGroup.new()
 	var options: Array = definition.get("options", [])
 	var selected_value = definition.get("value", null)
-	var on_change := LuaHelpers.make_callable(definition.get("on_change", Callable()))
+	var on_change := LuaHelper.make_callable(definition.get("on_change", Callable()))
 	var option_style = definition.get("option_style", null)  # estilo compartilhado por todas as opções
 
 	for option in options:

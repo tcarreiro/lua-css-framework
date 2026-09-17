@@ -1,46 +1,51 @@
-extends Control
+extends Node2D
+
+const CLICK_1 = preload("uid://58qresn5blvp")
+const SWITCH_2 = preload("uid://c18lo7uas6cea")
 
 @export var lua_file: Resource
 
 @onready var label: Label = %Label
 @onready var button: Button = %Button
 
-var _lua: LuaState
+var ui_bridge: UiBridge
+
 var _lua_handler_id := -1
 var label_state = {}
 
-const CLICK_1 = preload("uid://58qresn5blvp")
-const SWITCH_2 = preload("uid://c18lo7uas6cea")
-
 func _ready() -> void:
-	#GDSSUiBridge._set_gdss_classes_on_node(button, ["accent"]) # -> change Control Style Class
-	#GdssNodeHandler.refresh(button)
+	_setup_ui_bridge()
 	
-	LuaUiBridge.register_animation("soft_pulse", _create_test_pulse())
-	LuaUiBridge.register_animation("press_bounce", _create_test_bounce())
+	_read_lua_file()
+	_connect_buttons()
 
-	LuaUiBridge.register_sound("ui_hover", CLICK_1)
-	LuaUiBridge.register_sound("ui_click", SWITCH_2)
+
+func _setup_ui_bridge() -> void:
+	ui_bridge = UiBridge.new()
+	ui_bridge.lua_event.connect(_on_lua_event)
 	
-	var lua := LuaUiBridge.get_or_create_state()
+	ui_bridge.register_animation("soft_pulse", _create_test_pulse())
+	ui_bridge.register_animation("press_bounce", _create_test_bounce())
 
+	ui_bridge.register_sound("ui_hover", CLICK_1)
+	ui_bridge.register_sound("ui_click", SWITCH_2)
+
+
+func _read_lua_file() -> void:
 	if not lua_file:
 		push_error("[Teste] Arquivo Lua nao encontrado")
 		return
 
-	var result = lua.do_file(lua_file.resource_path)
+	var state_name := ui_bridge.get_state_name()
+	var state: LuaState = LuaBridgeRegistry.get_lua_state(state_name)
+	var result = state.do_file(lua_file.resource_path)
 
 	if result is LuaError:
 		push_error("[Teste] Erro ao carregar mod Lua: %s" % result)
 		return
 
-	_lua = lua
-	
-	LuaUiEventBridge.register_into(_lua)
-	LuaUiEventBridge.lua_event.connect(_on_lua_event)
-	
-	LuaContentBridge.register_into(_lua)
-	
+
+func _connect_buttons() -> void:
 	button.pressed.connect(_on_open_pressed.bind(button))
 	label_state = {"name":label.text}
 
@@ -51,21 +56,24 @@ func _on_lua_event(event_name: String, data) -> void:
 			label_state = data
 			label.text = label_state.get("name", "")
 		"window_closed":
+			print(event_name)
 			_lua_handler_id = -1
 
 
 func _on_open_pressed(btn: Control) -> void:
 	if _lua_handler_id != -1:
-		LuaUiBridge.close(_lua_handler_id)
+		ui_bridge.close(_lua_handler_id)
 		_lua_handler_id = -1
 		return
 
-	var raw_def = LuaHelpers.call_by_name(_lua, "onOpenWindow", [label_state])
-	_lua_handler_id = LuaUiBridge.open_at(_lua, raw_def, btn)
-	#_lua_handler_id = LuaUiBridge.open_ui(_lua, raw_def)
+	var ui_state_name := ui_bridge.get_state_name()
+	var ui_state: LuaState = LuaBridgeRegistry.get_lua_state(ui_state_name)
+	var raw_def = LuaHelper.call_by_name(ui_state, "onOpenWindow", [label_state])
+	_lua_handler_id = ui_bridge.open_at(ui_state, raw_def, btn)
+	#_lua_handler_id = ui_bridge.open_ui(ui_state, raw_def)
 	
-	_lua.property_list_changed.connect(func(): print("property changed"))
-	_lua.script_changed.connect(func(): print("script changed"))
+	ui_state.property_list_changed.connect(func(): print("property changed"))
+	ui_state.script_changed.connect(func(): print("script changed"))
 	label.text = label_state.name if label_state.has("name") else "" 
 
 

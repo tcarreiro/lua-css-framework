@@ -16,9 +16,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-LuaUiBridge="*uid://pmf12v1pf4v8"
-LuaUiEventBridge="*uid://cv1cyef1ru6rb"
-LuaContentBridge="*uid://bjjt5pn0g8ry8"
+LuaBridgeRegistry="*uid://bh5jja0xeh85"
 GdssRuntime="*uid://yu6lhnx763yp"
 
 [display]
@@ -35,10 +33,10 @@ enabled=PackedStringArray("res://addons/gdss/plugin.cfg", "res://addons/lua-gdex
 [gdss]
 
 internal/initialized=true
-storage/save_path="res://demo/css/gdss-components.tgdss"
+storage/save_path="res://demo/assets/gdss/gdss-components.tgdss"
 editor/use_minimap=true
 editor/show_outline=true
-storage/save_paths=PackedStringArray("res://demo/css/gdss-components.tgdss")
+storage/save_paths=PackedStringArray("res://demo/assets/gdss/gdss-components.tgdss")
 storage/save_uid="uid://dnprrgv3jpwl6"
 
 [physics]
