@@ -39,6 +39,8 @@ func _ready() -> void:
 	LuaUiEventBridge.register_into(_lua)
 	LuaUiEventBridge.lua_event.connect(_on_lua_event)
 	
+	LuaContentBridge.register_into(_lua)
+	
 	button.pressed.connect(_on_open_pressed.bind(button))
 	label_state = {"name":label.text}
 

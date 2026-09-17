@@ -16,7 +16,7 @@ func build(definition: Dictionary, context: LuaUiBuildContext) -> Control:
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	if definition.has("on_value_changed"):
-		var callback := context.make_callable(definition["on_value_changed"])
+		var callback := LuaHelpers.make_callable(definition["on_value_changed"])
 
 		if callback.is_valid():
 			slider.value_changed.connect(callback)

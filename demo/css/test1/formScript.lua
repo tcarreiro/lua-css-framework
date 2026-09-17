@@ -118,6 +118,7 @@ function onOpenWindow(state)
 								on_value_changed = function(new_text)
 									state.textedit = new_text
 									Host.emit("state_changed", state)
+									print("textedit updated: "  .. new_text)
 								end
 							},
 							--{
@@ -126,16 +127,16 @@ function onOpenWindow(state)
 								--on_tab_changed = function(index)
 									--print("[tabbar] on_tab_changed: " .. tostring(index))
 								--end,
-								--tabs = {
-									--{
-										--title = "Aba 1",
-										--content = {
-											--type = "section",
-											--children = {
-												--{type = "label", text = "Conteúdo da Aba 1"}
-											--}
-										--}
-									--},
+								--tabs = { -- having trouble when more than one tab is available
+									----{
+										----title = "Aba 1",
+										----content = {
+											----type = "section",
+											----children = {
+												----{type = "label", text = "Conteúdo da Aba 1"}
+											----}
+										----}
+									----},
 									--{
 										--title = "Aba 2",
 										--content = {
@@ -157,18 +158,18 @@ function onOpenWindow(state)
 									Host.emit("state_changed", state)
 								end
 							},
-							{
-								type = "colorpicker",
-								value = state.color,
-								style = "primary",
-								hex_visible = false,
-								sliders_visible = false,
-								presets_visible = false,
-								on_value_changed = function(c)
-									state.color = color
-									Host.emit("state_changed", state)
-								end
-							},
+							--{
+								--type = "colorpicker",
+								--value = state.color,
+								--style = "primary",
+								--hex_visible = false,
+								--sliders_visible = false,
+								--presets_visible = false,
+								--on_value_changed = function(c)
+									--state.color = color
+									--Host.emit("state_changed", state)
+								--end
+							--},
 							{
 								type = "sprite",
 								texture = "res://demo/assets/images/icon.png",
