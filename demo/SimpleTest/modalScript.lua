@@ -158,7 +158,7 @@ function onOpenWindow(state)
 							},
 							{
 								type = "sprite", 
-								texture = "res://demo/externalLua/icon.png",
+								texture = "res://demo/assets/images/icon.png",
 								hframes = 2, 
 								vframes = 2, 
 								fps = 1, 
@@ -176,7 +176,7 @@ function onOpenWindow(state)
 				children = {
 					{
 						type = "button",
-						icon = "res://demo/externalLua/icon.png",
+						icon = "res://demo/assets/images/icon.png",
 						icon_position = "center",
 						vertical_icon_position = "top",
 						text_position = "center",

@@ -2,6 +2,7 @@ extends Node2D
 
 var _lua: LuaState
 var _lua_handler_id := -1
+
 const ALTERNATE_THEME = preload("uid://dnw0853m3kqpi")
 
 func _ready() -> void:
@@ -37,9 +38,9 @@ func _on_open_pressed(btn: Control) -> void:
 		"last_name": "",
 		"gender": "m",
 		"textures": {
-			"head": "res://demo/externalLua/char_head.png",
-			"torso": "res://demo/externalLua/char_torso.png",
-			"legs": "res://demo/externalLua/char_legs.png",
+			"head": "res://demo/assets/images/char_head.png",
+			"torso": "res://demo/assets/images/char_torso.png",
+			"legs": "res://demo/assets/images/char_legs.png",
 		}
 	}
 

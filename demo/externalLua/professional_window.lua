@@ -17,7 +17,7 @@ local function build_char_row(texture_path)
 		children = {
 			{
 				type = "button",
-				icon = "res://demo/externalLua/left_arrow.png",
+				icon = "res://demo/assets/images/left_arrow.png",
 				theme_overrides = { constants = { icon_max_width = 16 }, colors = { icon_hover_color = -2.5 } },
 			},
 			{
@@ -31,7 +31,7 @@ local function build_char_row(texture_path)
 			},
 			{
 				type = "button",
-				icon = "res://demo/externalLua/right_arrow.png",
+				icon = "res://demo/assets/images/right_arrow.png",
 				theme_overrides = { constants = { icon_max_width = 16 }, colors = { icon_hover_color = -2.5 } },
 			},
 		}
@@ -52,7 +52,7 @@ function onOpenWindow(state)
 
 	return {
 		theme = "alternate",
-		background_texture = "res://demo/externalLua/background.png",
+		background_texture = "res://demo/assets/images/background.png",
 		size = {600, 500},
 		modal = false,
 		position = { mode = "center" },
@@ -75,7 +75,7 @@ function onOpenWindow(state)
 					{
 						type = "button",
 						size_mode = "fit",
-						icon = "res://demo/externalLua/close.png",
+						icon = "res://demo/assets/images/close.png",
 						on_click = close_without_saving,
 						theme_overrides = { constants = { icon_max_width = 23 }, colors = { icon_hover_color = -2.5 } },
 					}
