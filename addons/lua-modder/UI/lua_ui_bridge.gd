@@ -8,7 +8,7 @@ extends Node
 #	o framework de UI.
 
 
-var _lua_state: LuaState
+var _test_state: LuaState
 var _ui_manager := LuaUiManager.new()
 
 
@@ -20,24 +20,34 @@ func _ready() -> void:
 # Estado Lua
 # ---------------------------------------------------------------------------
 
+## Registra a API UI.* dentro de um LuaState já existente e gerenciado por
+## outra parte do sistema (ex: um LuaState por mod, criado pelo ModManager).
+## Chamado uma vez por state.
+func register_into(state: LuaState) -> void:
+	_register_lua_api(state)
+
+
+## Atalho para uso standalone/teste: cria (ou reaproveita) um único LuaState
+## interno, próprio deste autoload. Não use isso quando já existir um
+## LuaState por mod — nesse caso, use register_into(state) diretamente.
 func get_or_create_state(shared_state: LuaState = null) -> LuaState:
-	if _lua_state != null:
-		return _lua_state
+	if _test_state != null:
+		return _test_state
 
 	if shared_state != null:
-		_lua_state = shared_state
+		_test_state = shared_state
 	else:
-		_lua_state = LuaState.new()
-		_lua_state.open_libraries()
+		_test_state = LuaState.new()
+		_test_state.open_libraries()
 
-	_register_lua_api(_lua_state)
+	_register_lua_api(_test_state)
 
-	return _lua_state
+	return _test_state
 
 
 func dispose_state() -> void:
 	_ui_manager.dispose()
-	_lua_state = null
+	_test_state = null
 
 
 # ---------------------------------------------------------------------------
@@ -76,6 +86,9 @@ func _register_lua_api(state: LuaState) -> void:
 	state.globals["UI"] = {
 		"open": func(raw_definition):
 			return open_ui(state, raw_definition),
+
+		"open_at": func(raw_def, anchor):
+			return open_at(state, raw_def, anchor),
 
 		"close": Callable(_ui_manager, "close"),
 

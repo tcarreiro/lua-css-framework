@@ -19,7 +19,7 @@ func build(definition: Dictionary, context: LuaUiBuildContext) -> Control:
 		tabs.set_tab_title(i, context.resolve_text(page_def.get("title", "")))
 
 	if definition.has("on_tab_changed"):
-		var callback := context.make_callable(definition["on_tab_changed"])
+		var callback := LuaHelpers.make_callable(definition["on_tab_changed"])
 
 		if callback.is_valid():
 			tabs.tab_changed.connect(callback)

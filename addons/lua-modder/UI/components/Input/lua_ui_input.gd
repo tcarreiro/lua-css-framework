@@ -22,13 +22,13 @@ func build(definition: Dictionary, context: LuaUiBuildContext) -> Control:
 		input.secret = true
 
 	if definition.has("on_value_changed"):
-		var callback := context.make_callable(definition["on_value_changed"])
+		var callback := LuaHelpers.make_callable(definition["on_value_changed"])
 
 		if callback.is_valid():
 			input.text_changed.connect(callback)
 
 	if definition.has("on_submit"):
-		var callback := context.make_callable(definition["on_submit"])
+		var callback := LuaHelpers.make_callable(definition["on_submit"])
 
 		if callback.is_valid():
 			input.text_submitted.connect(callback)

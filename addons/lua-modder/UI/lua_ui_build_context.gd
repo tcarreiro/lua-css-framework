@@ -21,10 +21,6 @@ func resolve_text(key) -> String:
 	return translation_resolver.call(str(key))
 
 
-func make_callable(value) -> Callable:
-	return LuaHelpers.make_callable(value)
-
-
 func get_theme(name: String) -> Theme:
 	return manager.get_theme(name)
 

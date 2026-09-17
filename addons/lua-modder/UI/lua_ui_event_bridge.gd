@@ -10,5 +10,5 @@ signal lua_event(event_name: String, data)
 func register_into(state: LuaState) -> void:
 	state.globals["Host"] = {
 		"emit": func(event_name, data):
-			lua_event.emit(str(event_name), LuaHelpers.normalize_lua(data))
+			lua_event.emit(str(event_name), LuaHelpers.normalize_lua(data)),
 	}

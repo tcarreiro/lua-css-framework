@@ -14,7 +14,7 @@ func build(definition: Dictionary, context: LuaUiBuildContext) -> Control:
 	edit.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY if definition.get("wrap", true) else TextEdit.LINE_WRAPPING_NONE
 
 	if definition.has("on_value_changed"):
-		var callback := context.make_callable(definition["on_value_changed"])
+		var callback := LuaHelpers.make_callable(definition["on_value_changed"])
 
 		if callback.is_valid():
 			edit.text_changed.connect(func(): callback.call(edit.text))

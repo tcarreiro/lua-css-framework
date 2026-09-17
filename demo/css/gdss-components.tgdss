@@ -463,7 +463,7 @@ TextureRect {
 	
 }
 # @chunk Tab
-TabContainer {
+TabContainer, TabBar {
 	font_size: $font_size
 
 	primary {
