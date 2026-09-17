@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://cd6yv5nq7lcqo"]
-
-[ext_resource type="Script" uid="uid://cpppe1vwv6m76" path="res://demo/externalLua/externalLua.gd" id="1_n84kr"]
-
-[node name="ExternalLua" type="Node2D" unique_id=1429269932]
-script = ExtResource("1_n84kr")

@@ -51,7 +51,7 @@ func build(definition: Dictionary, context: LuaUiBuildContext) -> Control:
 		button.expand_icon = true
 
 	if definition.has("on_click"):
-		var callback := LuaHelpers.make_callable(definition["on_click"])
+		var callback := LuaHelper.make_callable(definition["on_click"])
 		if callback.is_valid():
 			button.pressed.connect(callback)
 

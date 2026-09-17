@@ -11,7 +11,7 @@ func build(definition: Dictionary, context: LuaUiBuildContext) -> Control:
 	box.button_pressed = definition.get("checked", false)
 
 	if definition.has("on_toggled"):
-		var callback := LuaHelpers.make_callable(definition["on_toggled"])
+		var callback := LuaHelper.make_callable(definition["on_toggled"])
 
 		if callback.is_valid():
 			box.toggled.connect(callback)

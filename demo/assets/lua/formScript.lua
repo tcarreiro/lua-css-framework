@@ -12,8 +12,8 @@ function onOpenWindow(state)
 	state = injectionSafeGuard(state)
 
 	local function onCloseWindow()
-		Host.emit("window_closed", state)
-		UI.close_current()
+		Host.onEmit("window_closed", state)
+		UI.doCloseCurrent()
 	end
 
 	return {
@@ -62,7 +62,7 @@ function onOpenWindow(state)
 								value = state.name,
 								on_value_changed = function(new_text)
 									state.name = new_text
-									Host.emit("state_changed", state)
+									Host.onEmit("state_changed", state)
 								end,
 								on_submit = function(text)
 									onCloseWindow()
@@ -77,7 +77,7 @@ function onOpenWindow(state)
 								value = state.slider,
 								on_value_changed = function(value)
 									state.slider = value
-									Host.emit("state_changed", state)
+									Host.onEmit("state_changed", state)
 								end
 							},
 							{
@@ -87,7 +87,7 @@ function onOpenWindow(state)
 								checked = state.checkbox,
 								on_toggled = function(pressed)
 									state.checkbox = pressed
-									Host.emit("state_changed", state)
+									Host.onEmit("state_changed", state)
 								end
 							},
 							{
@@ -102,7 +102,7 @@ function onOpenWindow(state)
 								value = state.radiogroup,
 								on_change = function(value)
 									state.radiogroup = value
-									Host.emit("state_changed", state)
+									Host.onEmit("state_changed", state)
 								end
 							},
 							{
@@ -117,7 +117,7 @@ function onOpenWindow(state)
 								},
 								on_value_changed = function(new_text)
 									state.textedit = new_text
-									Host.emit("state_changed", state)
+									Host.onEmit("state_changed", state)
 									print("textedit updated: "  .. new_text)
 								end
 							},
@@ -155,7 +155,7 @@ function onOpenWindow(state)
 								value = state.color,
 								on_value_changed = function(color)
 									state.color = color
-									Host.emit("state_changed", state)
+									Host.onEmit("state_changed", state)
 								end
 							},
 							--{
@@ -167,7 +167,7 @@ function onOpenWindow(state)
 								--presets_visible = false,
 								--on_value_changed = function(c)
 									--state.color = color
-									--Host.emit("state_changed", state)
+									--Host.onEmit("state_changed", state)
 								--end
 							--},
 							{

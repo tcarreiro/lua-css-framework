@@ -1,0 +1,14 @@
+[remap]
+
+importer="gdss.tgdss"
+type="Resource"
+uid="uid://dnprrgv3jpwl6"
+path="res://.godot/imported/gdss-components.tgdss-312a52bf1796611ff9d7e65da2be0d3d.res"
+
+[deps]
+
+source_file="res://demo/assets/gdss/gdss-components.tgdss"
+dest_files=["res://.godot/imported/gdss-components.tgdss-312a52bf1796611ff9d7e65da2be0d3d.res"]
+
+[params]
+
