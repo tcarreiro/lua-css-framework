@@ -8,10 +8,11 @@ var _lua: LuaState
 var _lua_handler_id := -1
 var label_state = {}
 
-const CLICK_1 = preload("uid://cosn7l5loium3")
-const SWITCH_2 = preload("uid://cfw8cfvbbt4rc")
-const DEFAULT_THEME = preload("uid://cr631ev7ippgd")
+const CLICK_1 = preload("uid://58qresn5blvp")
+const SWITCH_2 = preload("uid://c18lo7uas6cea")
+
 const ALTERNATE_THEME = preload("uid://dnw0853m3kqpi")
+const DEFAULT_THEME = preload("uid://cr631ev7ippgd")
 
 func _ready() -> void:
 	LuaUiBridge.register_theme("default", DEFAULT_THEME)
