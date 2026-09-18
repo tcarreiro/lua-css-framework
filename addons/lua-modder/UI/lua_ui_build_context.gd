@@ -1,9 +1,9 @@
 class_name LuaUiBuildContext extends RefCounted
 
 var factory: LuaUiFactory
+var manager: LuaUiManager
 var component_index: Dictionary
 var translation_resolver: Callable
-var manager: LuaUiManager  # referência ao manager, para consultar registries
 
 
 func _init(factory_ref: LuaUiFactory, index: Dictionary, resolver: Callable, manager_ref: LuaUiManager) -> void:

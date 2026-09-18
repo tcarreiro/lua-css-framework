@@ -48,10 +48,7 @@ func set_translation_resolver(fn: Callable) -> void:
 # Build
 # ---------------------------------------------------------------------------
 
-func build_content(definition: Dictionary, index: Dictionary, context: LuaUiBuildContext = null) -> Control:
-	if context == null:
-		context = LuaUiBuildContext.new(self, index, _translation_resolver, _manager)
-	
+func build_content(definition: Dictionary, index: Dictionary, context: LuaUiBuildContext) -> Control:
 	var content := VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -131,33 +128,11 @@ func _build_section(definition: Dictionary, context: LuaUiBuildContext) -> Contr
 # ---------------------------------------------------------------------------
 # Padding
 # ---------------------------------------------------------------------------
-
-func parse_padding(value) -> Array:
-	if value == null:
-		return [0.0, 0.0, 0.0, 0.0]
-
-	if value is int or value is float:
-		var v := float(value)
-		return [v, v, v, v]
-
-	if value is Array:
-		if value.size() == 2:
-			var h := float(value[0])
-			var v := float(value[1])
-			return [h, v, h, v]
-
-		if value.size() == 4:
-			return [float(value[0]), float(value[1]), float(value[2]), float(value[3])]
-
-	push_warning("[LuaUiFactory] padding inválido: %s" % str(value))
-	return [0.0, 0.0, 0.0, 0.0]
-
-
 func wrap_with_padding(node: Control, padding_value) -> Control:
 	if padding_value == null:
 		return node
 
-	var p := parse_padding(padding_value)
+	var p := LuaHelper.parse_padding(padding_value)
 	var margin := MarginContainer.new()
 
 	margin.add_theme_constant_override("margin_left", int(p[0]))
@@ -267,7 +242,7 @@ func _apply_gdss_style(node: Control, definition: Dictionary) -> void:
 func _apply_theme_overrides(node: Control, overrides: Dictionary) -> void:
 	if overrides.has("colors"):
 		for key in overrides["colors"]:
-			node.add_theme_color_override(key, parse_color(overrides["colors"][key]))
+			node.add_theme_color_override(key, LuaHelper.parse_color(overrides["colors"][key]))
 
 	if overrides.has("constants"):
 		for key in overrides["constants"]:
@@ -306,26 +281,7 @@ func _set_generic_property(node: Object, key: String, raw_value) -> void:
 			% [key, node.get_class()])
 		return
 
-	node.set(key, _coerce_value(current, raw_value))
-
-
-func _coerce_value(current_value, new_value):
-	if (current_value is Vector2 and new_value is Array and new_value.size() >= 2):
-		return Vector2(float(new_value[0]), float(new_value[1]))
-
-	if current_value is Color:
-		return parse_color(new_value)
-
-	if current_value is bool:
-		return bool(new_value)
-
-	if current_value is int:
-		return int(new_value)
-
-	if current_value is float:
-		return float(new_value)
-
-	return new_value
+	node.set(key, LuaHelper.coerce_value(current, raw_value))
 
 
 func _apply_animation(node: Control, animation_def: Dictionary, context: LuaUiBuildContext) -> void:
@@ -430,23 +386,6 @@ static func _apply_size_mode(node: Control, definition: Dictionary) -> void:
 		"fit":
 			node.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 			node.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-
-
-static func parse_color(value) -> Color:
-	if value is Color:
-		return value
-
-	if value is String:
-		return Color(value)
-
-	if value is Array and value.size() >= 3:
-		var alpha := 1.0
-
-		if value.size() > 3:
-			alpha = float(value[3])
-		return Color(float(value[0]), float(value[1]), float(value[2]), alpha)
-
-	return Color.WHITE
 
 
 func _default_translation_resolver(key: String) -> String:

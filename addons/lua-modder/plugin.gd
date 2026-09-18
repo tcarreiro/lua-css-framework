@@ -24,8 +24,7 @@ func _check_dependencies() -> bool:
 			+ "Veja: https://github.com/gilzoide/lua-gdextension"
 		)
 		return false
-		
-	if not ClassDB.class_exists("GDSS"):
+	if not ProjectSettings.get_setting("autoload/GdssRuntime"):
 		push_error(
 			"[GDSS] Dependência ausente: o addon 'gdss' "
 			+ "precisa estar instalado e ativado antes deste addon. "
