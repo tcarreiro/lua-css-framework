@@ -3,6 +3,7 @@ extends Node
 
 var _states: Dictionary[StringName, LuaState] = {}
 
+
 func register_state(state_name: StringName, state: LuaState) -> void:
 	if _states.has(state_name):
 		push_warning("[LuaBridgeRegistry] '%s' already registered at '%s'"%[state_name, state])
@@ -16,6 +17,7 @@ func lua_register(state_name: StringName, namespace_name: StringName, callable_n
 		push_error("[LuaBridgeRegistry] state '%s' not registered." % state_name)
 		return
 	
+	# Checks if namespace already exists
 	var namespace_table = state.globals[namespace_name]
 	if namespace_table == null or not (namespace_table is LuaTable or namespace_table is Dictionary):
 		namespace_table = {}
@@ -26,7 +28,7 @@ func lua_register(state_name: StringName, namespace_name: StringName, callable_n
 		return
 	
 	namespace_table[callable_name] = callable
-	state.globals[namespace_name] = namespace_table  # reatribui, caso globals[] não escreva por referência
+	state.globals[namespace_name] = namespace_table
 
 
 func unregister_state(state_name: StringName) -> void:

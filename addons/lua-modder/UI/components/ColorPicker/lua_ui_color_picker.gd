@@ -7,7 +7,7 @@ func get_type_name() -> String:
 func build(definition: Dictionary, context: LuaUiBuildContext) -> Control:
 	var picker := ColorPicker.new()
 	picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	picker.color = LuaUiFactory.parse_color(definition.get("value", "#ffffff"))
+	picker.color = LuaHelper.parse_color(definition.get("value", "#ffffff"))
 
 	picker.edit_alpha = definition.get("edit_alpha", true)
 	picker.can_add_swatches = definition.get("can_add_swatches", true)

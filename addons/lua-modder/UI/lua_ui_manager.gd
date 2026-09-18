@@ -344,7 +344,7 @@ func set_value(handle_id: int, component_id: String, value) -> void:
 	elif component is CheckBox:
 		component.button_pressed = bool(value)
 	elif component is ColorPickerButton or component is ColorPicker:
-		component.color = LuaUiFactory.parse_color(value)
+		component.color = LuaHelper.parse_color(value)
 
 
 func get_value(handle_id: int, component_id: String):
