@@ -29,10 +29,40 @@
 	background_color: #000000;
 }
 
+.main-menu-label {
+	font_color: #FF0000;
+	font_size: 18;
+	outline_color: #000000;
+	outline_size: 10;
+}
+
+.main-menu-label:hover {
+	font_color: #FF0000;
+}
+
+
 .main-menu-button {
 	background_color: #FF0000;
 	border_radius: 0;
 	padding: 10;
+}
+
+.main-menu-input {
+	background_color: #202020;
+}
+
+.main-menu-input:focus {
+	background_color: #00FF00;
+	border_color: #FFFFFF;
+}
+
+.main-menu-input:hover {
+	background_color: #3030FF;
+}
+
+.main-menu-input:disabled {
+	background_color: #101010;
+	border_color: #555555;
 }
 
 .main-menu-button:hover {

@@ -140,7 +140,7 @@ func setup(
 
 
 func _ready() -> void:
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	#set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	_style_target = LCSSStyleTarget.new()
 	_setup_style_target()
@@ -173,23 +173,8 @@ func _setup_style_state_input() -> void:
 		return
 
 	target.gui_input.connect(_on_style_gui_input)
-
-
-func _input(event: InputEvent) -> void:
-	if not _is_ready:
-		return
-
-	if not event is InputEventMouseMotion:
-		return
-
-	var target := _get_style_state_target()
-
-	if target == null:
-		return
-
-	var hovered := target.get_global_rect().has_point(event.position)
-
-	set_style_state(&"hover", hovered)
+	target.mouse_entered.connect(_on_style_mouse_entered)
+	target.mouse_exited.connect(_on_style_mouse_exited)
 
 
 func _on_style_gui_input(event: InputEvent) -> void:
@@ -203,6 +188,13 @@ func _on_style_gui_input(event: InputEvent) -> void:
 
 	set_style_state(&"pressed", mouse_button.pressed)
 
+
+func _on_style_mouse_entered() -> void:
+	set_style_state(&"hover", true)
+
+
+func _on_style_mouse_exited() -> void:
+	set_style_state(&"hover", false)
 #endregion
 
 
@@ -229,30 +221,23 @@ func _apply_prop_internal(key: String, value: Variant) -> void:
 	match key:
 		"id":
 			component_id = value
-
 			if value != "":
 				name = value
-
 		"class":
 			_set_classes(value)
-
 		"visible":
 			visible = value
-
 		"tooltip":
 			tooltip_text = value
-		
 		"disabled":
 			_apply_disabled(value)
 			set_style_state(&"disabled", value)
-
 		_:
 			if _style_target.has_property(key):
 				if value == null:
 					_style_overrides.erase(StringName(key))
 				else:
 					_style_overrides[StringName(key)] = value
-
 				_apply_style()
 			else:
 				_apply_prop(key, value)
@@ -558,6 +543,41 @@ func _apply_style_property(
 
 			var offset: Array = value
 			style_box.shadow_offset = Vector2(offset[0], offset[1])
+		
+		&"font_color":
+			target.add_theme_color_override("font_color", LuaHelper.parse_color(value))
+
+		&"font_size":
+			target.add_theme_font_size_override("font_size", int(value))
+
+		&"outline_color":
+			target.add_theme_color_override("font_outline_color", LuaHelper.parse_color(value))
+
+		&"outline_size":
+			target.add_theme_constant_override("outline_size", int(value))
+		
+		&"shadow_color":
+			target.add_theme_color_override(
+				"font_shadow_color",
+				LuaHelper.parse_color(value)
+			)
+
+		&"shadow_size":
+			target.add_theme_constant_override(
+				"shadow_outline_size",
+				int(value)
+			)
+
+		&"shadow_offset":
+			var offset: Array = value
+			target.add_theme_constant_override("shadow_offset_x", int(offset[0]))
+			target.add_theme_constant_override("shadow_offset_y", int(offset[1]))
+
+		&"line_separation":
+			target.add_theme_constant_override(
+				"line_separation",
+				int(value)
+			)
 
 
 func _on_style_changed() -> void:

@@ -11,6 +11,7 @@ func get_schema() -> Dictionary:
 		"name": "Div",
 		"props": {
 			"direction": {"type": TYPE_STRING, "default": null},
+			"gap": {"type": TYPE_INT, "default": null},
 			"margin": {"type": TYPE_ARRAY, "default": null},
 			"padding": {"type": TYPE_ARRAY, "default": null},
 			"background_color": {"type": TYPE_COLOR, "default": null},
@@ -50,7 +51,8 @@ func _get_style_state_target() -> Control:
 
 
 func _setup_style_target() -> void:
-	_style_target.register_property(&"direction", self)
+	_style_target.register_property(&"direction", _items)
+	_style_target.register_property(&"gap", _items)
 	_style_target.register_property(&"margin", _margin)
 	_style_target.register_property(&"padding", _padding)
 	_style_target.register_property(&"background_color", _background)

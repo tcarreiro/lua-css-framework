@@ -15,8 +15,8 @@ config/features=PackedStringArray("4.8", "Forward Plus")
 
 [autoload]
 
-ComponentRegistry="*uid://6v3ee8hr14i8"
-LuaUi="*uid://beoefejl10uhc"
+ComponentRegistry="*res://addons/lua-modder/UI/Registries/ComponentRegistry.gd"
+LuaUi="*res://addons/lua-modder/UI/LuaUi.gd"
 LuaBridgeRegistry="*res://addons/lua-modder/LuaBridgeRegistry.gd"
 
 [display]
@@ -33,7 +33,7 @@ project/assembly_name="LuaFramework"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/gdss/plugin.cfg", "res://addons/lua-gdextension/plugin.cfg", "res://addons/lua-modder/plugin.cfg")
+enabled=PackedStringArray("res://addons/lua-gdextension/plugin.cfg", "res://addons/lua-modder/plugin.cfg")
 
 [gdss]
 
