@@ -1,6 +1,12 @@
 @tool
 extends EditorPlugin
 
+const AUTOLOAD_COMPONENT_REGISTRY_NAME := "LuaBridgeRegistry"
+const AUTOLOAD_COMPONENT_REGISTRY_PATH := "res://addons/lua-modder/lua_bridge_registry.gd"
+
+const AUTOLOAD_LUA_UI_NAME := "LuaBridgeRegistry"
+const AUTOLOAD_LUA_UI_PATH := "res://addons/lua-modder/lua_bridge_registry.gd"
+
 const AUTOLOAD_LUA_BRIDGE_NAME := "LuaBridgeRegistry"
 const AUTOLOAD_LUA_BRIDGE_PATH := "res://addons/lua-modder/lua_bridge_registry.gd"
 
@@ -8,11 +14,15 @@ func _enter_tree() -> void:
 	if not _check_dependencies():
 		return
 
+	add_autoload_singleton(AUTOLOAD_COMPONENT_REGISTRY_NAME, AUTOLOAD_COMPONENT_REGISTRY_PATH)
+	add_autoload_singleton(AUTOLOAD_LUA_UI_NAME, AUTOLOAD_LUA_UI_PATH)
 	add_autoload_singleton(AUTOLOAD_LUA_BRIDGE_NAME, AUTOLOAD_LUA_BRIDGE_PATH)
 
 
 func _exit_tree() -> void:
 	if ClassDB.class_exists("LuaState"):
+		remove_autoload_singleton(AUTOLOAD_COMPONENT_REGISTRY_NAME)
+		remove_autoload_singleton(AUTOLOAD_LUA_UI_NAME)
 		remove_autoload_singleton(AUTOLOAD_LUA_BRIDGE_NAME)
 
 
