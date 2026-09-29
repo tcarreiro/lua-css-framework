@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://dp3uww6ot681d"]
+
+[ext_resource type="Script" uid="uid://bbh820ejuxlr8" path="res://addons/lua-modder/UI/Components/Premade/Modal/Modal.gd" id="1_ddyrp"]
+
+[node name="Modal" type="BoxContainer" unique_id=1704135159]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ddyrp")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1631285213]
+
+[node name="Backdrop" type="Panel" parent="CanvasLayer" unique_id=394588714]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 19
+size_flags_vertical = 19
+metadata/gdss_mode = 1
+metadata/gdss_classes = PackedStringArray("modal")
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer" unique_id=1000578244]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ContentSlot" type="PanelContainer" parent="CanvasLayer/CenterContainer" unique_id=12112536]
+unique_name_in_owner = true
+layout_mode = 2
+metadata/gdss_mode = 1
+metadata/gdss_classes = PackedStringArray("")

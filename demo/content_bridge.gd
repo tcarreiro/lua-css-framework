@@ -6,7 +6,6 @@ const STATE_NAME = "content_state"
 const CONTENT_NAMESPACE := "Content"
 
 var _lua_state: LuaState
-var _ui_manager := LuaUiManager.new()
 var _timers: Dictionary = {}
 var _next_id: int = 0
 
@@ -24,6 +23,7 @@ func _register_state() -> void:
 	LuaBridgeRegistry.register_state(STATE_NAME, get_lua_state())
 	
 	LuaBridgeRegistry.lua_register(STATE_NAME, CONTENT_NAMESPACE, "getFactorLevel", lua_get_factor_level)
+	LuaBridgeRegistry.lua_register(STATE_NAME, CONTENT_NAMESPACE, "doPlaySound", lua_do_play_sound)
 	LuaBridgeRegistry.lua_register(STATE_NAME, CONTENT_NAMESPACE, "doChangeFactorLevel", lua_do_change_factor_level)
 	LuaBridgeRegistry.lua_register(STATE_NAME, CONTENT_NAMESPACE, "doTriggerEvent", lua_do_trigger_event)
 	register_action(STATE_NAME, CONTENT_NAMESPACE)
@@ -48,7 +48,13 @@ func get_state_name() -> StringName:
 #endregion
 
 #region Lua Scripts
+func lua_do_play_sound(sound_id: StringName):
+	print("play sound %s"%sound_id)
+	#AudioPlayer.play(str(sound_id))
+
+
 func lua_get_factor_level(factor_id):
+	print("get factor %s"%factor_id)
 	#var factor: Factor = GameManager.factor_manager.get_factor(StringName(factor_id))
 	return -1#factor.current_level if factor != null else 0
 

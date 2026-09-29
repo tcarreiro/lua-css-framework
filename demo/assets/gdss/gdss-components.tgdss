@@ -1,8 +1,8 @@
 # @chunk Properties
-@instance var padding_left: 10
-@instance var padding_right: 10
-@instance var padding_top: 10
-@instance var padding_bottom: 10
+@instance var padding_left: 0
+@instance var padding_right: 0
+@instance var padding_top: 0
+@instance var padding_bottom: 0
 @instance var border_color: "";
 @instance var border_left: 0
 @instance var border_right: 0
@@ -165,29 +165,17 @@
 @global var c_red_100: "#ffffff"
 # @chunk Button
 Button {
-	padding_left: $padding_left 
-	padding_right: $padding_right 
-	padding_top: $padding_top 
-	padding_bottom: $padding_bottom 
-	border_left: $border_left 
-	border_right: $border_right 
-	border_top: $border_top 
-	border_bottom: $border_bottom 
-	corner_radius_top_left: $corner_radius_top_left
-	corner_radius_top_right: $corner_radius_top_right
-	corner_radius_bottom_left: $corner_radius_bottom_left
-	corner_radius_bottom_right: $corner_radius_bottom_right
+	font_color: $c_gray_100
+	bg_color: $c_blue_45
 	
-	transition_time: 0.5
-	transition_func: BACK
-	transition_type: EASE_OUT
-	font_size: $font_size
-	icon_max_width: $icon_max_width 
-	
-	primary {
-		font_color: $c_gray_100
-		bg_color: $c_blue_45 
-		border_color: $c_blue_30 
+	padding: 10 10 5 5 
+	border: 0 0 0 0
+	corner_radius: 0 0 0 0
+		
+	main-menu-button {
+		transition_time: 0.5
+		transition_func: BACK
+		transition_type: EASE_OUT
 		
 		:hover {
 			bg_color: $c_blue_60 
@@ -197,266 +185,61 @@ Button {
 			bg_color: $c_blue_25 
 		}
 	}
-	
-	secondary {
-		font_color: $c_blue_45
-		bg_color: $c_blue_100 
-		border_color: $c_blue_30 
-		
-		:hover {
-			bg_color: $c_blue_95 
-		}
-		
-		:pressed, :hover_pressed  {
-			font_color: $c_blue_100
-			bg_color: $c_blue_45 
-		}
-	}
-	
-	accent {
-		font_color: $c_gray_100
-		bg_color: $c_green_50 
-		border_color: $c_green_35 
-		
-		:hover {
-			bg_color: $c_green_70 
-		}
-		
-		:pressed, :hover_pressed  {
-			bg_color: $c_green_30 
-		}
-	}
-	
-	negative {
-		font_color: $c_gray_100
-		bg_color: $c_red_50 
-		border_color: $c_red_35 
-		
-		:hover {
-			bg_color: $c_red_65 
-		}
-		
-		:pressed, :hover_pressed  {
-			bg_color: $c_red_35 
-		}
-	}
-	
 }
 
 # @chunk Panel
 Panel, PanelContainer {
-	padding_left: $padding_left 
-	padding_right: $padding_right 
-	padding_top: $padding_top 
-	padding_bottom: $padding_bottom 
-	border_left: $border_left 
-	border_right: $border_right 
-	border_top: $border_top 
-	border_bottom: $border_bottom 
-	corner_radius_top_left: $corner_radius_top_left
-	corner_radius_top_right: $corner_radius_top_right
-	corner_radius_bottom_left: $corner_radius_bottom_left
-	corner_radius_bottom_right: $corner_radius_bottom_right
+	bg_color: ALICE_BLUE
 	
-	color {
-		bg_color: $bg_color
+	main-menu {
 	}
 	
-	texture {
-		bg_color: texture($bg_color)
+	modal {
+		bg_color: "#000000AA"
 	}
+
 }
 # @chunk CheckBox
 CheckBox {
-	padding_left: $padding_left 
-	padding_right: $padding_right 
-	padding_top: $padding_top 
-	padding_bottom: $padding_bottom 
-	border_left: $border_left 
-	border_right: $border_right 
-	border_top: $border_top 
-	border_bottom: $border_bottom 
-	corner_radius_top_left: $corner_radius_top_left
-	corner_radius_top_right: $corner_radius_top_right
-	corner_radius_bottom_left: $corner_radius_bottom_left
-	corner_radius_bottom_right: $corner_radius_bottom_right
-	
-	font_size: $font_size
-	
-	primary {
-		font_color: $c_gray_00
-		bg_color: $c_gray_100 
-		border_color: $c_blue_30 
-		opacity: 1.0
-		
-		:hover {
-			bg_color: $c_gray_60 
-		}
-		
-		:pressed, :hover_pressed  {
-			bg_color: $c_gray_100 
-		}
-	}
-	
-	secondary {
-		font_color: $c_gray_00
-		bg_color: $c_yellow_100 
-		border_color: $c_blue_30 
-		opacity: 1.0
-		
-		:hover, :hover_pressed {
-			bg_color: $c_yellow_70 
-		}
-	}
 	
 }
 # @chunk ColorPicker
 ColorPicker, ColorPickerButton {
-	padding_left: $padding_left 
-	padding_right: $padding_right 
-	padding_top: $padding_top 
-	padding_bottom: $padding_bottom 
-	border_left: $border_left 
-	border_right: $border_right 
-	border_top: $border_top 
-	border_bottom: $border_bottom 
-	corner_radius_top_left: $corner_radius_top_left
-	corner_radius_top_right: $corner_radius_top_right
-	corner_radius_bottom_left: $corner_radius_bottom_left
-	corner_radius_bottom_right: $corner_radius_bottom_right
-	
-	font_size: $font_size
-	
-	primary {
-		font_color: $c_gray_00
-		#bg_color: $c_gray_100 
-		border_color: $c_blue_30 
-		opacity: 1.0
-		
-		:picker_focus_circle {
-			bg_color: $c_gray_60 
-		}
-		
-		:picker_focus_rectangle  {
-			bg_color: $c_gray_100 
-		}
-		
-		:sample_focus {
-			bg_color: $c_gray_100 
-		}
-	}
 	
 }
 # @chunk Input
 LineEdit, TextEdit {
-	padding_left: $padding_left 
-	padding_right: $padding_right 
-	padding_top: $padding_top 
-	padding_bottom: $padding_bottom 
-	border_left: $border_left 
-	border_right: $border_right 
-	border_top: $border_top 
-	border_bottom: $border_bottom 
-	border_color: $border_color 
-	corner_radius_top_left: $corner_radius_top_left
-	corner_radius_top_right: $corner_radius_top_right
-	corner_radius_bottom_left: $corner_radius_bottom_left
-	corner_radius_bottom_right: $corner_radius_bottom_right
-	
-	font_size: $font_size
+	font_color: BLACK
+	bg_color: "#00000066"
 	
 	primary {
-		font_color: $c_gray_00
-		bg_color: $c_gray_100 
-		border_color: $c_blue_30 
-		opacity: 1.0
+		transition_time: 0.5
+		transition_func: BACK
+		transition_type: EASE_OUT
 		
-		:hover {
-			bg_color: $c_gray_90 
-		}
-		
-		:pressed, :hover_pressed  {
-			bg_color: $c_gray_100 
-		}
-		
-		:read_only {
-			
+		font_color: $c_gray_10
+		bg_color: $c_gray_70 
+		font_size: 18
+		caret_color: BLACK
+		border: 0 0 0 1
+		border_color: BLACK
+		padding: 5 5 5 5
+		:focus {
+			bg_color: $c_blue_85 
 		}
 	}
 }
+
+Label {
+	font_color: $c_gray_10 
+}
 # @chunk Scroll
 HSlider, VSlider, VScrollBar, HScrollBar {
-	padding_left: $padding_left 
-	padding_right: $padding_right 
-	padding_top: $padding_top 
-	padding_bottom: $padding_bottom 
-	border_left: $border_left 
-	border_right: $border_right 
-	border_top: $border_top 
-	border_bottom: $border_bottom 
-	corner_radius_top_left: $corner_radius_top_left
-	corner_radius_top_right: $corner_radius_top_right
-	corner_radius_bottom_left: $corner_radius_bottom_left
-	corner_radius_bottom_right: $corner_radius_bottom_right
-	
-	primary {
-		#font_color: $c_gray_00
-		#border_color: $c_blue_30 
-		bg_color: $c_blue_70 
-		opacity: 0.8
-		
-		:grabber_area {
-			bg_color: $c_green_70 
-			opacity: 1.0
-		}
-		
-		:grabber_area_highlight {
-			bg_color: $c_green_70 
-			opacity: 1.0
-		}
-		
-		:slider {
-			bg_color: $c_blue_70 
-			opacity: 1.0
-		}
-		
-	}
 	
 }
 
 ScrollContainer {
-
-	padding_left: $padding_left 
-	padding_right: $padding_right 
-	padding_top: $padding_top 
-	padding_bottom: $padding_bottom 
-	border_left: $border_left 
-	border_right: $border_right 
-	border_top: $border_top 
-	border_bottom: $border_bottom 
-	corner_radius_top_left: $corner_radius_top_left
-	corner_radius_top_right: $corner_radius_top_right
-	corner_radius_bottom_left: $corner_radius_bottom_left
-	corner_radius_bottom_right: $corner_radius_bottom_right
-	
-	primary {
-		#font_color: $c_gray_00
-		#border_color: $c_blue_30 
-		bg_color: $c_blue_70 
-		opacity: 0.8
-		
-		:panel {
-			bg_color: $c_green_70 
-			opacity: 1.0
-		}
-		
-		:focus {
-			bg_color: $c_green_70 
-			opacity: 1.0
-		}
-		
-	}
-	
+	bg_color: $c_gray_15 
 }
 # @chunk Texture
 TextureRect {
@@ -464,52 +247,17 @@ TextureRect {
 }
 # @chunk Tab
 TabContainer, TabBar {
-	font_size: $font_size
+}
+# @chunk Div
+BoxContainer, HBoxContainer, VBoxContainer {
+}
 
-	primary {
-		:tabbar_background {
-			bg_color: $c_gray_10
-		}
-
-		:tab_unselected {
-			bg_color: $c_gray_20
-			font_color: $c_gray_60
-			padding_left: $padding_left
-			padding_right: $padding_right
-			padding_top: $padding_top
-			padding_bottom: $padding_bottom
-			corner_radius_top_left: $corner_radius_top_left
-			corner_radius_top_right: $corner_radius_top_right
-		}
-
-		:tab_selected {
-			bg_color: $c_blue_45
-			font_color: $c_gray_100
-			padding_left: $padding_left
-			padding_right: $padding_right
-			padding_top: $padding_top
-			padding_bottom: $padding_bottom
-			corner_radius_top_left: $corner_radius_top_left
-			corner_radius_top_right: $corner_radius_top_right
-		}
-
-		:tab_hovered {
-			bg_color: $c_blue_60
-			font_color: $c_gray_100
-		}
-
-		:tab_focus {
-			border_color: $c_blue_65
-			border_top: 2
-		}
-
-		:tab_disabled {
-			bg_color: $c_gray_15
-			font_color: $c_gray_35
-		}
-
-		:panel {
-			bg_color: $c_gray_05
-		}
+MarginContainer {
+	margin_bottom: 5
+	margin_left: 5
+	margin_right: 5
+	margin_top: 5
+	
+	main-menu {
 	}
 }

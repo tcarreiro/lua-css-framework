@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://nemki1qflfen"]
+
+[ext_resource type="Script" uid="uid://ddqpvh4023plj" path="res://addons/lua-ui/Components/Premade/Label/Label.gd" id="1_drae3"]
+
+[node name="Label" type="Label" unique_id=1174842801]
+script = ExtResource("1_drae3")

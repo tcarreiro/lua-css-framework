@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://bvavsan6uogkf"]
+
+[ext_resource type="Script" uid="uid://dirikipjnstgx" path="res://addons/lua-modder/UI/Components/Premade/Box/Box.gd" id="1_7wbbq"]
+
+[node name="Box" type="BoxContainer" unique_id=779956336]
+offset_right = 10.0
+offset_bottom = 10.0
+script = ExtResource("1_7wbbq")
+
+[node name="Background" type="PanelContainer" parent="." unique_id=646276270]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 19
+size_flags_vertical = 19
+metadata/gdss_mode = 1
+metadata/gdss_classes = PackedStringArray("main-menu")
+
+[node name="Padding" type="MarginContainer" parent="Background" unique_id=1291855843]
+unique_name_in_owner = true
+layout_mode = 2
+metadata/gdss_mode = 1
+metadata/gdss_classes = PackedStringArray("main-menu")
+
+[node name="Items" type="BoxContainer" parent="Background/Padding" unique_id=490839408]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 19
+size_flags_vertical = 19

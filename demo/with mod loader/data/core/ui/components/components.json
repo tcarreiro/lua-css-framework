@@ -1,0 +1,6 @@
+[
+	{
+		"id":"main_menu_button",
+		"script_path":"ui/components/scripts/main_menu_button.lua"
+	}
+]
