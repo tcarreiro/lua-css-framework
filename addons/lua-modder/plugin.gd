@@ -1,14 +1,14 @@
 @tool
 extends EditorPlugin
 
-const AUTOLOAD_COMPONENT_REGISTRY_NAME := "LuaBridgeRegistry"
-const AUTOLOAD_COMPONENT_REGISTRY_PATH := "res://addons/lua-modder/lua_bridge_registry.gd"
+const AUTOLOAD_COMPONENT_REGISTRY_NAME := "ComponentRegistry"
+const AUTOLOAD_COMPONENT_REGISTRY_PATH := "res://addons/lua-modder/UI/Registries/ComponentRegistry.gd"
 
-const AUTOLOAD_LUA_UI_NAME := "LuaBridgeRegistry"
-const AUTOLOAD_LUA_UI_PATH := "res://addons/lua-modder/lua_bridge_registry.gd"
+const AUTOLOAD_LUA_UI_NAME := "LuaUi"
+const AUTOLOAD_LUA_UI_PATH := "res://addons/lua-modder/UI/LuaUi.gd"
 
 const AUTOLOAD_LUA_BRIDGE_NAME := "LuaBridgeRegistry"
-const AUTOLOAD_LUA_BRIDGE_PATH := "res://addons/lua-modder/lua_bridge_registry.gd"
+const AUTOLOAD_LUA_BRIDGE_PATH := "res://addons/lua-modder/LuaBridgeRegistry.gd"
 
 func _enter_tree() -> void:
 	if not _check_dependencies():

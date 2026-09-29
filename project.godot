@@ -18,7 +18,6 @@ config/features=PackedStringArray("4.8", "Forward Plus")
 ComponentRegistry="*uid://6v3ee8hr14i8"
 LuaUi="*uid://beoefejl10uhc"
 LuaBridgeRegistry="*res://addons/lua-modder/LuaBridgeRegistry.gd"
-GdssRuntime="*uid://yu6lhnx763yp"
 
 [display]
 

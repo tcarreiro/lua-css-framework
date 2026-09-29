@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://dpmtoectxvdg7"]
+
+[ext_resource type="Script" uid="uid://dmudf8oexd5bj" path="res://addons/lua-modder/UI/Components/Premade/Div/Div.gd" id="1_y6ql7"]
+
+[node name="Div" type="BoxContainer" unique_id=270868245]
+offset_right = 173.0
+offset_bottom = 23.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("1_y6ql7")
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=104701820]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Background" type="PanelContainer" parent="Margin" unique_id=1773208487]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Padding" type="MarginContainer" parent="Margin/Background" unique_id=1124177761]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Items" type="BoxContainer" parent="Margin/Background/Padding" unique_id=490839408]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Margin/Background/Padding/Items" unique_id=1994141515]
+layout_mode = 2
+text = "asdasd"
+
+[node name="Label2" type="Label" parent="Margin/Background/Padding/Items" unique_id=1035958999]
+layout_mode = 2
+text = "asdasd"
+
+[node name="Label3" type="Label" parent="Margin/Background/Padding/Items" unique_id=1074179910]
+layout_mode = 2
+text = "asdasd"

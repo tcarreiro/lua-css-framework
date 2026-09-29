@@ -1,0 +1,49 @@
+.main-menu {
+	background_color: #202020;
+	border_color: #FF0000;
+	border_width: 3;
+	border_radius: 0;
+	padding: 10;
+	margin: 10;
+}
+
+.main-menu:hover {
+	background_color: #FFFFFF;
+	border_color: #FF0000;
+	border_width: 3;
+	border_radius: 0;
+	padding: 10;
+	margin: 10;
+}
+
+.main-menu:pressed {
+	background_color: #00FFFF;
+	border_color: #FF0000;
+	border_width: 3;
+	border_radius: 0;
+	padding: 10;
+	margin: 10;
+}
+
+.main-menu:disabled {
+	background_color: #000000;
+}
+
+.main-menu-button {
+	background_color: #FF0000;
+	border_radius: 0;
+	padding: 10;
+}
+
+.main-menu-button:hover {
+	background_color: #00FF00;
+}
+
+.main-menu-button:pressed {
+	background_color: #0000FF;
+}
+
+.main-menu-button:disabled {
+	background_color: #00FF00;
+	font_color: #000000;
+}

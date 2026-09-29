@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bxdne1ggon3vr"]
 
-[ext_resource type="Script" uid="uid://c0yers4rmx43t" path="res://addons/lua-ui/Components/Premade/Button/Button.gd" id="1_l665n"]
+[ext_resource type="Script" uid="uid://c0yers4rmx43t" path="res://addons/lua-modder/UI/Components/Premade/Button/Button.gd" id="1_l665n"]
 
 [node name="Container" type="BoxContainer" unique_id=1727313245]
 offset_right = 40.0

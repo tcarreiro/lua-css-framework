@@ -7,7 +7,7 @@ var _menu_instance: Control
 
 func _ready() -> void:
 	LuaUi.set_root(self)
-	LuaUi.load_file("res://demo/UI/MainMenu/main_menu.lua")
+	LuaUi.load_file("res://demo/UI/MainMenu/div.lua")
 	LuaUi.load_file("res://demo/UI/MainMenu/profile.lua")
 	_mount_menu()
 

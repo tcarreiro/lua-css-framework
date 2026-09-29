@@ -1,6 +1,6 @@
 extends LuaComponent
 
-@onready var _input: LineEdit = %Input
+@onready var input: LineEdit = %Input
 
 var _type: InputType
 var _decimals: int = 0
@@ -26,19 +26,19 @@ func get_schema() -> Dictionary:
 
 
 func _component_ready() -> void:
-	_input.text_changed.connect(_on_text_changed)
-	forward_signal(_input.editing_toggled, "editing_toggled")
-	forward_signal(_input.text_submitted, "submitted")
+	input.text_changed.connect(_on_text_changed)
+	forward_signal(input.editing_toggled, "editing_toggled")
+	forward_signal(input.text_submitted, "submitted")
 
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match key:
 		"type":
 			_type = InputType.get(value.to_upper(), InputType.TEXT)
-			_input.secret = (_type == InputType.SECRET)
+			input.secret = (_type == InputType.SECRET)
 			_refresh_display()
 		"placeholder":
-			_input.placeholder_text = str(value)
+			input.placeholder_text = str(value)
 		"decimals":
 			_decimals = value
 			_refresh_display()
@@ -49,7 +49,7 @@ func _apply_prop(key: String, value: Variant) -> void:
 		"value":
 			_set_display_value(value)
 		"disabled":
-			_input.editable = not value
+			input.editable = not value
 
 
 func _on_text_changed(new_text: String) -> void:
@@ -65,18 +65,18 @@ func _on_text_changed(new_text: String) -> void:
 	if normalized == null:
 		# caractere inválido: reverte pro último valor válido e avisa o Lua
 		_updating = true
-		_input.text = props.get("value", "")
-		_input.caret_column = _input.text.length()
+		input.text = props.get("value", "")
+		input.caret_column = input.text.length()
 		_updating = false
 		emit_event("changed_rejected", [new_text])
 		return
 
 	var formatted: String = _format_number(normalized)
 	if formatted != new_text:
-		var caret := _input.caret_column
+		var caret := input.caret_column
 		_updating = true
-		_input.text = formatted
-		_input.caret_column = clampi(caret + (formatted.length() - new_text.length()), 0, formatted.length())
+		input.text = formatted
+		input.caret_column = clampi(caret + (formatted.length() - new_text.length()), 0, formatted.length())
 		_updating = false
 
 	props["value"] = formatted
@@ -136,11 +136,11 @@ func _set_display_value(value: String) -> void:
 	_updating = true
 	if _type == InputType.NUMBER:
 		var clean: Variant = _sanitize_number(value.replace(_decimal_sep, "."))
-		_input.text = _format_number(clean) if clean != null else ""
+		input.text = _format_number(clean) if clean != null else ""
 	else:
-		_input.text = value
+		input.text = value
 	_updating = false
 
 
 func focus() -> void:
-	_input.grab_focus()
+	input.grab_focus()
