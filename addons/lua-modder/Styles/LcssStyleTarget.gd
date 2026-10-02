@@ -26,12 +26,12 @@ func get_target(property: StringName) -> Node:
 	return _property_targets.get(property)
 
 
-func apply_style(style: LCSSStyle, overrides: Dictionary[StringName, Variant], handler: Callable) -> void:
+func apply_style(style: LCSSStyle, overrides: Dictionary[StringName, Variant] = {}) -> void:
 	for property: StringName in _property_targets:
 		if overrides.has(property):
-			handler.call(property, overrides[property], _property_targets[property])
+			LCSSAppliers.apply(property, overrides[property], _property_targets[property])
 		elif style != null and style.has_effective_property(property):
-			handler.call(property, style.get_effective_property(property), _property_targets[property])
+			LCSSAppliers.apply(property, style.get_effective_property(property), _property_targets[property])
 
 
 func apply_property(property: StringName, value: Variant, handler: Callable) -> bool:

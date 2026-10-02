@@ -6,30 +6,33 @@ UI.defineComponent("ProfileForm", {
 
 		return Modal {
 			ref = "profile_modal",
+			backdrop_color = "#FFFFFF",
+			drop_shadow_color = "#00000044",
+			drop_shadow_size = 5,
 			slots = {
 				content = Div{
 					class = "main-menu",
-					direction = "column",
-					gap = 12,
+					display = "block",
+					padding = 10,
 					children = {
 						Div{
 							children = {
 								Input{
+									class = "main-menu-input",
+									height = 28,
 									type = "text",
-									value = p.name,
-									on_changed = function(v)
-										current_name = v
-									end,
+									value = current_name,
+									icon = "res://demo/assets/images/right_arrow.png",
+									icon_side = "right",
+									on_changed = function(v) current_name = v end,
 								},
 							},
 						},
-
 						Div{
-							direction = "row",
-							gap = 8,
+							display = "flex",
 							children = {
 								Div{
-									direction = "row",
+									display = "flex",
 									gap = 8,
 									children = {
 										Button{

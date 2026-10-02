@@ -1,17 +1,50 @@
 [gd_scene format=3 uid="uid://dhvhg6lx7tjdu"]
 
 [ext_resource type="Script" uid="uid://dkvihbhr6tpdy" path="res://demo/UI/MainMenu/MainMenu.gd" id="1_ckica"]
+[ext_resource type="Script" uid="uid://ct1cahifphq25" path="res://addons/lua-modder/Styles/Components/Premade/CircularContainer/CircularContainer.gd" id="2_atoab"]
+[ext_resource type="Texture2D" uid="uid://rflw27215068" path="res://demo/assets/images/icon.png" id="3_xhkgg"]
 
 [node name="MainMenu" type="Control" unique_id=1266756700]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_ckica")
 
-[node name="ScreenLayer" type="CanvasLayer" parent="." unique_id=1932308988]
+[node name="TextureRect" type="TextureRect" parent="." unique_id=435495579]
 unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 1126.0
+offset_top = 588.0
+offset_right = 1190.0
+offset_bottom = 652.0
+pivot_offset_ratio = Vector2(0.5, 0.5)
+texture = ExtResource("3_xhkgg")
 
-[node name="Body" type="VBoxContainer" parent="ScreenLayer" unique_id=893384190]
+[node name="CircularContainer" type="Container" parent="." unique_id=22023971]
 unique_name_in_owner = true
-anchors_preset = 10
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 926.0
+offset_top = 588.0
+offset_right = 990.0
+offset_bottom = 652.0
 grow_horizontal = 2
+grow_vertical = 2
+pivot_offset_ratio = Vector2(0.5, 0.5)
+script = ExtResource("2_atoab")
+radius = 200.0
+tween_duration = null
+tween_transition = null
+tween_ease = null
+metadata/_custom_type_script = "uid://ct1cahifphq25"
+
+[node name="Button" type="Button" parent="." unique_id=1254622597]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1474.0
+offset_top = 782.0
+offset_right = 1482.0
+offset_bottom = 790.0
+text = "Add Child"

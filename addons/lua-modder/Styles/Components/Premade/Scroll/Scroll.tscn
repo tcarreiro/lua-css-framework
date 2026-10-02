@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://b63qpvhhyte5"]
+
+[ext_resource type="Script" uid="uid://bspsj7f8qcc7d" path="res://addons/lua-modder/Styles/Components/LuaFlowBox.gd" id="1_81cju"]
+[ext_resource type="Script" uid="uid://c5d1ctqpc1tyo" path="res://addons/lua-modder/Styles/Components/Premade/Scroll/Scroll.gd" id="1_ct2wa"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mg1mg"]
+
+[node name="Scroll" type="ScrollContainer" unique_id=944039594]
+custom_minimum_size = Vector2(10.025, 0)
+offset_right = 171.0
+offset_bottom = 48.0
+theme_override_colors/scroll_hint_vertical_color = Color(0, 0, 0, 0.36078432)
+theme_override_colors/scroll_hint_horizontal_color = Color(0, 0, 0, 0.36078432)
+theme_override_styles/focus = SubResource("StyleBoxEmpty_mg1mg")
+scroll_hint_mode = 1
+script = ExtResource("1_ct2wa")
+
+[node name="Items" type="BoxContainer" parent="." unique_id=340262186]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_81cju")
+metadata/_custom_type_script = "uid://bspsj7f8qcc7d"

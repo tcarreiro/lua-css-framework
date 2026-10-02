@@ -7,6 +7,8 @@ const STATE_PRESSED := &"pressed"
 const STATE_FOCUS := &"focus"
 const STATE_DISABLED := &"disabled"
 
+const _STATE_PRIORITY: Array[StringName] = [STATE_DISABLED, STATE_PRESSED, STATE_HOVER, STATE_FOCUS]
+
 var _properties: Dictionary[StringName, Variant] = {}
 var _states: Dictionary[StringName, LCSSStyle] = {}
 var _active_states: Array[StringName] = []
@@ -139,13 +141,18 @@ func has_effective_property(property: StringName) -> bool:
 
 
 func get_effective_property(property: StringName, default: Variant = null) -> Variant:
+	for state in _STATE_PRIORITY:
+		if _active_states.has(state):
+			var state_style := _states.get(state)
+			if state_style != null and state_style.has_effective_property(property):
+				return state_style.get_effective_property(property)
+
+	# estados customizados (fora da lista fixa) continuam na ordem de ativação
 	for state in _active_states:
-		var state_style := _states.get(state)
-
-		if state_style == null:
+		if state in _STATE_PRIORITY:
 			continue
-
-		if state_style.has_effective_property(property):
+		var state_style := _states.get(state)
+		if state_style != null and state_style.has_effective_property(property):
 			return state_style.get_effective_property(property)
 
 	return _properties.get(property, default)
@@ -168,17 +175,6 @@ func copy() -> LCSSStyle:
 	result._active_states.assign(_active_states)
 
 	return result
-
-
-func apply(
-	target: LCSSStyleTarget,
-	overrides: Dictionary[StringName, Variant] = {},
-	handler: Callable = Callable()
-) -> void:
-	if target == null:
-		return
-
-	target.apply_style(self, overrides, handler)
 
 
 func _on_state_changed() -> void:

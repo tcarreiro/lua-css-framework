@@ -10,7 +10,7 @@ signal component_registered(component_name: String)
 enum Kind { SCENE, LUA }
 
 ## Pastas escaneadas no boot. Projetos/mods podem chamar scan_directory() depois.
-const SCAN_PATHS: Array[String] = ["res://addons/lua-modder/UI/Components/Premade"]
+const SCAN_PATHS: Array[String] = ["res://addons/lua-modder/Styles/Components/Premade/"]
 const MAX_DEPTH := 64
 
 ## Props que TODO componente aceita (aplicadas pela base LuaComponent).

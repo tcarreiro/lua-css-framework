@@ -18,6 +18,8 @@ UI.defineComponent("MainMenu", {
 		return Box{
 			direction = "column",
 			class = "main-menu",
+			padding = 5,
+			margin = 10,
 			gap = 12,
 			children = {
 				Label{ text = current_name },

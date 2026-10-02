@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://c36k3q5jgjgfo"]
+
+[ext_resource type="Script" uid="uid://d3d02iy87b8ji" path="res://addons/lua-modder/Styles/Components/Premade/Body/Body.gd" id="1_853n7"]
+
+[node name="Body" type="Control" unique_id=267961683]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 8.0
+offset_bottom = 8.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("1_853n7")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1944378267]
+
+[node name="Body" type="VBoxContainer" parent="CanvasLayer" unique_id=577218225]
+unique_name_in_owner = true
+offset_right = 40.0
+offset_bottom = 40.0
