@@ -19,6 +19,7 @@ const BASE_PROPS := {
 	"class": {"type": TYPE_STRING, "default": ""},
 	"visible": {"type": TYPE_BOOL, "default": true},
 	"tooltip": {"type": TYPE_STRING, "default": ""},
+	"disabled": {"type": TYPE_BOOL, "default": false},
 }
 
 const _TYPE_NAMES := {

@@ -79,7 +79,7 @@ static func parse_color(value) -> Color:
 	return Color.WHITE
 
 
-static func parse_padding(value) -> Array:
+static func parse_distributable(value) -> Array:
 	if value == null:
 		return [0.0, 0.0, 0.0, 0.0]
 
