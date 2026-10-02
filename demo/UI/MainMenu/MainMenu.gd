@@ -14,14 +14,14 @@ func _ready() -> void:
 	LuaUi.load_file("res://demo/UI/MainMenu/profile.lua")
 	button.pressed.connect(_add_child)
 	_mount_menu()
-	
 
 
 func _add_child() -> void:
 	var ch = texture_rect.duplicate()
 	ch.visible = true
 	circular_container.add_child(ch)
-	ch.gui_input.connect(_on_click.bind(ch), CONNECT_ONE_SHOT)
+	circular_container.update_angle()
+	ch.gui_input.connect(_on_click.bind(ch))
 
 
 func _mount_menu() -> void:
@@ -43,3 +43,4 @@ func _on_menu_state_changed(new_state: Variant) -> void:
 func _on_click(event: InputEvent, node: Control) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		circular_container.remove_child(node)
+		circular_container.update_angle()

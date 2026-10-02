@@ -33,6 +33,11 @@ class_name CircularContainer extends Container
 @export var tween_transition: Tween.TransitionType = Tween.TRANS_QUAD
 @export var tween_ease: Tween.EaseType = Tween.EASE_OUT
 
+
+func update_angle() -> void:
+	angle = minf(get_child_count() * 10, 360.0)
+
+
 func _notification(what: int) -> void:
 	if what ==  NOTIFICATION_SORT_CHILDREN:
 		update_layout()

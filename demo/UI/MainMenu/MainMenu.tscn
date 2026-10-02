@@ -34,10 +34,10 @@ grow_horizontal = 2
 grow_vertical = 2
 pivot_offset_ratio = Vector2(0.5, 0.5)
 script = ExtResource("2_atoab")
-radius = 200.0
-tween_duration = null
-tween_transition = null
-tween_ease = null
+starting_angle = 90.0
+angle = 160.0
+split = true
+align_with_center = true
 metadata/_custom_type_script = "uid://ct1cahifphq25"
 
 [node name="Button" type="Button" parent="." unique_id=1254622597]
