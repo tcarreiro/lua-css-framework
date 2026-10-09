@@ -317,11 +317,17 @@ static func resolve_props(schema: Dictionary, given: Dictionary) -> Dictionary:
 static func coerce(value: Variant, def: Dictionary) -> Variant:
 	if value == null:
 		return def.get("default")
+	var options: Array = def.get("options", [])
+	if not options.is_empty() and not options.any(func(o): return str(o) == str(value)):
+		push_warning("[ComponentRegistry] valor '%s' inválido, opções: %s" % [value, options])
+		return def.get("default")
 	var t: int = def.get("type", TYPE_NIL)
 	if t == TYPE_NIL or t == TYPE_OBJECT or typeof(value) == t:
 		return value
 	if t == TYPE_VECTOR2 and value is Array and value.size() == 2:
 		return Vector2(value[0], value[1])
+	if t == TYPE_COLOR:
+		return LuaHelper.parse_color(value)
 	return type_convert(value, t)
 
 #endregion

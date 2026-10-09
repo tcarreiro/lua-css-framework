@@ -19,35 +19,43 @@ var _icon_side: String = "left"
 
 
 func get_schema() -> Dictionary:
+	var names: Array = [
+		ComponentProps.PADDING, ComponentProps.GAP,
+		ComponentProps.WIDTH, ComponentProps.HEIGHT,
+		ComponentProps.MAX_WIDTH, ComponentProps.MAX_HEIGHT,
+		ComponentProps.DIRECTION, ComponentProps.SCROLLBAR_MODE,
+		ComponentProps.FOLLOW_FOCUS, ComponentProps.EDGE_THRESHOLD,
+		ComponentProps.SCROLLBAR_GAP, ComponentProps.SCROLL_HINT,
+		ComponentProps.SCROLL_HINT_TILE,
+	]
+	names.append_array(ComponentProps.PANEL)
+	names.append_array(ComponentProps.SCROLLBAR)
+	var props := {
+		"value": {"type": TYPE_STRING, "default": ""},
+		"type": {"type": TYPE_STRING, "default": "text"},
+		"decimals": {"type": TYPE_INT, "default": 0},
+		"width": {"type": TYPE_INT, "default": -1},
+		"height": {"type": TYPE_INT, "default": -1},
+		"thousand_separator": {"type": TYPE_STRING, "default": "."},
+		"decimal_separator": {"type": TYPE_STRING, "default": ","},
+		"disabled": {"type": TYPE_BOOL, "default": false},
+		"label": {"type": TYPE_STRING, "default": ""},
+		"icon": {"type": TYPE_STRING, "default": ""},
+		"icon_side": {"type": TYPE_STRING, "default": "left"},
+		"c_pointer": {"type": TYPE_STRING, "default": ""},
+	}
+	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "input_"))
+	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "label_"))
 	return LuaStyledBox.merge_schema({
 		"name": "Input",
-		"props": {
-			"value": {"type": TYPE_STRING, "default": ""},
-			"type": {"type": TYPE_STRING, "default": "text"},
-			"decimals": {"type": TYPE_INT, "default": 0},
-			"width": {"type": TYPE_INT, "default": -1},
-			"height": {"type": TYPE_INT, "default": -1},
-			"thousand_separator": {"type": TYPE_STRING, "default": "."},
-			"decimal_separator": {"type": TYPE_STRING, "default": ","},
-			"disabled": {"type": TYPE_BOOL, "default": false},
-			"label": {"type": TYPE_STRING, "default": ""},
-			"icon": {"type": TYPE_STRING, "default": ""},
-			"icon_side": {"type": TYPE_STRING, "default": "left"},
-			"c_pointer": {"type": TYPE_STRING, "default": ""},
-		},
+		"props": props,
 		"events": ["changed", "changed_rejected", "submitted", "focus_entered", "focus_exited"],
 	})
 
 
 func _setup_style_target() -> void:
-	_style_target.register_property(&"font_color", _line_edit)
-	_style_target.register_property(&"font_size", _line_edit)
-	_style_target.register_property(&"outline_color", _line_edit)
-	_style_target.register_property(&"outline_size", _line_edit)
-	_style_target.register_property(&"label_font_color", _label)
-	_style_target.register_property(&"label_font_size", _label)
-	_style_target.register_property(&"label_outline_color", _label)
-	_style_target.register_property(&"label_outline_size", _label)
+	_style_target.register_group(ComponentProps.FONT, _line_edit, "input_")
+	_style_target.register_group(ComponentProps.FONT, _label, "label_")
 
 
 func _set_cursor(cursor: Control.CursorShape):

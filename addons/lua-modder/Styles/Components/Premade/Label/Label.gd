@@ -14,7 +14,7 @@ func _setup_style_target() -> void:
 	_style_target.register_property(&"font_color", self)
 	_style_target.register_property(&"font_size", self)
 	_style_target.register_property(&"outline_color", self)
-	_style_target.register_property(&"outline_size", self)
+	_style_target.register_property(&"outline_thickness", self)
 
 
 func _apply_prop(key: String, value: Variant) -> void:

@@ -16,7 +16,15 @@ const BOX_PROPS: Array[StringName] = [
 static func _base_schema_props() -> Dictionary:
 	return {
 		"margin": {"type": TYPE_NIL, "default": null},
+		"margin_left": {"type": TYPE_NIL, "default": null},
+		"margin_top": {"type": TYPE_NIL, "default": null},
+		"margin_right": {"type": TYPE_NIL, "default": null},
+		"margin_bottom": {"type": TYPE_NIL, "default": null},
 		"padding": {"type": TYPE_NIL, "default": null},
+		"padding_left": {"type": TYPE_NIL, "default": null},
+		"padding_top": {"type": TYPE_NIL, "default": null},
+		"padding_right": {"type": TYPE_NIL, "default": null},
+		"padding_bottom": {"type": TYPE_NIL, "default": null},
 		"background_color": {"type": TYPE_COLOR, "default": null},
 		"border_color": {"type": TYPE_COLOR, "default": null},
 		"border_width": {"type": TYPE_NIL, "default": null},
@@ -24,6 +32,16 @@ static func _base_schema_props() -> Dictionary:
 		"drop_shadow_color": {"type": TYPE_COLOR, "default": null},
 		"drop_shadow_size": {"type": TYPE_INT, "default": null},
 		"drop_shadow_offset": {"type": TYPE_NIL, "default": null},
+		"direction": {"type": TYPE_STRING, "default": "vertical"},
+		"scrollbar_mode": {"type": TYPE_STRING, "default": "auto"},
+		"max_width": {"type": TYPE_INT, "default": -1},
+		"max_height": {"type": TYPE_INT, "default": -1},
+		"follow_focus": {"type": TYPE_BOOL, "default": true},
+		"scroll_hint": {"type": TYPE_STRING, "default": "none"},
+		"scroll_hint_tile": {"type": TYPE_BOOL, "default": false},
+		"scrollbar_gap": {"type": TYPE_NIL, "default": null},
+		"edge_threshold": {"type": TYPE_INT, "default": 0},
+		"scrollbar_width": {"type": TYPE_NIL, "default": null},
 	}
 
 
@@ -40,7 +58,15 @@ static func merge_schema(extra: Dictionary) -> Dictionary:
 
 func _ready() -> void:
 	_style_target.register_property(&"margin", _margin)
+	_style_target.register_property(&"margin_left", _margin)
+	_style_target.register_property(&"margin_top", _margin)
+	_style_target.register_property(&"margin_right", _margin)
+	_style_target.register_property(&"margin_bottom", _margin)
 	_style_target.register_property(&"padding", _padding)
+	_style_target.register_property(&"padding_left", _padding)
+	_style_target.register_property(&"padding_top", _padding)
+	_style_target.register_property(&"padding_right", _padding)
+	_style_target.register_property(&"padding_bottom", _padding)
 	for prop in BOX_PROPS:
 		_style_target.register_property(prop, _background)
 	_setup_style_target()

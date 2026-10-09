@@ -1,70 +1,132 @@
 extends LuaComponent
 
+@onready var _margin: MarginContainer = %Margin
 @onready var _items: LuaFlowBox = %Items
+@onready var _sc: Variant = self
 
+var _at_start := true
+var _at_end := false
 
 func get_schema() -> Dictionary:
+	# testados: GAP
+	var names: Array = [
+		ComponentProps.PADDING, ComponentProps.GAP,
+		ComponentProps.WIDTH, ComponentProps.HEIGHT,
+		ComponentProps.MAX_WIDTH, ComponentProps.MAX_HEIGHT,
+		ComponentProps.DIRECTION, ComponentProps.SCROLLBAR_MODE,
+		ComponentProps.FOLLOW_FOCUS, ComponentProps.EDGE_THRESHOLD,
+		ComponentProps.SCROLL_HINT, ComponentProps.SCROLL_HINT_TILE,
+	]
+	names.append_array(ComponentProps.PANEL)
+	names.append_array(ComponentProps.SCROLLBAR)   # inclui scrollbar_gap e o raio por canto
 	return {
 		"name": "Scroll",
-		"props": {
-			"direction": {"type": TYPE_STRING, "default": "both"},  # "vertical" | "horizontal" | "both"
-			"content_margin": {"type": TYPE_NIL, "default": null},       # distância conteúdo <-> scrollbar
-			"scrollbar_width": {"type": TYPE_INT, "default": 16},
-			"track_color": {"type": TYPE_COLOR, "default": Color(0, 0, 0, 0.1)},
-			"grabber_color": {"type": TYPE_COLOR, "default": Color(1, 1, 1, 0.3)},
-			"grabber_hover_color": {"type": TYPE_COLOR, "default": Color(1, 1, 1, 0.3)},
-			"grabber_pressed_color": {"type": TYPE_COLOR, "default": Color(1, 1, 1, 0.3)},
-			"gap": {"type": TYPE_INT, "default": 4},
-		},
+		"props": ComponentProps.pick(names, {ComponentProps.GAP: 4}),
+		"events": ["scrolled", "reached_start", "reached_end", "scroll_started", "scroll_ended"],
+		"methods": ["scroll_to_top", "scroll_to_bottom", "scroll_to_ref"],
 		"slots": {"default": "%Items"},
 	}
 
 
+func _ready() -> void:
+	_style_target.register_property(ComponentProps.PADDING, _margin)
+	for prop in ComponentProps.SCROLLBAR:
+		_style_target.register_property(prop, _sc)
+	for prop in ComponentProps.PANEL:
+		_style_target.register_property(prop, _sc)
+	super._ready()
+
+
+func _component_ready() -> void:
+	_sc.scroll_started.connect(func(): emit_event("scroll_started"))
+	_sc.scroll_ended.connect(func(): emit_event("scroll_ended"))
+
+	var v_bar: ScrollBar = _sc.get_v_scroll_bar()
+	var h_bar: ScrollBar = _sc.get_h_scroll_bar()
+	v_bar.value_changed.connect(func(_v): _on_scrolled())
+	h_bar.value_changed.connect(func(_v): _on_scrolled())
+	# max_value/page mudam quando o conteúdo cresce, sem o value mudar
+	v_bar.changed.connect(_check_edges)
+	h_bar.changed.connect(_check_edges)
+
+
 func _apply_prop(key: String, value: Variant) -> void:
-	print(key, value)
 	match key:
-		"direction":
-			self.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if value != "vertical" else ScrollContainer.SCROLL_MODE_DISABLED
-			self.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if value != "horizontal" else ScrollContainer.SCROLL_MODE_DISABLED
-		"content_margin":
-			var v := LuaHelper.parse_distributable(value)
-			add_theme_constant_override("margin_left", int(v[0]))
-			add_theme_constant_override("margin_top", int(v[1]))
-			add_theme_constant_override("margin_right", int(v[2]))
-			add_theme_constant_override("margin_bottom", int(v[3]))
-		"scrollbar_width", "track_color", "grabber_color", "grabber_hover_color", "grabber_pressed_color":
-			_refresh_scrollbar_style()
-		"gap":
-			_items.add_theme_constant_override("separation", value)
+		ComponentProps.DIRECTION, ComponentProps.SCROLLBAR_MODE:
+			_refresh_scroll_modes()
+		ComponentProps.WIDTH:
+			if value != null and int(value) >= 0:
+				custom_minimum_size.x = value
+		ComponentProps.HEIGHT:
+			if value != null and int(value) >= 0:
+				custom_minimum_size.y = value
+		ComponentProps.MAX_WIDTH:
+			if value != null:
+				custom_maximum_size.x = float(value)   # < 0 = sem limite (doc)
+		ComponentProps.MAX_HEIGHT:
+			if value != null:
+				custom_maximum_size.y = float(value)
+		ComponentProps.GAP:
+			_items.add_theme_constant_override("separation", int(value))
+		ComponentProps.FOLLOW_FOCUS:
+			_sc.follow_focus = value
+		ComponentProps.SCROLL_HINT:
+			_sc.scroll_hint_mode = ComponentProps.HINT_MODES.get(StringName(value), ScrollContainer.SCROLL_HINT_MODE_DISABLED)
+		ComponentProps.SCROLL_HINT_TILE:
+			_sc.tile_scroll_hint = value
 		_:
 			super._apply_prop(key, value)
 
 
-## Reconstrói o StyleBoxFlat das 3 partes da scrollbar (track/grabber/grabber
-## hover/pressed) e reaplica nas duas barras (H e V), como o Godot já
-## permite via override direto no próprio ScrollContainer.
-func _refresh_scrollbar_style() -> void:
-	var width: int = props.get("scrollbar_width", 12)
-	var track := StyleBoxFlat.new()
-	track.bg_color = props.get("track_color", Color(0, 0, 0, 0.1))
-	track.content_margin_left = width
-	track.content_margin_right = width
+func _refresh_scroll_modes() -> void:
+	var dir: String = props.get("direction", "vertical")
+	var mode: int = ComponentProps.SCROLL_MODES.get(StringName(props.get("scrollbar_mode", "auto")), ScrollContainer.SCROLL_MODE_AUTO)
+	_sc.horizontal_scroll_mode = mode if dir != "vertical" else ScrollContainer.SCROLL_MODE_DISABLED
+	_sc.vertical_scroll_mode = mode if dir != "horizontal" else ScrollContainer.SCROLL_MODE_DISABLED
+	_sc.scroll_horizontal_by_default = (dir == "horizontal")
 
-	var grabber := StyleBoxFlat.new()
-	grabber.bg_color = props.get("grabber_color", Color(1, 1, 1, 0.3))
-	grabber.corner_radius_top_left = width / 2
-	grabber.corner_radius_top_right = width / 2
-	grabber.corner_radius_bottom_left = width / 2
-	grabber.corner_radius_bottom_right = width / 2
 
-	var grabber_hover := grabber.duplicate()
-	grabber_hover.bg_color = props.get("grabber_hover_color", grabber.bg_color)
+#region Métodos expostos ao Lua (UI.callMethod)
+func scroll_to_top() -> void:
+	_sc.scroll_vertical = 0
 
-	var grabber_pressed := grabber.duplicate()
-	grabber_pressed.bg_color = props.get("grabber_pressed_color", grabber.bg_color)
 
-	for slot in ["scroll", "scroll_focus"]:
-		add_theme_stylebox_override(slot, track)
-	for slot in ["grabber", "grabber_highlight"]:
-		add_theme_stylebox_override(slot, grabber)
-	add_theme_stylebox_override("grabber_pressed", grabber_pressed)
+func scroll_to_bottom() -> void:
+	await get_tree().process_frame   # o layout precisa assentar (doc de scroll_vertical)
+	var bar: ScrollBar = _sc.get_v_scroll_bar()
+	_sc.scroll_vertical = int(bar.max_value - bar.page)
+
+
+func scroll_to_ref(ref: String) -> void:
+	var target := ComponentRegistry.get_ref(ref)
+	if target:
+		await get_tree().process_frame   # não funciona no mesmo frame em que o nó foi adicionado (doc)
+		_sc.ensure_control_visible(target)
+#endregion
+
+
+#region Eventos
+func _on_scrolled() -> void:
+	emit_event("scrolled", [_sc.scroll_horizontal, _sc.scroll_vertical])
+	_check_edges()
+
+
+func _check_edges() -> void:
+	var horizontal: bool = props.get("direction", "vertical") == "horizontal"
+	var bar: ScrollBar = _sc.get_h_scroll_bar() if horizontal else _sc.get_v_scroll_bar()
+	var max_scroll: float = bar.max_value - bar.page
+	if max_scroll <= 0.0:
+		_at_start = true
+		_at_end = false
+		return   # o conteúdo cabe, não há o que rolar
+
+	var threshold: float = props.get("edge_threshold", 0)
+	var at_start: bool = bar.value <= threshold
+	var at_end: bool = bar.value >= max_scroll - threshold
+	if at_start and not _at_start:
+		emit_event("reached_start")
+	if at_end and not _at_end:
+		emit_event("reached_end")
+	_at_start = at_start
+	_at_end = at_end
+#endregion

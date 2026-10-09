@@ -20,7 +20,7 @@ func _setup_style_target() -> void:
 	_style_target.register_property(&"font_color", self)
 	_style_target.register_property(&"font_size", self)
 	_style_target.register_property(&"outline_color", self)
-	_style_target.register_property(&"outline_size", self)
+	_style_target.register_property(&"outline_thickness", self)
 	_style_target.register_property(&"shadow_color", self)
 	_style_target.register_property(&"shadow_size", self)
 	_style_target.register_property(&"shadow_offset", self)
