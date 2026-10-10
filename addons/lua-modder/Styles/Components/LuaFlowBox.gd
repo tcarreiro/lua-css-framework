@@ -4,11 +4,26 @@ class_name LuaFlowBox extends BoxContainer
 
 func _ready() -> void:
 	child_entered_tree.connect(_on_child_entered)
+	refresh_flow()
+
+
+func refresh_flow() -> void:
+	for child in get_children():
+		if child is Control:
+			_apply_flow_sizing(child)
+			_watch(child)
 
 
 func _on_child_entered(child: Node) -> void:
 	if child is Control:
 		_apply_flow_sizing(child)
+		_watch(child)
+
+
+func _watch(child: Control) -> void:
+	var cb := _apply_flow_sizing.bind(child)
+	if not child.minimum_size_changed.is_connected(cb):
+		child.minimum_size_changed.connect(cb)
 
 
 func _apply_flow_sizing(child: Control) -> void:

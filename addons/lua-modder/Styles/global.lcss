@@ -1,5 +1,29 @@
+.main-menu {
+	background_color: #FF0000;
+}
+
+.main-menu:hover {
+	background_color: #00FF00;
+}
+
+.main-menu:pressed {
+	background_color: #0000FF;
+}
+
+.main-menu-button {
+	background_color: #00FFFF;
+}
+
+.main-menu-button:hover {
+	background_color: #FF00FF;
+}
+
+.main-menu-button:pressed {
+	background_color: #FFFF00;
+}
+
 .main-scroll {
-	//background_color: #FF000040;
+	background_color: #FF000040;
 	//scrollbar_width: 15;
 	//scrollbar_border_radius: 12312;
 	//scrollbar_track_color: #FFFF00;

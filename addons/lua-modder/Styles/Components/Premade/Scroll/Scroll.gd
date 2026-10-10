@@ -16,6 +16,7 @@ func get_schema() -> Dictionary:
 		ComponentProps.DIRECTION, ComponentProps.SCROLLBAR_MODE,
 		ComponentProps.FOLLOW_FOCUS, ComponentProps.EDGE_THRESHOLD,
 		ComponentProps.SCROLL_HINT, ComponentProps.SCROLL_HINT_TILE,
+		ComponentProps.DISPLAY
 	]
 	names.append_array(ComponentProps.PANEL)
 	names.append_array(ComponentProps.SCROLLBAR)   # inclui scrollbar_gap e o raio por canto
@@ -74,16 +75,30 @@ func _apply_prop(key: String, value: Variant) -> void:
 			_sc.scroll_hint_mode = ComponentProps.HINT_MODES.get(StringName(value), ScrollContainer.SCROLL_HINT_MODE_DISABLED)
 		ComponentProps.SCROLL_HINT_TILE:
 			_sc.tile_scroll_hint = value
+		ComponentProps.DISPLAY:
+			_items.vertical = (value != ComponentProps.FLEX)
+			_items.refresh_flow()
 		_:
 			super._apply_prop(key, value)
 
 
 func _refresh_scroll_modes() -> void:
-	var dir: String = props.get("direction", "vertical")
-	var mode: int = ComponentProps.SCROLL_MODES.get(StringName(props.get("scrollbar_mode", "auto")), ScrollContainer.SCROLL_MODE_AUTO)
-	_sc.horizontal_scroll_mode = mode if dir != "vertical" else ScrollContainer.SCROLL_MODE_DISABLED
-	_sc.vertical_scroll_mode = mode if dir != "horizontal" else ScrollContainer.SCROLL_MODE_DISABLED
-	_sc.scroll_horizontal_by_default = (dir == "horizontal")
+	var dir := StringName(props.get(ComponentProps.DIRECTION, ComponentProps.BOTH))
+	var base: int = ComponentProps.SCROLL_MODES.get(
+			StringName(props.get(ComponentProps.SCROLLBAR_MODE, ComponentProps.AUTO)), ScrollContainer.SCROLL_MODE_AUTO)
+	var h_max := int(props.get(ComponentProps.MAX_WIDTH, -1)) >= 0
+	var v_max := int(props.get(ComponentProps.MAX_HEIGHT, -1)) >= 0
+	_sc.horizontal_scroll_mode = _axis_mode(dir != ComponentProps.VERTICAL, h_max, base)
+	_sc.vertical_scroll_mode = _axis_mode(dir != ComponentProps.HORIZONTAL, v_max, base)
+	_sc.scroll_horizontal_by_default = (dir == ComponentProps.HORIZONTAL)
+
+
+func _axis_mode(enabled: bool, has_max: bool, base: int) -> int:
+	if not enabled:
+		return ScrollContainer.SCROLL_MODE_DISABLED
+	if base == ScrollContainer.SCROLL_MODE_AUTO and has_max:
+		return ScrollContainer.SCROLL_MODE_MAXIMIZE_FIRST
+	return base
 
 
 #region Métodos expostos ao Lua (UI.callMethod)
@@ -112,7 +127,7 @@ func _on_scrolled() -> void:
 
 
 func _check_edges() -> void:
-	var horizontal: bool = props.get("direction", "vertical") == "horizontal"
+	var horizontal: bool = props.get(ComponentProps.DIRECTION, ComponentProps.BOTH) == ComponentProps.HORIZONTAL
 	var bar: ScrollBar = _sc.get_h_scroll_bar() if horizontal else _sc.get_v_scroll_bar()
 	var max_scroll: float = bar.max_value - bar.page
 	if max_scroll <= 0.0:
@@ -120,7 +135,7 @@ func _check_edges() -> void:
 		_at_end = false
 		return   # o conteúdo cabe, não há o que rolar
 
-	var threshold: float = props.get("edge_threshold", 0)
+	var threshold: float = props.get(ComponentProps.EDGE_THRESHOLD, 0)
 	var at_start: bool = bar.value <= threshold
 	var at_end: bool = bar.value >= max_scroll - threshold
 	if at_start and not _at_start:

@@ -2,27 +2,23 @@ extends LuaStyledBox
 
 @onready var _items: LuaFlowBox = %Items
 
-
 func get_schema() -> Dictionary:
-	return LuaStyledBox.merge_schema({
+	var names: Array = [ComponentProps.DISPLAY, ComponentProps.GAP, ComponentProps.DISABLED]
+	names.append_array(LuaStyledBox.box_names())
+	return {
 		"name": "Div",
-		"props": {
-			"display": {"type": TYPE_STRING, "default": "block"},
-			"gap": {"type": TYPE_INT, "default": 4},
-		},
+		"props": ComponentProps.pick(names, {ComponentProps.GAP: 4}),
 		"slots": {"default": "%Items"},
-	})
+	}
 
 
 func _apply_prop(key: String, value: Variant) -> void:
-	match key:
-		"display":
+	match StringName(key):
+		ComponentProps.DISPLAY:
 			_items.vertical = (value != "flex")
-		"disabled":
+		ComponentProps.GAP:
+			_items.add_theme_constant_override("separation", maxi(int(value), 0))
+		ComponentProps.DISABLED:
 			_set_style_state(&"disabled", value)
-		"gap":
-			if not value is int or value < 0:
-				return
-			_items.add_theme_constant_override("separation", value)
 		_:
 			super._apply_prop(key, value)

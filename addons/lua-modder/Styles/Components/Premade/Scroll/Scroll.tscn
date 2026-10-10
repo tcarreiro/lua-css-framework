@@ -6,8 +6,8 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uix52"]
 
 [node name="Scroll" type="ScrollContainer" unique_id=944039594]
-offset_right = 171.0
-offset_bottom = 48.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_colors/scroll_hint_vertical_color = Color(0, 0, 0, 1)
 theme_override_colors/scroll_hint_horizontal_color = Color(0, 0, 0, 1)
 theme_override_styles/focus = SubResource("StyleBoxEmpty_uix52")

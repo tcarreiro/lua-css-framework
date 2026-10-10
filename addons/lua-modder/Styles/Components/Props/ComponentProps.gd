@@ -20,6 +20,8 @@ const PADDING_TOP := &"padding_top"
 const PADDING_RIGHT := &"padding_right"
 const PADDING_BOTTOM := &"padding_bottom"
 
+const DISPLAY := &"display"
+
 const BACKGROUND_COLOR := &"background_color"
 const BORDER_COLOR := &"border_color"
 const BORDER_WIDTH := &"border_width"
@@ -67,6 +69,22 @@ const FONT_SIZE := &"font_size"
 const OUTLINE_COLOR := &"outline_color"
 const OUTLINE_THICKNESS := &"outline_thickness"
 
+const DISABLED := &"disabled"
+const BLOCKING := &"blocking"
+const BACKDROP_COLOR := &"backdrop_color"
+const TEXT := &"text"
+const LABEL := &"label"
+const VALUE := &"value"
+const INPUT_TYPE := &"type"   # não usar TYPE: já é a chave "type" dos dicts de definição
+const DECIMALS := &"decimals"
+const THOUSAND_SEPARATOR := &"thousand_separator"
+const DECIMAL_SEPARATOR := &"decimal_separator"
+const ICON := &"icon"
+const ICON_SIDE := &"icon_side"
+const CURSOR := &"cursor"
+#endregion
+
+#region Values
 const VERTICAL := &"vertical"
 const HORIZONTAL := &"horizontal"
 const BOTH := &"both"
@@ -79,6 +97,23 @@ const NONE := &"none"
 const ALL := &"all"
 const START := &"start"
 const END := &"end"
+const BLOCK := &"block"
+const FLEX := &"flex"
+const NUMBER := &"number"
+const SECRET := &"secret"
+const LEFT := &"left"
+const RIGHT := &"right"
+
+const POINTER := &"pointer"
+const CROSSHAIR := &"crosshair"
+const WAIT := &"wait"
+const BUSY := &"busy"
+const MOVE := &"move"
+const NOT_ALLOWED := &"not_allowed"
+const HELP := &"help"
+const DRAG := &"drag"
+const CAN_DROP := &"can_drop"
+
 #endregion
 
 #region Groups
@@ -187,6 +222,10 @@ const DIRECTIONS := [
 	VERTICAL, HORIZONTAL, BOTH
 ]
 
+const DISPLAYS := [
+	BLOCK, FLEX,
+]
+
 const SCROLL_MODES := {
 	AUTO: ScrollContainer.SCROLL_MODE_AUTO,
 	ALWAYS: ScrollContainer.SCROLL_MODE_SHOW_ALWAYS,
@@ -200,6 +239,23 @@ const HINT_MODES := {
 	ALL: ScrollContainer.SCROLL_HINT_MODE_ALL,
 	START: ScrollContainer.SCROLL_HINT_MODE_TOP_AND_LEFT,
 	END: ScrollContainer.SCROLL_HINT_MODE_BOTTOM_AND_RIGHT,
+}
+
+const INPUT_TYPES := [TEXT, NUMBER, SECRET]
+const ICON_SIDES := [LEFT, RIGHT]
+
+const CURSORS := {
+	DEFAULT: Control.CURSOR_ARROW,
+	TEXT: Control.CURSOR_IBEAM,
+	POINTER: Control.CURSOR_POINTING_HAND,
+	CROSSHAIR: Control.CURSOR_CROSS,
+	WAIT: Control.CURSOR_WAIT,
+	BUSY: Control.CURSOR_BUSY,
+	MOVE: Control.CURSOR_MOVE,
+	NOT_ALLOWED: Control.CURSOR_FORBIDDEN,
+	HELP: Control.CURSOR_HELP,
+	DRAG: Control.CURSOR_DRAG,
+	CAN_DROP: Control.CURSOR_CAN_DROP,
 }
 #endregion
 
@@ -255,6 +311,21 @@ static func _catalog() -> Dictionary:
 	_add(c, PADDING_TOP, ANY, null, "Espaço interno superior.")
 	_add(c, PADDING_RIGHT, ANY, null, "Espaço interno direito.")
 	_add(c, PADDING_BOTTOM, ANY, null, "Espaço interno inferior.")
+
+	_add(c, DISPLAY, TYPE_STRING, "block", "Layout do container. {block} stacka verticalmente, {flex} stacka horizontalmente.", DISPLAYS)
+	_add(c, DISABLED, TYPE_BOOL, false, "Desabilita a interação e ativa o estado :disabled.")
+	_add(c, BLOCKING, TYPE_BOOL, true, "Se true, o backdrop bloqueia cliques no que está atrás.")
+	_add(c, BACKDROP_COLOR, TYPE_COLOR, null, "Cor do fundo atrás do modal.")
+	_add(c, TEXT, TYPE_STRING, "", "Texto exibido.")
+	_add(c, LABEL, TYPE_STRING, "", "Texto do botão ou rótulo do campo.")
+	_add(c, VALUE, TYPE_STRING, "", "Valor atual do campo.")
+	_add(c, INPUT_TYPE, TYPE_STRING, "text", "Tipo de entrada.", INPUT_TYPES)
+	_add(c, DECIMALS, TYPE_INT, 0, "Casas decimais (só type number).")
+	_add(c, THOUSAND_SEPARATOR, TYPE_STRING, ".", "Separador de milhar (só type number).")
+	_add(c, DECIMAL_SEPARATOR, TYPE_STRING, ",", "Separador decimal (só type number).")
+	_add(c, ICON, TYPE_STRING, "", "Caminho da textura do ícone.")
+	_add(c, ICON_SIDE, TYPE_STRING, "left", "Lado do ícone.", ICON_SIDES)
+	_add(c, CURSOR, TYPE_STRING, "default", "Cursor do mouse sobre o componente.", CURSORS.keys())
 
 	_add(c, BACKGROUND_COLOR, TYPE_COLOR, null, "Cor de fundo.")
 	_add(c, BORDER_COLOR, TYPE_COLOR, null, "Cor da borda.")

@@ -4,8 +4,7 @@ extends LuaStyledBox
 @onready var _label: Label = %Label
 @onready var _icon_left: TextureRect = %IconLeft
 @onready var _icon_right: TextureRect = %IconRight
-@onready var input_wrapper: BoxContainer = %InputWrapper
-@onready var background: PanelContainer = %Background
+@onready var _wrapper: BoxContainer = %InputWrapper
 
 enum InputType { TEXT, NUMBER, SECRET }
 
@@ -20,37 +19,21 @@ var _icon_side: String = "left"
 
 func get_schema() -> Dictionary:
 	var names: Array = [
-		ComponentProps.PADDING, ComponentProps.GAP,
+		ComponentProps.VALUE, ComponentProps.INPUT_TYPE, ComponentProps.DECIMALS,
+		ComponentProps.THOUSAND_SEPARATOR, ComponentProps.DECIMAL_SEPARATOR,
+		ComponentProps.DISABLED, ComponentProps.LABEL,
+		ComponentProps.ICON, ComponentProps.ICON_SIDE, ComponentProps.CURSOR,
 		ComponentProps.WIDTH, ComponentProps.HEIGHT,
-		ComponentProps.MAX_WIDTH, ComponentProps.MAX_HEIGHT,
-		ComponentProps.DIRECTION, ComponentProps.SCROLLBAR_MODE,
-		ComponentProps.FOLLOW_FOCUS, ComponentProps.EDGE_THRESHOLD,
-		ComponentProps.SCROLLBAR_GAP, ComponentProps.SCROLL_HINT,
-		ComponentProps.SCROLL_HINT_TILE,
 	]
-	names.append_array(ComponentProps.PANEL)
-	names.append_array(ComponentProps.SCROLLBAR)
-	var props := {
-		"value": {"type": TYPE_STRING, "default": ""},
-		"type": {"type": TYPE_STRING, "default": "text"},
-		"decimals": {"type": TYPE_INT, "default": 0},
-		"width": {"type": TYPE_INT, "default": -1},
-		"height": {"type": TYPE_INT, "default": -1},
-		"thousand_separator": {"type": TYPE_STRING, "default": "."},
-		"decimal_separator": {"type": TYPE_STRING, "default": ","},
-		"disabled": {"type": TYPE_BOOL, "default": false},
-		"label": {"type": TYPE_STRING, "default": ""},
-		"icon": {"type": TYPE_STRING, "default": ""},
-		"icon_side": {"type": TYPE_STRING, "default": "left"},
-		"c_pointer": {"type": TYPE_STRING, "default": ""},
-	}
-	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "input_"))
-	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "label_"))
-	return LuaStyledBox.merge_schema({
+	names.append_array(LuaStyledBox.box_names())
+	var props: Dictionary = ComponentProps.pick(names, {ComponentProps.CURSOR: ComponentProps.TEXT})
+	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "input_"))   # input_font_color, ...
+	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "label_"))   # label_font_color, ...
+	return {
 		"name": "Input",
 		"props": props,
 		"events": ["changed", "changed_rejected", "submitted", "focus_entered", "focus_exited"],
-	})
+	}
 
 
 func _setup_style_target() -> void:
@@ -58,24 +41,12 @@ func _setup_style_target() -> void:
 	_style_target.register_group(ComponentProps.FONT, _label, "label_")
 
 
-func _set_cursor(cursor: Control.CursorShape):
-	background.mouse_default_cursor_shape = cursor
-	_line_edit.mouse_default_cursor_shape = cursor
-
-
 func _component_ready() -> void:
 	LuaStyledBox.strip_native_stylebox(_line_edit, ["normal", "focus", "read_only"])
 	_line_edit.mouse_filter = Control.MOUSE_FILTER_PASS
-	_icon_left.mouse_filter = Control.MOUSE_FILTER_PASS
-	_icon_right.mouse_filter = Control.MOUSE_FILTER_PASS
-	_label.mouse_filter = Control.MOUSE_FILTER_PASS
-	
-	_line_edit.mouse_entered.connect(func():
-		_set_style_state(&"hover", true)
-	)
-	_line_edit.mouse_exited.connect(func():
-		_set_style_state(&"hover", false)
-	)
+	for node in [_icon_left, _icon_right, _label]:
+		node.mouse_filter = Control.MOUSE_FILTER_PASS
+
 	_line_edit.focus_entered.connect(func():
 		_set_style_state(&"focus", true)
 		emit_event("focus_entered"))
@@ -94,46 +65,47 @@ func _on_background_click_focus(event: InputEvent) -> void:
 
 
 func _apply_prop(key: String, value: Variant) -> void:
-	match key:
-		"value":
-			_set_display_value(value)
-		"width":
-			if value >= 0:
-				input_wrapper.custom_minimum_size.x = value
-		"height":
-			if value >= 0:
-				input_wrapper.custom_minimum_size.y = value
-		"type":
-			_type = InputType.get(value.to_upper(), InputType.TEXT)
+	match StringName(key):
+		ComponentProps.VALUE:
+			_set_display_value(str(value))
+		ComponentProps.WIDTH:
+			if int(value) >= 0:
+				_wrapper.custom_minimum_size.x = value
+		ComponentProps.HEIGHT:
+			if int(value) >= 0:
+				_wrapper.custom_minimum_size.y = value
+		ComponentProps.INPUT_TYPE:
+			_type = InputType.get(str(value).to_upper(), InputType.TEXT)
 			_line_edit.secret = (_type == InputType.SECRET)
 			_refresh_display()
-		"decimals":
-			_decimals = value
+		ComponentProps.DECIMALS:
+			_decimals = int(value)
 			_refresh_display()
-		"thousand_separator":
-			_thousand_sep = value
-		"decimal_separator":
-			_decimal_sep = value
-		"disabled":
+		ComponentProps.THOUSAND_SEPARATOR:
+			_thousand_sep = str(value)
+		ComponentProps.DECIMAL_SEPARATOR:
+			_decimal_sep = str(value)
+		ComponentProps.DISABLED:
 			_line_edit.editable = not value
 			_set_style_state(&"disabled", value)
-		"label":
-			_label.text = value
-			_label.visible = (value != "")
-		"icon":
-			_icon_path = value
+		ComponentProps.LABEL:
+			_label.text = str(value)
+			_label.visible = (str(value) != "")
+		ComponentProps.ICON:
+			_icon_path = str(value)
 			_refresh_icon()
-		"icon_side":
-			_icon_side = value
+		ComponentProps.ICON_SIDE:
+			_icon_side = str(value)
 			_refresh_icon()
-		"c_pointer":
-			# TODO create new match
-			if not value is Control.CursorShape:
-				_set_cursor(Control.CURSOR_IBEAM)
-				return
-			_set_cursor(value as Control.CursorShape)
+		ComponentProps.CURSOR:
+			_set_cursor(ComponentProps.CURSORS.get(StringName(value), Control.CURSOR_IBEAM))
 		_:
 			super._apply_prop(key, value)
+
+
+func _set_cursor(cursor: Control.CursorShape) -> void:
+	_background.mouse_default_cursor_shape = cursor
+	_line_edit.mouse_default_cursor_shape = cursor
 
 
 func _refresh_icon() -> void:
@@ -160,7 +132,7 @@ func _reflow_content_margins() -> void:
 	_label.position.x = left_reserved
 
 
-#region Validação de NUMBER (mesma lógica desenhada antes, só renomeando _input -> _line_edit)
+#region Validação de NUMBER
 func _on_text_changed(new_text: String) -> void:
 	if _updating:
 		return

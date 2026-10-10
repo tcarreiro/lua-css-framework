@@ -1,25 +1,11 @@
 [gd_scene format=3 uid="uid://dhvhg6lx7tjdu"]
 
 [ext_resource type="Script" uid="uid://dkvihbhr6tpdy" path="res://demo/UI/MainMenu/MainMenu.gd" id="1_ckica"]
-[ext_resource type="PackedScene" uid="uid://b7pploc6h4hsv" path="res://demo/UI/MainMenu/CardHand/HandContainer.tscn" id="2_th2hh"]
 
 [node name="MainMenu" type="Control" unique_id=1266756700]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_ckica")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1041951147]
-visible = false
-
-[node name="Hand" parent="CanvasLayer" unique_id=162554299 instance=ExtResource("2_th2hh")]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=558420518]
 unique_name_in_owner = true
-
-[node name="Button" type="Button" parent="CanvasLayer" unique_id=1254622597]
-unique_name_in_owner = true
-offset_left = 1782.0
-offset_top = 41.0
-offset_right = 1864.0
-offset_bottom = 72.0
-text = "Add Child"
-
-[editable path="CanvasLayer/Hand"]

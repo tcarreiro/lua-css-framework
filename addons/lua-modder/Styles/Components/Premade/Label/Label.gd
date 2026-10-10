@@ -1,23 +1,27 @@
 extends LuaComponent
 
+## A raiz é um Label, mas o script herda de LuaComponent (Control), então o
+## analisador não enxerga .text. Variant resolve em runtime.
+@onready var _label: Variant = self
+
 
 func get_schema() -> Dictionary:
+	var names: Array = [ComponentProps.TEXT]
+	names.append_array(ComponentProps.FONT)
 	return {
 		"name": "Label",
-		"props": {
-			"text": {"type": TYPE_STRING, "default": ""},
-		},
+		"props": ComponentProps.pick(names),
 	}
 
 
-func _setup_style_target() -> void:
-	_style_target.register_property(&"font_color", self)
-	_style_target.register_property(&"font_size", self)
-	_style_target.register_property(&"outline_color", self)
-	_style_target.register_property(&"outline_thickness", self)
+func _ready() -> void:
+	_style_target.register_group(ComponentProps.FONT, self)
+	super._ready()
 
 
 func _apply_prop(key: String, value: Variant) -> void:
-	match key:
-		"text":
-			self.text = value
+	match StringName(key):
+		ComponentProps.TEXT:
+			_label.text = str(value)
+		_:
+			super._apply_prop(key, value)

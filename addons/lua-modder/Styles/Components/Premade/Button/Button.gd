@@ -3,22 +3,44 @@ extends LuaStyledBox
 @onready var _btn: Button = %Button
 
 func get_schema() -> Dictionary:
-	return LuaStyledBox.merge_schema({
+	var names: Array = [ComponentProps.LABEL, ComponentProps.DISABLED]
+	names.append_array(ComponentProps.FONT)
+	names.append_array(LuaStyledBox.box_names())
+	return {
 		"name": "Button",
-		"props": {
-			"label": {"type": TYPE_STRING, "default": ""},
-			"disabled": {"type": TYPE_BOOL, "default": false},
-		},
+		"props": ComponentProps.pick(names),
 		"events": ["pressed", "mouse_entered", "mouse_exited", "focus_entered", "focus_exited"],
-	})
+	}
+
+
+func _setup_style_target() -> void:
+	_style_target.register_group(ComponentProps.FONT, _btn)
 
 
 func _component_ready() -> void:
 	LuaStyledBox.strip_native_stylebox(_btn, ["normal", "hover", "pressed", "disabled", "focus"])
-	_btn.mouse_filter = Control.MOUSE_FILTER_IGNORE 
-	forward_signal(_btn.focus_entered, "focus_entered")
-	forward_signal(_btn.focus_exited, "focus_exited")
+	_btn.mouse_filter = Control.MOUSE_FILTER_IGNORE   # o mouse é do %Background
 	_background.gui_input.connect(_on_click)
+
+	forward_signal(_background.mouse_entered, "mouse_entered")
+	forward_signal(_background.mouse_exited, "mouse_exited")
+	_btn.focus_entered.connect(func():
+		_set_style_state(&"focus", true)
+		emit_event("focus_entered"))
+	_btn.focus_exited.connect(func():
+		_set_style_state(&"focus", false)
+		emit_event("focus_exited"))
+
+
+func _apply_prop(key: String, value: Variant) -> void:
+	match StringName(key):
+		ComponentProps.LABEL:
+			_btn.text = str(value)
+		ComponentProps.DISABLED:
+			_btn.disabled = value
+			_set_style_state(&"disabled", value)
+		_:
+			super._apply_prop(key, value)
 
 
 func _on_click(event: InputEvent) -> void:
@@ -26,18 +48,3 @@ func _on_click(event: InputEvent) -> void:
 		if props.get("disabled", false):
 			return
 		emit_event("pressed")
-
-
-func _setup_style_target() -> void:
-	_style_target.register_property(&"font_color", _btn)
-
-
-func _apply_prop(key: String, value: Variant) -> void:
-	match key:
-		"label":
-			_btn.text = value
-		"disabled":
-			_btn.disabled = value
-			_set_style_state(&"disabled", value)
-		_:
-			super._apply_prop(key, value)

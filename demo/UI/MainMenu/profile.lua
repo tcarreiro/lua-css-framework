@@ -22,6 +22,8 @@ UI.defineComponent("ProfileForm", {
 									height = 28,
 									type = "text",
 									value = current_name,
+									label = "Meu label",
+									label_font_color = "RED",
 									icon = "res://demo/assets/images/right_arrow.png",
 									icon_side = "right",
 									on_changed = function(v) current_name = v end,
