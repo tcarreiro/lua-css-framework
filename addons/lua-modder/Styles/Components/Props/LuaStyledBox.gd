@@ -48,3 +48,15 @@ static func strip_native_stylebox(control: Control, slots: Array[String]) -> voi
 	var empty := StyleBoxEmpty.new()
 	for slot in slots:
 		control.add_theme_stylebox_override(slot, empty)
+
+
+func _drag_target() -> Control:
+	return self
+
+
+func _drag_default_handle() -> Control:
+	return _background
+
+
+func _drag_handle_node() -> Control:
+	return _background

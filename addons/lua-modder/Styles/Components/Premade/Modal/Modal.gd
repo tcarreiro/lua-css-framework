@@ -7,17 +7,28 @@ extends LuaComponent
 const DEFAULT_BACKDROP_COLOR := Color(0, 0, 0, 0.25)
 
 func get_schema() -> Dictionary:
+	var names: Array = [
+		ComponentProps.BLOCKING, ComponentProps.BACKDROP_COLOR, ComponentProps.MARGIN,
+		ComponentProps.DROP_SHADOW_COLOR, ComponentProps.DROP_SHADOW_SIZE,
+		ComponentProps.DROP_SHADOW_OFFSET,
+	]
+	names.append_array(LuaStyledBox.box_names())
+	names.append_array(ComponentProps.DRAG_GRP)
 	return {
 		"name": "Modal",
-		"props": ComponentProps.pick([
-			ComponentProps.BLOCKING, ComponentProps.BACKDROP_COLOR, ComponentProps.MARGIN,
-			ComponentProps.DROP_SHADOW_COLOR, ComponentProps.DROP_SHADOW_SIZE,
-			ComponentProps.DROP_SHADOW_OFFSET,
-		]),
-		"events": ["closed"],
-		"methods": ["close"],
+		"props": ComponentProps.pick(names),
+		"events": ["closed", "drag_started", "drag_ended"],
+		"methods": ["close","reset_drag_position"],
 		"slots": {"content": "%Background"},
 	}
+
+
+func _drag_target() -> Control:
+	return _background   # o card visível (e a sombra dele); o CenterContainer não o reposiciona de volta
+
+
+func _drag_default_handle() -> Control:
+	return _background
 
 
 func _ready() -> void:

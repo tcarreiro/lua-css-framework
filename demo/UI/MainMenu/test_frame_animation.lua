@@ -6,6 +6,7 @@ UI.defineComponent("TestScreen", {
 			gap = 0,
 			children = {
 				Div{ 
+					draggable = true,
 					background_image = "demo/assets/images/background.png", 
 					background_image_slice = {16, 16, 24, 24}, 
 					children = {

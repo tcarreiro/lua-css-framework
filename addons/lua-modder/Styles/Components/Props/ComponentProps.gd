@@ -13,12 +13,17 @@ const TEXTURE_FN = &"texture"
 const URL_FN = &"url"
 #endregion
 
-
 #region Names
 const ID := &"id"
 const CLASS := &"class"
 const VISIBLE := &"visible"
 const TOOLTIP := &"tooltip"
+
+const DRAGGABLE := &"draggable"
+const DRAG_MODE := &"drag_mode"
+const DRAG_HANDLE := &"drag_handle"
+const DRAG_BOUNDS := &"drag_bounds"
+const DRAG_CURSOR := &"drag_cursor"
 
 const MARGIN := &"margin"
 const MARGIN_LEFT := &"margin_left"
@@ -152,6 +157,10 @@ const PLAYING := &"playing"
 #endregion
 
 #region Values
+const HOLD := &"hold"
+const TOGGLE := &"toggle"
+const VIEWPORT := &"viewport"
+
 const VERTICAL := &"vertical"
 const HORIZONTAL := &"horizontal"
 const BOTH := &"both"
@@ -215,6 +224,8 @@ const BOX_SPACING: Array[StringName] = [
 	MARGIN, PADDING
 ]
 
+const DRAG_GRP: Array[StringName] = [DRAGGABLE, DRAG_MODE, DRAG_HANDLE, DRAG_BOUNDS, DRAG_CURSOR]
+
 const PANEL: Array[StringName] = [
 	BACKGROUND_COLOR, BORDER_COLOR, BORDER_WIDTH, BORDER_RADIUS,
 	DROP_SHADOW_COLOR, DROP_SHADOW_SIZE, DROP_SHADOW_OFFSET,
@@ -249,7 +260,6 @@ const RICH_ONLY: Array[StringName] = [
 ]
 
 #endregion
-
 
 #region Families
 const FAMILIES := {
@@ -336,6 +346,10 @@ static func resolve_family(family: StringName, layers: Array[Callable]) -> Array
 const DIRECTIONS := [
 	VERTICAL, HORIZONTAL, BOTH
 ]
+
+const DRAG_MODES := [HOLD, TOGGLE]
+
+const DRAG_BOUNDS_OPTIONS := [VIEWPORT, NONE]
 
 const DISPLAYS := [
 	BLOCK, FLEX,
@@ -471,6 +485,12 @@ static func _catalog() -> Dictionary:
 	_add(c, CLASS, TYPE_STRING, "", "Lista de classes de estilo")
 	_add(c, VISIBLE, TYPE_BOOL, true, "Visibilidade do componente")
 	_add(c, TOOLTIP, TYPE_STRING, "", "Tooltip do componente") # To be implemented 
+
+	_add(c, DRAGGABLE, TYPE_BOOL, false, "Permite arrastar o componente com o mouse.")
+	_add(c, DRAG_MODE, TYPE_STRING, "hold", "hold: arrasta com o botão pressionado. toggle: clica para pegar e clica de novo para soltar.", DRAG_MODES)
+	_add(c, DRAG_HANDLE, TYPE_BOOL, false, "Marca este componente como a região de arraste do ancestral com draggable. Sem nenhum handle, o ancestral inteiro é a região.")
+	_add(c, DRAG_BOUNDS, TYPE_STRING, "viewport", "viewport mantém o cursor dentro da tela durante o arraste; none não limita.", DRAG_BOUNDS_OPTIONS)
+	_add(c, DRAG_CURSOR, TYPE_STRING, "move", "Cursor sobre a região de arraste enquanto draggable estiver ligado.", CURSORS.keys())
 
 	_add(c, MARGIN, ANY, null, "Margem externa: número, {h, v} ou {esq, topo, dir, base}.")
 	_add(c, MARGIN_LEFT, ANY, null, "Margem esquerda.")

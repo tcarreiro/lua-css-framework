@@ -7,6 +7,7 @@ signal prop_changed(key: String, value: Variant)
 signal disposing
 
 const BASE_METHODS: Array[String] = ["add_class", "remove_class", "toggle_class", "set_state", "get_state", "set_prop"]
+const DRAG_EVENTS := ["drag_started", "drag_ended"]
 
 var component_name: String = ""
 var props: Dictionary = {}
@@ -24,6 +25,8 @@ var _schema: Dictionary = {}
 var _is_ready := false
 var _slot_cache: Dictionary = {}
 
+var _drag: LuaDragController
+var _drag_refresh_queued := false
 
 #region Override points
 func get_schema() -> Dictionary:
@@ -82,6 +85,9 @@ func set_prop(key: String, value: Variant) -> void:
 
 
 func _apply_prop_internal(key: String, value: Variant) -> void:
+	if ComponentProps.DRAG_GRP.has(StringName(key)):
+		_apply_drag_prop(StringName(key))
+		return
 	match key:
 		ComponentProps.ID:#"id":
 			component_id = value
@@ -116,6 +122,100 @@ func _refresh_descendant_styles(node: Node, animate: bool) -> void:
 		_refresh_descendant_styles(child, animate)
 #endregion
 
+
+#region Drag
+## Override: nó que se move no arraste. null = o componente não é arrastável.
+func _drag_target() -> Control:
+	return null
+
+
+## Override: região usada quando nenhum descendente declara drag_handle = true.
+func _drag_default_handle() -> Control:
+	return null
+
+
+## Override: o Control que vira região quando ESTE componente declara drag_handle = true.
+func _drag_handle_node() -> Control:
+	return null
+
+
+func _apply_drag_prop(key: StringName) -> void:
+	if key == ComponentProps.DRAG_HANDLE:
+		if _is_ready:
+			_notify_ancestor_drag()   # handle novo ou removido em runtime
+		return
+	# em lote: as 4 props de arraste chegam em sequência no _ready, e os descendentes já estão prontos
+	if not _drag_refresh_queued:
+		_drag_refresh_queued = true
+		_refresh_drag.call_deferred()
+
+
+func _refresh_drag() -> void:
+	_drag_refresh_queued = false
+	var enabled := bool(props.get("draggable", false))
+	if _drag == null:
+		if not enabled:
+			return
+		var target := _drag_target()
+		if target == null:
+			push_warning("[LuaComponent:%s] 'draggable' não é suportado: falta _drag_target()." % component_name)
+			return
+		_drag = LuaDragController.new()
+		add_child(_drag)
+		_drag.setup(self, target, _drag_default_handle())
+		_drag.drag_started.connect(func():
+			set_state(&"dragging", true)
+			emit_event("drag_started"))
+		_drag.drag_ended.connect(func(offset: Vector2):
+			set_state(&"dragging", false)
+			emit_event("drag_ended", [offset.x, offset.y]))
+	_drag.configure(
+		enabled,
+		StringName(str(props.get("drag_mode", "hold"))),
+		StringName(str(props.get("drag_bounds", "viewport"))),
+		ComponentProps.CURSORS.get(StringName(str(props.get("drag_cursor", "move"))), Control.CURSOR_MOVE))
+	_refresh_drag_handles()
+
+
+func _refresh_drag_handles() -> void:
+	if _drag != null:
+		_drag.set_handles(_collect_drag_handles())
+
+
+func _collect_drag_handles() -> Array[Control]:
+	var out: Array[Control] = []
+	_collect_handles_in(self, out)
+	return out
+
+
+func _collect_handles_in(node: Node, out: Array[Control]) -> void:
+	for child in node.get_children():
+		var component := child as LuaComponent
+		if component != null:
+			if bool(component.props.get("draggable", false)):
+				continue   # um arrastável aninhado é dono dos próprios handles
+			if bool(component.props.get("drag_handle", false)):
+				var handle := component._drag_handle_node()
+				if handle != null:
+					out.append(handle)
+		_collect_handles_in(child, out)
+
+
+func _notify_ancestor_drag() -> void:
+	var node := get_parent()
+	while node != null:
+		var component := node as LuaComponent
+		if component != null and component._drag != null:
+			component._refresh_drag_handles()
+			return
+		node = node.get_parent()
+
+
+## Exposto ao Lua: volta o componente para a posição original.
+func reset_drag_position() -> void:
+	if _drag != null:
+		_drag.reset()
+#endregion
 
 #region LCSS
 func has_class(style_class: StringName) -> bool:
