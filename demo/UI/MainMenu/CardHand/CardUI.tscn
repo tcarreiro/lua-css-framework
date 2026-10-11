@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://xlrp806kw3cy"]
+
+[ext_resource type="Texture2D" uid="uid://c7mljtgche0xb" path="res://demo/UI/MainMenu/CardHand/card.png" id="1_gvvpq"]
+[ext_resource type="Script" uid="uid://ci0beespu4q16" path="res://demo/UI/MainMenu/CardHand/CardUi.gd" id="1_ofiw1"]
+
+[node name="CardUi" type="BoxContainer" unique_id=1816911424]
+offset_right = 329.0
+offset_bottom = 451.0
+pivot_offset_ratio = Vector2(0.5, 0.5)
+script = ExtResource("1_ofiw1")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=55819282]
+layout_mode = 2
+texture = ExtResource("1_gvvpq")

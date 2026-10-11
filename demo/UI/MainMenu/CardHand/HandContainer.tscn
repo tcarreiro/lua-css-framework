@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://b7pploc6h4hsv"]
+
+[ext_resource type="Script" uid="uid://bo0qqj2aph5e6" path="res://demo/UI/MainMenu/CardHand/Hand.gd" id="1_e4b84"]
+[ext_resource type="PackedScene" uid="uid://xlrp806kw3cy" path="res://demo/UI/MainMenu/CardHand/CardUI.tscn" id="2_o13c0"]
+
+[node name="Hand" type="BoxContainer" unique_id=162554299]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 3
+size_flags_vertical = 8
+script = ExtResource("1_e4b84")
+card_ui_ref = ExtResource("2_o13c0")
+
+[node name="Background" type="PanelContainer" parent="." unique_id=1522559627]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 500)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AbsoluteContainer" type="Control" parent="Background" unique_id=1265941281]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HandContainer" type="Control" parent="Background" unique_id=434933616]
+unique_name_in_owner = true
+layout_mode = 2
