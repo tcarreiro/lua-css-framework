@@ -83,26 +83,53 @@ func _parse_properties(body: String) -> Dictionary[StringName, Variant]:
 func _parse_value(value: String) -> Variant:
 	if value.is_empty():
 		return null
-
 	if value.is_valid_int():
 		return value.to_int()
-
 	if value.is_valid_float():
 		return value.to_float()
-
+	if value.ends_with("ms") and value.trim_suffix("ms").is_valid_float():
+		return value.trim_suffix("ms").to_float() / 1000.0
+	if value.ends_with("s") and value.trim_suffix("s").is_valid_float():
+		return value.trim_suffix("s").to_float()
 	if value.begins_with("[") and value.ends_with("]"):
 		return _parse_array(value)
-
-	#TBD: usar formato de css padding: 5 1 2 4, sem "[]"
-	#var tokens := value.split(" ", false)
-	#if tokens.size() > 1:
-		#var numbers: Array = []
-		#for t in tokens:
-			#if not (t.is_valid_int() or t.is_valid_float()):
-				#return value   # texto livre, ex.: nome de fonte
-			#numbers.append(_parse_value(t))
-		#return numbers
+	if value.ends_with(")") and value.find("(") > 0:
+		return _parse_call(value)
+	var tokens := value.split(" ", false)   # "5 4" / "5 2 1 3"
+	if tokens.size() > 1:
+		var numbers: Array = []
+		for t in tokens:
+			if not (t.is_valid_int() or t.is_valid_float()):
+				return value
+			numbers.append(_parse_value(t))
+		return numbers
 	return value
+
+
+## Tabela de funções. Hoje só devolve valores simples; novas funções entram no match.
+func _parse_call(value: String) -> Variant:
+	var open := value.find("(")
+	var fn_name := value.substr(0, open).strip_edges()
+	var inner := value.substr(open + 1, value.length() - open - 2).strip_edges()
+	var args: Array = []
+	for raw in inner.split(","):
+		args.append(_strip_quotes(raw.strip_edges()))
+
+	match fn_name:
+		ComponentProps.TEXTURE_FN, ComponentProps.URL_FN:
+			if args.is_empty() or str(args[0]) == "":
+				push_warning("[LcssParser] %s() sem caminho" % fn_name)
+				return null
+			return args[0]
+		_:
+			push_warning("[LcssParser] função desconhecida: '%s'" % fn_name)
+			return value
+
+
+func _strip_quotes(s: String) -> String:
+	if s.length() >= 2 and (s[0] == '"' or s[0] == "'") and s[s.length() - 1] == s[0]:
+		return s.substr(1, s.length() - 2)
+	return s
 
 
 func _parse_array(value: String) -> Array:

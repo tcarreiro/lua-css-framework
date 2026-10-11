@@ -48,10 +48,10 @@ func _component_ready() -> void:
 		node.mouse_filter = Control.MOUSE_FILTER_PASS
 
 	_line_edit.focus_entered.connect(func():
-		_set_style_state(&"focus", true)
+		set_state(&"focus", true)
 		emit_event("focus_entered"))
 	_line_edit.focus_exited.connect(func():
-		_set_style_state(&"focus", false)
+		set_state(&"focus", false)
 		emit_event("focus_exited"))
 	_line_edit.text_submitted.connect(func(t): emit_event("submitted", [t]))
 	_line_edit.text_changed.connect(_on_text_changed)
@@ -87,7 +87,7 @@ func _apply_prop(key: String, value: Variant) -> void:
 			_decimal_sep = str(value)
 		ComponentProps.DISABLED:
 			_line_edit.editable = not value
-			_set_style_state(&"disabled", value)
+			set_state(&"disabled", value)
 		ComponentProps.LABEL:
 			_label.text = str(value)
 			_label.visible = (str(value) != "")

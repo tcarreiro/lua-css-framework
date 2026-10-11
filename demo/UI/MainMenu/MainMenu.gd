@@ -8,15 +8,16 @@ func _ready() -> void:
 	LuaUi.set_root(self)
 	LuaUi.load_lcss("res://addons/lua-modder/Styles/layout.lcss")
 	LuaUi.load_lcss("res://addons/lua-modder/Styles/global.lcss")
-	LuaUi.load_file("res://demo/UI/MainMenu/test_div.lua")
-	LuaUi.load_file("res://demo/UI/MainMenu/profile.lua")
+	LuaUi.load_file("res://demo/UI/MainMenu/test_frame_animation.lua")
+	#LuaUi.load_file("res://demo/UI/MainMenu/test_div.lua")
+	#LuaUi.load_file("res://demo/UI/MainMenu/profile.lua")
 	_mount_menu()
 
 func _mount_menu() -> void:
 	if _menu_instance:
 		_menu_instance.dispose()
 
-	player_state["on_change"] = Callable(self, "_on_menu_state_changed")
+	#player_state["on_change"] = Callable(self, "_on_menu_state_changed")
 
 	var el := ComponentRegistry.make_element("TestScreen", player_state)
 	_menu_instance = ComponentRegistry.instantiate(el)

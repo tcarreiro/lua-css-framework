@@ -25,10 +25,10 @@ func _component_ready() -> void:
 	forward_signal(_background.mouse_entered, "mouse_entered")
 	forward_signal(_background.mouse_exited, "mouse_exited")
 	_btn.focus_entered.connect(func():
-		_set_style_state(&"focus", true)
+		set_state(&"focus", true)
 		emit_event("focus_entered"))
 	_btn.focus_exited.connect(func():
-		_set_style_state(&"focus", false)
+		set_state(&"focus", false)
 		emit_event("focus_exited"))
 
 
@@ -38,7 +38,7 @@ func _apply_prop(key: String, value: Variant) -> void:
 			_btn.text = str(value)
 		ComponentProps.DISABLED:
 			_btn.disabled = value
-			_set_style_state(&"disabled", value)
+			set_state(&"disabled", value)
 		_:
 			super._apply_prop(key, value)
 

@@ -1,16 +1,24 @@
 class_name LCSSResolver extends RefCounted
 
 static func resolve(component: LuaComponent, registry: LcssRegistry) -> LCSSStyle:
-	var matched: Array[LCSSRule] = []
+	var matched: Array[Dictionary] = []   # {"rule": LCSSRule, "order": int}
+	var order := 0
 	for sheet in registry.get_stylesheets():
 		for rule in sheet.get_rules():
 			if rule.selector.matches(component, false):
-				matched.append(rule)
+				matched.append({"rule": rule, "order": order})
+			order += 1
 
-	matched.sort_custom(func(a, b): return a.selector.get_specificity() < b.selector.get_specificity())
+	matched.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var sa: int = (a["rule"] as LCSSRule).selector.get_specificity()
+		var sb: int = (b["rule"] as LCSSRule).selector.get_specificity()
+		if sa != sb:
+			return sa < sb
+		return int(a["order"]) < int(b["order"]))
 
 	var style := LCSSStyle.new()
-	for rule in matched:
+	for entry in matched:
+		var rule: LCSSRule = entry["rule"]
 		var state := _own_state(rule.selector)
 		var target: LCSSStyle = style if state == &"" else style.ensure_state(state)
 		for property: StringName in rule.properties:
@@ -19,7 +27,6 @@ static func resolve(component: LuaComponent, registry: LcssRegistry) -> LCSSStyl
 
 
 ## Estado declarado na ÚLTIMA parte do selector (":hover" em ".foo:hover").
-## Suporta um só estado por regra — casa com o que já está no seu .lcss.
 static func _own_state(selector: LcssSelector) -> StringName:
 	if selector.parts.is_empty():
 		return &""

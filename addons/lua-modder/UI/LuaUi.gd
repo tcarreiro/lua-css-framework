@@ -61,7 +61,7 @@ func _lua_mount(el: Variant) -> void:
 
 ## Button{...}, Stats{...}: cada componente registrado vira uma função global.
 func _expose_tag(component_name: String) -> void:
-	if not component_name.is_valid_identifier():
+	if not component_name.is_valid_ascii_identifier():
 		return
 	state.globals[component_name] = func(raw = null):
 		return ComponentRegistry.make_element(component_name, LuaHelper.as_dict(raw))

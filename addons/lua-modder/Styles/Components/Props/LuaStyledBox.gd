@@ -13,6 +13,7 @@ static func box_names() -> Array:
 	var names: Array = []
 	names.append_array(ComponentProps.BOX_SPACING)
 	names.append_array(ComponentProps.PANEL)
+	names.append_array(ComponentProps.TRANSITION)
 	return names
 
 
@@ -40,7 +41,7 @@ func _on_background_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed and is_style_state_active(&"disabled"):
 			return
-		_set_style_state(&"pressed", event.pressed)
+		set_state(&"pressed", event.pressed)
 
 
 static func strip_native_stylebox(control: Control, slots: Array[String]) -> void:

@@ -8,7 +8,18 @@ const DOC := &"doc"
 const DEFAULT := &"default"
 const OPTIONS := &"options"
 
+#region Functions
+const TEXTURE_FN = &"texture"
+const URL_FN = &"url"
+#endregion
+
+
 #region Names
+const ID := &"id"
+const CLASS := &"class"
+const VISIBLE := &"visible"
+const TOOLTIP := &"tooltip"
+
 const MARGIN := &"margin"
 const MARGIN_LEFT := &"margin_left"
 const MARGIN_TOP := &"margin_top"
@@ -64,6 +75,37 @@ const SCROLL_HINT := &"scroll_hint"
 const SCROLL_HINT_TILE := &"scroll_hint_tile"
 const SCROLL_HINT_COLOR := &"scroll_hint_color"
 
+const BBCODE_ENABLED := &"bbcode_enabled"
+const AUTOWRAP := &"autowrap"
+const FIT_CONTENT := &"fit_content"
+const SCROLL_ACTIVE := &"scroll_active"
+const SCROLL_FOLLOWING := &"scroll_following"
+const SELECTION_ENABLED := &"selection_enabled"
+const FONT_SHADOW_COLOR := &"font_shadow_color"
+const TEXT_ALIGN := &"text_align"
+const TEXT_VALIGN := &"text_valign"
+const UPPERCASE := &"uppercase"
+const TEXT_OVERFLOW := &"text_overflow"
+const CLIP_TEXT := &"clip_text"
+const MAX_LINES := &"max_lines"
+const LINES_SKIPPED := &"lines_skipped"
+const VISIBLE_CHARACTERS := &"visible_characters"
+const VISIBLE_RATIO := &"visible_ratio"
+const AUTO_FONT_SIZE := &"auto_font_size"
+const MIN_FONT_SIZE := &"min_font_size"
+const MAX_FONT_SIZE := &"max_font_size"
+const LINE_SPACING := &"line_spacing"
+const PARAGRAPH_SPACING := &"paragraph_spacing"
+const TEXT_SHADOW_COLOR := &"text_shadow_color"
+const TEXT_SHADOW_OFFSET := &"text_shadow_offset"
+const TEXT_SHADOW_OUTLINE := &"text_shadow_outline"
+const META_UNDERLINED := &"meta_underlined"
+const HINT_UNDERLINED := &"hint_underlined"
+const SELECTION_COLOR := &"selection_color"
+const SELECTED_FONT_COLOR := &"selected_font_color"
+const TAB_SIZE := &"tab_size"
+const SCROLL_FOLLOWING_VISIBLE := &"scroll_following_visible_characters"
+
 const FONT_COLOR := &"font_color"
 const FONT_SIZE := &"font_size"
 const OUTLINE_COLOR := &"outline_color"
@@ -82,6 +124,31 @@ const DECIMAL_SEPARATOR := &"decimal_separator"
 const ICON := &"icon"
 const ICON_SIDE := &"icon_side"
 const CURSOR := &"cursor"
+
+const BACKGROUND_IMAGE := &"background_image"
+const BACKGROUND_IMAGE_TINT := &"background_image_tint"
+const BACKGROUND_IMAGE_STRETCH := &"background_image_stretch"
+const BACKGROUND_IMAGE_SLICE := &"background_image_slice"
+const BACKGROUND_IMAGE_SLICE_LEFT := &"background_image_slice_left"
+const BACKGROUND_IMAGE_SLICE_TOP := &"background_image_slice_top"
+const BACKGROUND_IMAGE_SLICE_RIGHT := &"background_image_slice_right"
+const BACKGROUND_IMAGE_SLICE_BOTTOM := &"background_image_slice_bottom"
+
+const TRANSITION_DURATION := &"transition_duration"
+const TRANSITION_EASING := &"transition_easing"
+const TRANSITION_LOOP := &"transition_loop"
+const TRANSITION_REPETITIONS := &"transition_repetitions"
+const TRANSITION_PROPERTIES := &"transition_properties"
+
+const TEXTURE := &"texture"
+const HFRAMES := &"hframes"
+const VFRAMES := &"vframes"
+const FRAME_COUNT := &"frame_count"
+const FRAME := &"frame"
+const FPS := &"fps"
+const DURATION := &"duration"
+const LOOP := &"loop"
+const PLAYING := &"playing"
 #endregion
 
 #region Values
@@ -103,6 +170,15 @@ const NUMBER := &"number"
 const SECRET := &"secret"
 const LEFT := &"left"
 const RIGHT := &"right"
+const CENTER := &"center"
+const FILL := &"fill"
+const TOP := &"top"
+const MIDDLE := &"middle"
+const BOTTOM := &"bottom"
+const CLIP := &"clip"
+const ELLIPSIS := &"ellipsis"
+const WORD_ELLIPSIS := &"word_ellipsis"
+const TRIM := &"trim"
 
 const POINTER := &"pointer"
 const CROSSHAIR := &"crosshair"
@@ -114,6 +190,24 @@ const HELP := &"help"
 const DRAG := &"drag"
 const CAN_DROP := &"can_drop"
 
+const STRETCH := &"stretch"
+const TILE := &"tile"
+const TILE_FIT := &"tile_fit"
+const LINEAR := &"linear"
+const EASE_IN := &"ease_in"
+const EASE_OUT := &"ease_out"
+const EASE_IN_OUT := &"ease_in_out"
+const BACK := &"back"
+const ELASTIC := &"elastic"
+const BOUNCE := &"bounce"
+
+const ONE_SHOT := &"one_shot"
+const PING_PONG := &"ping_pong"
+
+const OFF := &"off"
+const WORD := &"word"
+const WORD_SMART := &"word_smart"
+const CHAR := &"char"
 #endregion
 
 #region Groups
@@ -124,6 +218,13 @@ const BOX_SPACING: Array[StringName] = [
 const PANEL: Array[StringName] = [
 	BACKGROUND_COLOR, BORDER_COLOR, BORDER_WIDTH, BORDER_RADIUS,
 	DROP_SHADOW_COLOR, DROP_SHADOW_SIZE, DROP_SHADOW_OFFSET,
+	BACKGROUND_IMAGE, BACKGROUND_IMAGE_TINT, BACKGROUND_IMAGE_STRETCH,
+	BACKGROUND_IMAGE_SLICE,
+]
+
+const TRANSITION: Array[StringName] = [
+	TRANSITION_DURATION, TRANSITION_EASING, TRANSITION_PROPERTIES,
+	TRANSITION_LOOP, TRANSITION_REPETITIONS,
 ]
 
 const SCROLLBAR: Array[StringName] = [
@@ -134,6 +235,17 @@ const SCROLLBAR: Array[StringName] = [
 
 const FONT: Array[StringName] = [
 	FONT_COLOR, FONT_SIZE, OUTLINE_COLOR, OUTLINE_THICKNESS,
+]
+
+const TEXT_SHADOW: Array[StringName] = [TEXT_SHADOW_COLOR, TEXT_SHADOW_OFFSET, TEXT_SHADOW_OUTLINE]
+const TEXT_LAYOUT: Array[StringName] = [
+	TEXT_ALIGN, TEXT_VALIGN, AUTOWRAP, LINE_SPACING, PARAGRAPH_SPACING,
+	AUTO_FONT_SIZE, MIN_FONT_SIZE, MAX_FONT_SIZE, VISIBLE_CHARACTERS, VISIBLE_RATIO,
+]
+const LABEL_ONLY: Array[StringName] = [UPPERCASE, TEXT_OVERFLOW, CLIP_TEXT, MAX_LINES, LINES_SKIPPED]
+const RICH_ONLY: Array[StringName] = [
+	BBCODE_ENABLED, FIT_CONTENT, SCROLL_ACTIVE, SCROLL_FOLLOWING, SCROLL_FOLLOWING_VISIBLE,
+	SELECTION_ENABLED, META_UNDERLINED, HINT_UNDERLINED, SELECTION_COLOR, SELECTED_FONT_COLOR, TAB_SIZE,
 ]
 
 #endregion
@@ -158,11 +270,14 @@ const FAMILIES := {
 		SCROLLBAR_BORDER_RADIUS_TOP_LEFT, SCROLLBAR_BORDER_RADIUS_TOP_RIGHT,
 		SCROLLBAR_BORDER_RADIUS_BOTTOM_RIGHT, SCROLLBAR_BORDER_RADIUS_BOTTOM_LEFT
 	],
+	BACKGROUND_IMAGE_SLICE: [
+		BACKGROUND_IMAGE_SLICE_LEFT, BACKGROUND_IMAGE_SLICE_TOP,
+		BACKGROUND_IMAGE_SLICE_RIGHT, BACKGROUND_IMAGE_SLICE_BOTTOM
+	],
 }
 
 
 static var _family_index: Dictionary = {}
-
 
 static func members_of(family: StringName) -> Array:
 	return FAMILIES.get(family, [])
@@ -257,9 +372,59 @@ const CURSORS := {
 	DRAG: Control.CURSOR_DRAG,
 	CAN_DROP: Control.CURSOR_CAN_DROP,
 }
+
+const STRETCH_MODES := {
+	STRETCH: StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH,
+	TILE: StyleBoxTexture.AXIS_STRETCH_MODE_TILE,
+	TILE_FIT: StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT,
+}
+
+const EASINGS := {
+	LINEAR: [Tween.TRANS_LINEAR, Tween.EASE_IN_OUT],
+	EASE_IN: [Tween.TRANS_QUAD, Tween.EASE_IN],
+	EASE_OUT: [Tween.TRANS_QUAD, Tween.EASE_OUT],
+	EASE_IN_OUT: [Tween.TRANS_QUAD, Tween.EASE_IN_OUT],
+	BACK: [Tween.TRANS_BACK, Tween.EASE_OUT],
+	ELASTIC: [Tween.TRANS_ELASTIC, Tween.EASE_OUT],
+	BOUNCE: [Tween.TRANS_BOUNCE, Tween.EASE_OUT],
+}
+
+const LOOP_OPTIONS := [
+	LOOP, PING_PONG, ONE_SHOT,
+]
+
+const AUTOWRAP_MODES := {
+	OFF: TextServer.AUTOWRAP_OFF,
+	WORD: TextServer.AUTOWRAP_WORD,
+	WORD_SMART: TextServer.AUTOWRAP_WORD_SMART,
+	CHAR: TextServer.AUTOWRAP_ARBITRARY,
+}
+
+
+const H_ALIGNS := {
+	LEFT: HORIZONTAL_ALIGNMENT_LEFT, CENTER: HORIZONTAL_ALIGNMENT_CENTER,
+	RIGHT: HORIZONTAL_ALIGNMENT_RIGHT, FILL: HORIZONTAL_ALIGNMENT_FILL,
+}
+
+
+const V_ALIGNS := {
+	TOP: VERTICAL_ALIGNMENT_TOP, MIDDLE: VERTICAL_ALIGNMENT_CENTER,
+	BOTTOM: VERTICAL_ALIGNMENT_BOTTOM, FILL: VERTICAL_ALIGNMENT_FILL,
+}
+
+
+const TEXT_OVERFLOWS := {
+	NONE: TextServer.OVERRUN_NO_TRIMMING, CLIP: TextServer.OVERRUN_TRIM_CHAR,
+	WORD: TextServer.OVERRUN_TRIM_WORD, ELLIPSIS: TextServer.OVERRUN_TRIM_ELLIPSIS,
+	WORD_ELLIPSIS: TextServer.OVERRUN_TRIM_WORD_ELLIPSIS,
+}
 #endregion
 
 static var _cache: Dictionary = {}
+
+
+static func type_of(name: StringName) -> int:
+	return _catalog().get(String(name), {}).get(TYPE, TYPE_NIL)
 
 
 ## Ex.: pick([GAP, DIRECTION], {GAP: 4})
@@ -300,6 +465,12 @@ static func _catalog() -> Dictionary:
 	if not _cache.is_empty():
 		return _cache
 	var c := _cache
+
+	# 
+	_add(c, ID, TYPE_STRING, "", "Identificador do componente")
+	_add(c, CLASS, TYPE_STRING, "", "Lista de classes de estilo")
+	_add(c, VISIBLE, TYPE_BOOL, true, "Visibilidade do componente")
+	_add(c, TOOLTIP, TYPE_STRING, "", "Tooltip do componente") # To be implemented 
 
 	_add(c, MARGIN, ANY, null, "Margem externa: número, {h, v} ou {esq, topo, dir, base}.")
 	_add(c, MARGIN_LEFT, ANY, null, "Margem esquerda.")
@@ -369,9 +540,65 @@ static func _catalog() -> Dictionary:
 	_add(c, SCROLL_HINT_TILE, TYPE_BOOL, false, "Repete a textura do indicador em vez de esticá-la.")
 	_add(c, SCROLL_HINT_COLOR, TYPE_COLOR, null, "Cor dos indicadores de rolagem.")
 	
+	_add(c, BBCODE_ENABLED, TYPE_BOOL, true, "Interpreta BBCode no texto.")
+	_add(c, AUTOWRAP, TYPE_STRING, WORD_SMART, "Quebra de linha.", AUTOWRAP_MODES.keys())
+	_add(c, FIT_CONTENT, TYPE_BOOL, true, "O tamanho mínimo acompanha o conteúdo.")
+	_add(c, SCROLL_ACTIVE, TYPE_BOOL, true, "Mostra barra de rolagem quando o texto excede a altura.")
+	_add(c, SCROLL_FOLLOWING, TYPE_BOOL, false, "Rola sozinho para o fim ao acrescentar texto (log, chat).")
+	_add(c, SELECTION_ENABLED, TYPE_BOOL, false, "Permite selecionar o texto com o mouse.")
+	
+	_add(c, TEXT_ALIGN, TYPE_STRING, "left", "Alinhamento horizontal do texto.", H_ALIGNS.keys())
+	_add(c, TEXT_VALIGN, TYPE_STRING, "top", "Alinhamento vertical do texto.", V_ALIGNS.keys())
+	_add(c, UPPERCASE, TYPE_BOOL, false, "Mostra todo o texto em maiúsculas.")
+	_add(c, TEXT_OVERFLOW, TYPE_STRING, "none", "O que fazer com texto que não cabe.", TEXT_OVERFLOWS.keys())
+	_add(c, CLIP_TEXT, TYPE_BOOL, false, "Corta o texto horizontalmente ao limite do componente.")
+	_add(c, MAX_LINES, TYPE_INT, -1, "Limita as linhas visíveis (-1 = sem limite).")
+	_add(c, LINES_SKIPPED, TYPE_INT, 0, "Linhas ignoradas a partir do início.")
+	_add(c, VISIBLE_CHARACTERS, TYPE_INT, -1, "Quantos caracteres mostrar (-1 = todos). Útil em máquina de escrever.")
+	_add(c, VISIBLE_RATIO, TYPE_FLOAT, null, "Fração do texto mostrada, de 0 a 1.")
+	_add(c, AUTO_FONT_SIZE, TYPE_BOOL, false, "Encolhe ou cresce a fonte para caber no espaço.")
+	_add(c, MIN_FONT_SIZE, TYPE_INT, null, "Menor fonte usada com auto_font_size.")
+	_add(c, MAX_FONT_SIZE, TYPE_INT, null, "Maior fonte usada com auto_font_size.")
+	_add(c, LINE_SPACING, TYPE_INT, null, "Espaço extra entre linhas em px (pode ser negativo).")
+	_add(c, PARAGRAPH_SPACING, TYPE_INT, null, "Espaço extra entre parágrafos em px.")
+	_add(c, TEXT_SHADOW_COLOR, TYPE_COLOR, null, "Cor da sombra do texto.")
+	_add(c, TEXT_SHADOW_OFFSET, ANY, null, "Deslocamento da sombra do texto: número ou {x, y}.")
+	_add(c, TEXT_SHADOW_OUTLINE, TYPE_INT, null, "Espessura do contorno da sombra.")
+	_add(c, META_UNDERLINED, TYPE_BOOL, true, "Sublinha links [url].")
+	_add(c, HINT_UNDERLINED, TYPE_BOOL, true, "Sublinha dicas [hint].")
+	_add(c, SELECTION_COLOR, TYPE_COLOR, null, "Cor da caixa de seleção do texto.")
+	_add(c, SELECTED_FONT_COLOR, TYPE_COLOR, null, "Cor do texto selecionado.")
+	_add(c, TAB_SIZE, TYPE_INT, 4, "Espaços por tabulação.")
+	_add(c, SCROLL_FOLLOWING_VISIBLE, TYPE_BOOL, false, "Rola até a última linha visível ao mudar visible_characters.")
+
 	_add(c, FONT_SIZE, TYPE_INT, null, "Tamanho da fonte.")
 	_add(c, FONT_COLOR, TYPE_COLOR, null, "Cor da fonte.")
 	_add(c, OUTLINE_THICKNESS, TYPE_INT, null, "Espessura do outline da fonte.")
 	_add(c, OUTLINE_COLOR, TYPE_COLOR, null, "Cor do outline da fonte.")
 
+	_add(c, BACKGROUND_IMAGE, TYPE_STRING, null, "Imagem de fundo (9-slice). No .lcss: texture(\"res://...\"). Com imagem ativa, background_color, border_* e drop_shadow_* são ignorados.")
+	_add(c, BACKGROUND_IMAGE_TINT, TYPE_COLOR, null, "Cor que multiplica a imagem de fundo.")
+	_add(c, BACKGROUND_IMAGE_STRETCH, TYPE_STRING, null, "Como a imagem preenche as áreas esticáveis.", STRETCH_MODES.keys())
+	_add(c, BACKGROUND_IMAGE_SLICE, ANY, null, "Margens do 9-slice em px: número, {h, v} ou {esq, topo, dir, base}.")
+	_add(c, BACKGROUND_IMAGE_SLICE_LEFT, ANY, null, "Margem esquerda do 9-slice.")
+	_add(c, BACKGROUND_IMAGE_SLICE_TOP, ANY, null, "Margem superior do 9-slice.")
+	_add(c, BACKGROUND_IMAGE_SLICE_RIGHT, ANY, null, "Margem direita do 9-slice.")
+	_add(c, BACKGROUND_IMAGE_SLICE_BOTTOM, ANY, null, "Margem inferior do 9-slice.")
+
+	_add(c, TRANSITION_DURATION, TYPE_FLOAT, null, "Segundos de animação quando uma propriedade de estilo muda. Ausente ou 0 = sem animação.")
+	_add(c, TRANSITION_EASING, TYPE_STRING, null, "Curva da animação (padrão: ease_out).", EASINGS.keys())
+	_add(c, TRANSITION_LOOP, TYPE_STRING, null, "Configuração de loop da animação (one_shot, ping_pong, loop)", LOOP_OPTIONS)
+	_add(c, TRANSITION_REPETITIONS, TYPE_INT, null, "Número de repetições de loop da animação (padrão = -1, infinito)")
+	_add(c, TRANSITION_PROPERTIES, ANY, null, "Quais propriedades animam: all (padrão) ou uma lista de nomes.")
+
+	_add(c, TEXTURE, TYPE_STRING, "", "Caminho da imagem (sprite sheet).")
+	_add(c, HFRAMES, TYPE_INT, 1, "Colunas da sheet.")
+	_add(c, VFRAMES, TYPE_INT, 1, "Linhas da sheet.")
+	_add(c, FRAME_COUNT, TYPE_INT, 0, "Quadros usados (0 = todos). Útil quando a última linha está incompleta.")
+	_add(c, FRAME, TYPE_INT, 0, "Quadro inicial.")
+	_add(c, FPS, TYPE_FLOAT, 12.0, "Quadros por segundo.")
+	_add(c, DURATION, TYPE_FLOAT, 0.0, "Duração do ciclo completo em segundos. Se maior que 0, vence o fps.")
+	_add(c, LOOP, TYPE_BOOL, true, "Repete a animação.")
+	_add(c, PLAYING, TYPE_BOOL, true, "Toca automaticamente.")
+	
 	return c

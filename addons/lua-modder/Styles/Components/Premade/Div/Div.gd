@@ -19,6 +19,6 @@ func _apply_prop(key: String, value: Variant) -> void:
 		ComponentProps.GAP:
 			_items.add_theme_constant_override("separation", maxi(int(value), 0))
 		ComponentProps.DISABLED:
-			_set_style_state(&"disabled", value)
+			set_state(&"disabled", value)
 		_:
 			super._apply_prop(key, value)

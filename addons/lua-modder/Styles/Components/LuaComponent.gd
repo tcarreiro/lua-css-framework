@@ -6,6 +6,8 @@ class_name LuaComponent extends Control
 signal prop_changed(key: String, value: Variant)
 signal disposing
 
+const BASE_METHODS: Array[String] = ["add_class", "remove_class", "toggle_class", "set_state", "get_state", "set_prop"]
+
 var component_name: String = ""
 var props: Dictionary = {}
 var handlers: Dictionary = {}
@@ -47,10 +49,12 @@ func setup(p_name: String, p_props: Dictionary, p_handlers: Dictionary, p_schema
 
 
 func _ready() -> void:
+	_style_target.register_transitions()
 	for key: String in props:
 		_apply_prop_internal(key, props[key])
 	_is_ready = true
 	_component_ready()
+	_style_target.enable_transitions()
 
 
 func _notification(what: int) -> void:
@@ -79,19 +83,37 @@ func set_prop(key: String, value: Variant) -> void:
 
 func _apply_prop_internal(key: String, value: Variant) -> void:
 	match key:
-		"id":
+		ComponentProps.ID:#"id":
 			component_id = value
 			if value != "":
 				name = value
-		"class":
+		ComponentProps.CLASS:#"class":
 			style_classes = LuaHelper.parse_style_classes(value)
-			_refresh_style()
-		"visible":
+			_refresh_style(true, _is_ready)
+		ComponentProps.VISIBLE:#"visible":
 			visible = value
-		"tooltip":
+		ComponentProps.TOOLTIP:#"tooltip":
 			tooltip_text = value
 		_:
 			_apply_prop(key, value)
+
+func _refresh_style(deep := false, animate := true) -> void:
+	# o resolve cria um LCSSStyle novo: preserva os estados ativos (hover etc.)
+	
+	var active: Array = _style.get_active_states() if _style != null else []
+	_style = LCSSResolver.resolve(self, LuaUi.lcss)
+	for state in active:
+		_style.set_state_active(state, true)
+	_style_target.apply_style(_style, _style_overrides, animate)
+	if deep:
+		_refresh_descendant_styles(self, animate)
+
+
+func _refresh_descendant_styles(node: Node, animate: bool) -> void:
+	for child in node.get_children():
+		if child is LuaComponent:
+			(child as LuaComponent)._refresh_style(false, animate)
+		_refresh_descendant_styles(child, animate)
 #endregion
 
 
@@ -104,31 +126,30 @@ func is_style_state_active(state: StringName) -> bool:
 	return _style != null and _style.is_state_active(state)
 
 
-## Recalcula o LCSSStyle deste componente a partir da LcssRegistry
-## guardada em LuaUi, e reaplica em todos os alvos registrados.
-func _refresh_style() -> void:
-	_style = LCSSResolver.resolve(self, LuaUi.lcss)
-	_style_target.apply_style(_style, _style_overrides)
-
-
-func _set_style_state(state: StringName, active: bool) -> void:
+func set_state(state: StringName, active: bool) -> void:
 	if _style == null:
 		return
 	_style.set_state_active(state, active)
 	_style_target.apply_style(_style, _style_overrides)
 
 
+func get_state(state: StringName) -> bool:
+	if _style == null:
+		return false
+	return _style.get_active_states().has(state)
+
+
 ## Conecta hover/focus/pressed de um Control interno (ex: o Button real
 ## dentro do slot) aos estados LCSS. Chame em _component_ready() do
 ## componente que tiver essa superfície.
 func _bind_style_state_source(source: Control) -> void:
-	source.mouse_entered.connect(func(): _set_style_state(&"hover", true))
-	source.mouse_exited.connect(func(): _set_style_state(&"hover", false))
-	source.focus_entered.connect(func(): _set_style_state(&"focus", true))
-	source.focus_exited.connect(func(): _set_style_state(&"focus", false))
+	source.mouse_entered.connect(func(): set_state(&"hover", true))
+	source.mouse_exited.connect(func(): set_state(&"hover", false))
+	source.focus_entered.connect(func(): set_state(&"focus", true))
+	source.focus_exited.connect(func(): set_state(&"focus", false))
 	if source.has_signal("button_down"):
-		source.button_down.connect(func(): _set_style_state(&"pressed", true))
-		source.button_up.connect(func(): _set_style_state(&"pressed", false))
+		source.button_down.connect(func(): set_state(&"pressed", true))
+		source.button_up.connect(func(): set_state(&"pressed", false))
 #endregion
 
 
@@ -152,13 +173,39 @@ func forward_signal(source: Signal, event: String) -> void:
 
 
 func call_exposed(method: String, args: Array = []) -> Variant:
-	if method not in _schema.get("methods", []):
+	if method not in BASE_METHODS and method not in _schema.get("methods", []):
 		push_error("[LuaComponent:%s] método '%s' não está exposto no schema" % [component_name, method])
 		return null
 	if not has_method(method):
 		push_error("[LuaComponent:%s] método '%s' declarado mas não implementado" % [component_name, method])
 		return null
 	return callv(method, args)
+
+
+func add_class(style_class: String) -> void:
+	var sn := StringName(style_class)
+	if sn == &"" or style_classes.has(sn):
+		return
+	style_classes.append(sn)
+	_refresh_style(true)
+
+
+func remove_class(style_class: String) -> void:
+	var sn := StringName(style_class)
+	if not style_classes.has(sn):
+		return
+	style_classes.erase(sn)
+	_refresh_style(true)
+
+
+func toggle_class(style_class: String, force: Variant = null) -> void:
+	var want: bool = (not has_class(StringName(style_class))) if force == null else bool(force)
+	if want:
+		add_class(style_class)
+	else:
+		remove_class(style_class)
+
+
 #endregion
 
 
