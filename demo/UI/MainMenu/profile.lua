@@ -6,6 +6,7 @@ UI.defineComponent("ProfileForm", {
 
 		return Modal {
 			ref = "profile_modal",
+			draggable = true,
 			backdrop_color = "#FFFFFF",
 			drop_shadow_color = "#00000044",
 			drop_shadow_size = 5,

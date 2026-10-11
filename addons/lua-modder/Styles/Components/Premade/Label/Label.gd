@@ -23,6 +23,8 @@ func _ready() -> void:
 
 
 func _apply_prop(key: String, value: Variant) -> void:
+	if not value:
+		return
 	match StringName(key):
 		ComponentProps.TEXT:
 			_label.text = str(value)

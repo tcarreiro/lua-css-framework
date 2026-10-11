@@ -5,9 +5,12 @@ extends LuaStyledBox
 func get_schema() -> Dictionary:
 	var names: Array = [ComponentProps.DISPLAY, ComponentProps.GAP, ComponentProps.DISABLED]
 	names.append_array(LuaStyledBox.box_names())
+	names.append_array(ComponentProps.DRAG_GRP)
 	return {
 		"name": "Div",
 		"props": ComponentProps.pick(names, {ComponentProps.GAP: 4}),
+		"events": ["drag_started", "drag_ended"],
+		"methods": ["reset_drag_position"],
 		"slots": {"default": "%Items"},
 	}
 
