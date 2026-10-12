@@ -165,6 +165,9 @@ func make_element(component: String, raw: Dictionary) -> UIElement:
 
 	for key: String in raw:
 		var value: Variant = raw[key]
+		if value is LuaBinding:
+			el.bindings[key] = value
+			value = (value as LuaBinding).evaluate()   # valor inicial
 		match key:
 			"children":
 				el.slots["default"] = _to_elements(value)
@@ -225,7 +228,7 @@ func instantiate(el: UIElement, depth := 0) -> Control:
 ## (antes de entrar na árvore) e pendura os filhos nos slots declarados no schema.
 func _instantiate_scene(def: Dictionary, el: UIElement, depth: int) -> Control:
 	var node := (def.scene as PackedScene).instantiate() as LuaComponent
-	node.setup(el.component, resolve_props(def.schema, el.props), el.handlers, def.schema)
+	node.setup(el.component, resolve_props(def.schema, el.props), el.handlers, def.schema, el.bindings)
 	for slot_name: String in el.slots:
 		var host := node.get_slot(slot_name)
 		if host == null:

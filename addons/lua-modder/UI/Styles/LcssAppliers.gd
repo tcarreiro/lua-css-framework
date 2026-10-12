@@ -313,10 +313,11 @@ static func _apply_image_field(target: Control, property: StringName, value: Var
 	if target == null or value == null:
 		return
 	var box := _tex_box(target)
+	var path_prefix := "res://"
 	match property:
 		ComponentProps.BACKGROUND_IMAGE:
-			var path := "res://"+str(value)
-			if path == "":
+			var path := path_prefix+str(value)
+			if path == path_prefix:
 				_remove_image(target)
 				return
 			var texture := load(path) as Texture2D

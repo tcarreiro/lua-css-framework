@@ -25,6 +25,9 @@ var _schema: Dictionary = {}
 var _is_ready := false
 var _slot_cache: Dictionary = {}
 
+var _bindings: Dictionary = {}
+var _binding_links: Array = []   # [binding, callable]
+
 var _drag: LuaDragController
 var _drag_refresh_queued := false
 
@@ -44,11 +47,12 @@ func _component_ready() -> void:
 
 
 #region Lifecycle
-func setup(p_name: String, p_props: Dictionary, p_handlers: Dictionary, p_schema: Dictionary) -> void:
+func setup(p_name: String, p_props: Dictionary, p_handlers: Dictionary, p_schema: Dictionary, p_bindings: Dictionary = {}) -> void:
 	component_name = p_name
 	props = p_props
 	handlers = p_handlers
 	_schema = p_schema
+	_bindings = p_bindings
 
 
 func _ready() -> void:
@@ -58,6 +62,7 @@ func _ready() -> void:
 	_is_ready = true
 	_component_ready()
 	_style_target.enable_transitions()
+	_connect_bindings()
 
 
 func _notification(what: int) -> void:
@@ -96,10 +101,12 @@ func _apply_prop_internal(key: String, value: Variant) -> void:
 		ComponentProps.CLASS:#"class":
 			style_classes = LuaHelper.parse_style_classes(value)
 			_refresh_style(true, _is_ready)
-		ComponentProps.VISIBLE:#"visible":
+		ComponentProps.VISIBLE:
 			visible = value
-		ComponentProps.TOOLTIP:#"tooltip":
+		ComponentProps.TOOLTIP:
 			tooltip_text = value
+		ComponentProps.FLEX_GROW:
+			_apply_flex_grow(float(value))
 		_:
 			_apply_prop(key, value)
 
@@ -319,4 +326,53 @@ func get_slot(slot_name: String) -> Node:
 	var node := get_node_or_null(path)
 	_slot_cache[slot_name] = node
 	return node
+#endregion
+
+#region Bindings
+func _connect_bindings() -> void:
+	if _bindings.is_empty():
+		return
+	for key: String in _bindings:
+		var binding: LuaBinding = _bindings[key]
+		var callback := _on_binding_changed.bind(key, binding)
+		binding.changed.connect(callback)
+		_binding_links.append([binding, callback])
+	tree_exiting.connect(_disconnect_bindings)
+
+
+func _disconnect_bindings() -> void:
+	for link in _binding_links:
+		if link[0].changed.is_connected(link[1]):
+			link[0].changed.disconnect(link[1])
+	_binding_links.clear()
+
+
+func _on_binding_changed(key: String, binding: LuaBinding) -> void:
+	set_prop(key, binding.evaluate())
+#endregion
+
+
+#region Flex grow
+## Ocupa uma fatia do espaço livre do container. O LuaFlowBox respeita estas flags.
+func _apply_flex_grow(grow: float) -> void:
+	var previous := float(get_meta(ComponentProps.FLEX_GROW, 0.0))
+	set_meta(ComponentProps.FLEX_GROW, grow)
+	if grow > 0.0:
+		size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		size_flags_vertical = Control.SIZE_EXPAND_FILL
+		size_flags_stretch_ratio = grow
+	elif previous > 0.0:
+		size_flags_horizontal = Control.SIZE_FILL
+		size_flags_vertical = Control.SIZE_FILL
+		size_flags_stretch_ratio = 1.0
+	if grow > 0.0 or previous > 0.0:
+		var flow := get_parent() as LuaFlowBox
+		if flow != null:
+			flow.refresh_flow()
+
+func _apply_fit_content(value: bool) -> void:
+	set_meta(ComponentProps.FIT_CONTENT, value)
+	var flow := get_parent() as LuaFlowBox
+	if flow != null:
+		flow.refresh_flow()
 #endregion

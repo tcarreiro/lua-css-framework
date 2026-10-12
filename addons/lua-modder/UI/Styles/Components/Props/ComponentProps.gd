@@ -3,7 +3,7 @@ class_name ComponentProps extends RefCounted
 ## via pick() e só podem sobrescrever o default.
 
 ## Props que todo componente aceita sem declarar no schema (ver ComponentRegistry.base_props).
-const BASE: Array[StringName] = [ID, CLASS, VISIBLE, TOOLTIP, DISABLED]
+const BASE: Array[StringName] = [ID, CLASS, VISIBLE, TOOLTIP, DISABLED, FLEX_GROW]
 
 const ANY := TYPE_NIL 
 const TYPE := &"type"
@@ -65,6 +65,7 @@ const MAX_WIDTH := &"max_width"
 const MAX_HEIGHT := &"max_height"
 
 const DIRECTION := &"direction"
+const ALIGNMENT := &"alignment"
 const FOLLOW_FOCUS := &"follow_focus"
 const EDGE_THRESHOLD := &"edge_threshold"
 const SCROLLBAR_MODE := &"scrollbar_mode"
@@ -178,6 +179,7 @@ const START := &"start"
 const END := &"end"
 const BLOCK := &"block"
 const FLEX := &"flex"
+const FLEX_GROW := &"flex_grow"
 const NUMBER := &"number"
 const SECRET := &"secret"
 const LEFT := &"left"
@@ -350,6 +352,12 @@ const DIRECTIONS := [
 	VERTICAL, HORIZONTAL, BOTH
 ]
 
+const ALIGNMENTS := {
+	CENTER: BoxContainer.AlignmentMode.ALIGNMENT_CENTER,
+	START: BoxContainer.AlignmentMode.ALIGNMENT_BEGIN, 
+	END: BoxContainer.AlignmentMode.ALIGNMENT_END,
+}
+
 const DRAG_MODES := [HOLD, TOGGLE]
 
 const DRAG_BOUNDS_OPTIONS := [VIEWPORT, NONE]
@@ -488,6 +496,7 @@ static func _catalog() -> Dictionary:
 	_add(c, CLASS, TYPE_STRING, "", "Lista de classes de estilo")
 	_add(c, VISIBLE, TYPE_BOOL, true, "Visibilidade do componente")
 	_add(c, TOOLTIP, TYPE_STRING, "", "Tooltip do componente") # To be implemented 
+	_add(c, FLEX_GROW, TYPE_FLOAT, 0.0, "Parte do espaço livre do container que o componente ocupa. 0 = só o tamanho do conteúdo; valores diferentes dividem o espaço na proporção entre eles.")
 
 	_add(c, DRAGGABLE, TYPE_BOOL, false, "Permite arrastar o componente com o mouse.")
 	_add(c, DRAG_MODE, TYPE_STRING, "hold", "hold: arrasta com o botão pressionado. toggle: clica para pegar e clica de novo para soltar.", DRAG_MODES)
@@ -544,6 +553,7 @@ static func _catalog() -> Dictionary:
 	_add(c, MAX_HEIGHT, TYPE_INT, -1, "Altura máxima em px (-1 = sem limite).")
 
 	_add(c, DIRECTION, TYPE_STRING, "vertical", "Eixos de rolagem.", DIRECTIONS)
+	_add(c, ALIGNMENT, TYPE_STRING, null, "Eixos de rolagem.", ALIGNMENTS.keys())
 	_add(c, FOLLOW_FOCUS, TYPE_BOOL, true, "Rola até o filho focado.")
 	_add(c, EDGE_THRESHOLD, TYPE_INT, 0, "Folga em px para os eventos de início/fim.")
 	_add(c, SCROLLBAR_MODE, TYPE_STRING, "auto", "Visibilidade da barra e crescimento.", SCROLL_MODES.keys())

@@ -21,12 +21,16 @@ func _on_child_entered(child: Node) -> void:
 
 
 func _watch(child: Control) -> void:
+	# quem tem flex_grow já definiu as próprias flags (em LuaComponent._apply_flex_grow)
+	if float(child.get_meta(ComponentProps.FLEX_GROW, 0.0)) > 0.0:
+		return
 	var cb := _apply_flow_sizing.bind(child)
 	if not child.minimum_size_changed.is_connected(cb):
 		child.minimum_size_changed.connect(cb)
 
 
 func _apply_flow_sizing(child: Control) -> void:
+	if float(child.get_meta(ComponentProps.FLEX_GROW, 0.0)) > 0.0: return
 	var has_explicit_width := child.custom_minimum_size.x > 0.0
 
 	if vertical:
