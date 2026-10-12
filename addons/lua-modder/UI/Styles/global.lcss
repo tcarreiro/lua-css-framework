@@ -1,0 +1,91 @@
+.main-menu {
+	background_color: #FF0000;
+}
+
+.main-menu:hover {
+	background_color: #00FF00;
+}
+
+.main-menu:pressed {
+	background_color: #0000FF;
+}
+
+.main-menu-button {
+	background_color: #00FFFF;
+	transition_duration: 300ms;
+	
+}
+
+.main-menu-button:hover {
+	background_color: #FF00FF;
+	transition_duration: 600ms;
+	transition_easing: ease_in_out;
+	transition_loop: ping_pong;
+	//transition_loop: loop;
+	transition_repetitions: 10000;
+}
+
+.main-menu-button:pressed {
+	background_color: #FFFF00;
+}
+
+
+.frame {
+	background_image: texture("demo/assets/images/icon.png");
+	background_image_tint: #FFFFFFFF; 
+	background_image_slice: 16;          // ou [16, 16, 24, 24]
+	background_image_stretch: tile_fit;
+	padding: 20;
+	transition_duration: 4000ms;
+	transition_easing: ease_out;
+	transition_properties: all;
+}
+
+.frame {
+	background_color: #FFFFFF;
+}
+
+.selected {
+	border_width: 10;
+	transition_duration: 0.2;
+	transition_easing: ease_out;
+	transition_properties: all;
+}
+
+.card   {
+	padding: 14; 
+	background_color: #402020;
+	transition_duration: 0.2;
+	transition_easing: ease_in;
+	transition_properties: all;
+}
+
+.card:selected   {
+	background_color: #676767;
+	padding: 18; 
+	transition_duration: 0.2;
+	transition_easing: ease_in;
+	transition_properties: background_color padding;
+}
+
+.frame:hover { 
+	background_image_tint: #FF0000; 
+}
+
+.main-scroll {
+	background_color: #FF000040;
+	//scrollbar_width: 15;
+	//scrollbar_border_radius: 12312;
+	//scrollbar_track_color: #FFFF00;
+	//scrollbar_grabber_color: #00FF00;
+	//scrollbar_grabber_hover_color: #00FFFF;
+	//scrollbar_grabber_pressed_color: #0000FF;
+	//border_radius: 0;
+	//padding: 10;
+}
+
+//direction = "vertical",
+//scrollbar_mode = "grow", 
+//max_height = 120, 
+//max_width = 80,
+//scrollbar_border_radius = {6, 0}, 

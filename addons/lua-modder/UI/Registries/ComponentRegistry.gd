@@ -1,35 +1,36 @@
 extends Node
-## Autoload: ComponentRegistry  (registre ANTES do bridge de UI)
+## Autoload: ComponentRegistry (registrar ANTES de LuaUi).
 ##
-## Componentes vindos de cena (.tscn) e de Lua (UI.defineComponent) viram a mesma
-## coisa aqui: uma "definição" { name, kind, schema, scene | render }.
-## Quem consome (Lua ou GDScript) só conhece o nome.
+## Catálogo único de componentes. Uma cena (.tscn) e um componente definido em Lua
+## (UI.defineComponent) viram a mesma coisa aqui: uma definição
+##   { name, kind, schema, scene | render, source }
+## Quem consome só conhece o nome, não importa de onde o componente veio.
+##
+## Fluxo: Tag{...} no Lua -> make_element() -> UIElement -> instantiate() -> nós
 
 signal component_registered(component_name: String)
 
 enum Kind { SCENE, LUA }
 
-## Pastas escaneadas no boot. Projetos/mods podem chamar scan_directory() depois.
-const SCAN_PATHS: Array[String] = ["res://addons/lua-modder/UI/Components/Premade"]
+## Pastas escaneadas no boot (recursivo). Cenas do jogo ou de mods entram depois,
+## com scan_directory() ou register_scene_path().
+const SCAN_PATHS: Array[String] = ["res://addons/lua-modder/UI/Styles/Components/Premade/"]
+
+## Limite de profundidade do instantiate(). Protege contra um render() Lua que se chama sem fim.
 const MAX_DEPTH := 64
 
-## Props que TODO componente aceita (aplicadas pela base LuaComponent).
-const BASE_PROPS := {
-	"id": {"type": TYPE_STRING, "default": ""},
-	"class": {"type": TYPE_STRING, "default": ""},
-	"visible": {"type": TYPE_BOOL, "default": true},
-	"tooltip": {"type": TYPE_STRING, "default": ""},
-	"disabled": {"type": TYPE_BOOL, "default": false},
-}
-
+## Tipos que um componente Lua pode escrever como string no schema (props = { label = "string" }).
 const _TYPE_NAMES := {
 	"any": TYPE_NIL, "string": TYPE_STRING, "int": TYPE_INT, "float": TYPE_FLOAT,
 	"number": TYPE_FLOAT, "bool": TYPE_BOOL, "color": TYPE_COLOR, "vector2": TYPE_VECTOR2,
 	"array": TYPE_ARRAY, "dict": TYPE_DICTIONARY, "object": TYPE_OBJECT,
 }
 
-var _defs: Dictionary = {}   # String -> Dictionary
-var _refs: Dictionary = {}   # String -> WeakRef(LuaComponent)
+## Cache das props base, montado na primeira consulta (ver base_props()).
+static var _base_props: Dictionary = {}
+
+var _defs: Dictionary = {}   # nome -> definição
+var _refs: Dictionary = {}   # ref -> WeakRef(LuaComponent)
 
 
 func _init() -> void:
@@ -38,7 +39,8 @@ func _init() -> void:
 
 
 #region Registration
-## Escaneia uma pasta (recursivo) e registra toda cena cuja raiz herde LuaComponent.
+## Escaneia `path` e registra toda cena cuja raiz herde LuaComponent.
+## Retorna quantas cenas foram registradas.
 func scan_directory(path: String, recursive := true) -> int:
 	var dir := DirAccess.open(path)
 	if dir == null:
@@ -56,7 +58,8 @@ func scan_directory(path: String, recursive := true) -> int:
 				count += 1
 	return count
 
-# API to manually register scenes as components
+
+## Registra uma cena a partir do caminho. API para quem quer cadastrar uma cena à mão.
 func register_scene_path(path: String, name_override := "") -> bool:
 	var scene := load(path) as PackedScene
 	if scene == null:
@@ -65,7 +68,10 @@ func register_scene_path(path: String, name_override := "") -> bool:
 	return register_scene(scene, name_override, path)
 
 
+## Registra uma cena cuja raiz herda LuaComponent. O nome vem, nesta ordem, de
+## `name_override`, do `name` do schema ou do nome do arquivo.
 func register_scene(scene: PackedScene, name_override := "", source := "") -> bool:
+	# a instância "sonda" só serve para ler o schema; nunca entra na árvore
 	var probe := scene.instantiate()
 	if not probe is LuaComponent:
 		push_error("[ComponentRegistry] raiz de '%s' precisa herdar LuaComponent" % source)
@@ -82,25 +88,27 @@ func register_scene(scene: PackedScene, name_override := "", source := "") -> bo
 	if component == "":
 		push_error("[ComponentRegistry] componente sem nome (%s)" % source)
 		return false
-	
+
 	return _register({
 		"name": component, "kind": Kind.SCENE, "schema": schema,
 		"scene": scene, "source": source,
 	})
 
 
-## `definition` = tabela Lua já normalizada: { props, events, hooks, methods, slots, render }
-func register_lua(component: String, definition: Dictionary, lua: LuaState) -> bool:
+## Registra um componente definido em Lua. `definition` é a tabela já normalizada:
+## { props, events, hooks, methods, slots, render }. O `render` é obrigatório.
+func register_lua(component: String, definition: Dictionary) -> bool:
 	var render := LuaHelper.make_callable(definition.get("render"))
 	if not render.is_valid():
 		push_error("[ComponentRegistry] '%s': definição Lua sem função `render`" % component)
 		return false
 	return _register({
 		"name": component, "kind": Kind.LUA, "schema": normalize_schema(definition),
-		"render": render, "source": lua,
+		"render": render, "source": "lua",
 	})
 
 
+## Nome duplicado é ignorado com aviso: vale o primeiro que foi registrado.
 func _register(def: Dictionary) -> bool:
 	var component: String = def.name
 	if _defs.has(component):
@@ -113,34 +121,53 @@ func _register(def: Dictionary) -> bool:
 
 
 #region Queries
-func has_component(component: String) -> bool:
-	return _defs.has(component)
-
 func get_names() -> Array:
 	return _defs.keys()
 
-func get_schema(component: String) -> Dictionary:
-	return _defs.get(component, {}).get("schema", {})
 
+## Definição de uma prop: primeiro nas props base, depois no schema do componente.
+## Vazio se a prop não existe.
 static func get_prop_def(schema: Dictionary, key: String) -> Dictionary:
-	if BASE_PROPS.has(key):
-		return BASE_PROPS[key]
+	var base := base_props()
+	if base.has(key):
+		return base[key]
 	return schema.get("props", {}).get(key, {})
 #endregion
 
 
+#region Base props
+## Props que TODO componente aceita, sem precisar declarar no schema. Quem as aplica
+## é o LuaComponent. A lista fica em ComponentProps.BASE e as definições (tipo, default,
+## doc) vêm do catálogo, para existir uma fonte de verdade só.
+static func base_props() -> Dictionary:
+	if _base_props.is_empty():
+		_base_props = ComponentProps.pick(ComponentProps.BASE)
+	return _base_props
+#endregion
+
+
 #region Element building (Lua -> UIElement)
-## Separa a tabela crua do Lua em props / handlers / slots segundo o schema.
+## Separa a tabela crua do Lua em props, handlers e slots, segundo o schema do componente.
+##   children        -> slot "default"
+##   slots = {...}   -> slots nomeados
+##   ref             -> nome usado em UI.callMethod
+##   on_<evento>     -> handler (evento declarado em schema.events)
+##   <hook>          -> handler (declarado em schema.hooks)
+## Chave que o schema não declara gera aviso, mas segue adiante para não perder o valor.
 func make_element(component: String, raw: Dictionary) -> UIElement:
 	var def: Dictionary = _defs.get(component, {})
 	if def.is_empty():
 		push_error("[ComponentRegistry] componente desconhecido: '%s'" % component)
 		return null
 	var schema: Dictionary = def.schema
+	var base := base_props()
 	var el := UIElement.new(component)
 
 	for key: String in raw:
 		var value: Variant = raw[key]
+		if value is LuaBinding:
+			el.bindings[key] = value
+			value = (value as LuaBinding).evaluate()   # valor inicial
 		match key:
 			"children":
 				el.slots["default"] = _to_elements(value)
@@ -151,11 +178,9 @@ func make_element(component: String, raw: Dictionary) -> UIElement:
 			"ref":
 				el.ref = str(value)
 			_:
-				if key.begins_with("on_") and key.substr(3) in schema.events:
+				if (key.begins_with("on_") and key.substr(3) in schema.events) or key in schema.hooks:
 					el.handlers[key] = LuaHelper.make_callable(value)
-				elif key in schema.hooks:
-					el.handlers[key] = LuaHelper.make_callable(value)
-				elif BASE_PROPS.has(key) or schema.props.has(key):
+				elif base.has(key) or schema.props.has(key):
 					el.props[key] = value
 				else:
 					push_warning("[ComponentRegistry] '%s' não declara '%s'" % [component, key])
@@ -166,6 +191,7 @@ func make_element(component: String, raw: Dictionary) -> UIElement:
 	return el
 
 
+## Aceita um UIElement ou uma lista deles; descarta o que não for UIElement.
 func _to_elements(value: Variant) -> Array:
 	var out: Array = []
 	if value is UIElement:
@@ -179,6 +205,7 @@ func _to_elements(value: Variant) -> Array:
 
 
 #region Instantiation (UIElement -> Control)
+## Cria os nós de um UIElement e dos seus filhos (recursivo).
 func instantiate(el: UIElement, depth := 0) -> Control:
 	if el == null:
 		return null
@@ -197,9 +224,11 @@ func instantiate(el: UIElement, depth := 0) -> Control:
 	return null
 
 
+## Cena: instancia o PackedScene, entrega props já resolvidas e handlers pelo setup()
+## (antes de entrar na árvore) e pendura os filhos nos slots declarados no schema.
 func _instantiate_scene(def: Dictionary, el: UIElement, depth: int) -> Control:
 	var node := (def.scene as PackedScene).instantiate() as LuaComponent
-	node.setup(el.component, resolve_props(def.schema, el.props), el.handlers, def.schema)
+	node.setup(el.component, resolve_props(def.schema, el.props), el.handlers, def.schema, el.bindings)
 	for slot_name: String in el.slots:
 		var host := node.get_slot(slot_name)
 		if host == null:
@@ -213,8 +242,10 @@ func _instantiate_scene(def: Dictionary, el: UIElement, depth: int) -> Control:
 	return node
 
 
+## Lua: chama o render() com props, handlers, children e slots, e instancia o
+## UIElement que ele devolve. Não cria nó nenhum: o resultado é sempre uma cena
+## (ou mais um componente Lua, que repete o processo).
 func _instantiate_lua(def: Dictionary, el: UIElement, depth: int) -> Control:
-	# O render Lua recebe props (com defaults) + handlers (on_x / hooks) + children + slots
 	var args := resolve_props(def.schema, el.props)
 	args.merge(el.handlers)
 	args["children"] = el.slots.get("default", [])
@@ -228,6 +259,7 @@ func _instantiate_lua(def: Dictionary, el: UIElement, depth: int) -> Control:
 	if not result is UIElement:
 		push_error("[ComponentRegistry] render de '%s' deve retornar um componente (retornou %s)" % [el.component, result])
 		return null
+	# o ref passa para o elemento renderizado, então aponta sempre para um nó real
 	if el.ref != "" and result.ref == "":
 		result.ref = el.ref
 	return instantiate(result, depth + 1)
@@ -235,6 +267,7 @@ func _instantiate_lua(def: Dictionary, el: UIElement, depth: int) -> Control:
 
 
 #region Refs (Lua -> métodos expostos)
+## Guarda o nó por nome. A referência é fraca e some sozinha quando o nó sai da árvore.
 func _track_ref(node: LuaComponent, ref: String) -> void:
 	if ref == "":
 		return
@@ -249,6 +282,7 @@ func get_ref(ref: String) -> LuaComponent:
 	return w.get_ref() if w else null
 
 
+## Chama um método de um componente pelo ref. O LuaComponent confere a whitelist.
 func call_method(ref: String, method: String, args: Array = []) -> Variant:
 	var node := get_ref(ref)
 	if node == null:
@@ -258,7 +292,12 @@ func call_method(ref: String, method: String, args: Array = []) -> Variant:
 #endregion
 
 
-#region Schema / props helpers
+#region Schema and props
+## Normaliza um schema (de cena ou de Lua) para:
+##   { name, props, events, hooks, methods, slots }
+## - props: cada uma vira { type, default, ... }. Atalho no Lua: props = { label = "string" }.
+##   Chaves extras, como `options` e `required`, passam intactas.
+## - slots: na cena é { nome: "%NodePath" }. No Lua são só os nomes (caminho vazio).
 static func normalize_schema(raw: Dictionary) -> Dictionary:
 	var schema := {"name": str(raw.get("name", "")), "props": {}, "events": [], "hooks": [], "methods": [], "slots": {}}
 
@@ -270,7 +309,7 @@ static func normalize_schema(raw: Dictionary) -> Dictionary:
 			if p is Dictionary:
 				def = p.duplicate()
 			else:
-				def = {"type": p}   # atalho: props = { label = "string" }
+				def = {"type": p}
 			var t: Variant = def.get("type", TYPE_NIL)
 			def["type"] = _TYPE_NAMES.get(t, TYPE_NIL) if t is String else int(t)
 			if not def.has("default"):
@@ -284,19 +323,21 @@ static func normalize_schema(raw: Dictionary) -> Dictionary:
 				schema[list_key].append(str(item))
 
 	var raw_slots: Variant = raw.get("slots", {})
-	if raw_slots is Dictionary:        # cena: { nome: "%NodePath" }
+	if raw_slots is Dictionary:
 		for key in raw_slots:
 			schema.slots[str(key)] = str(raw_slots[key])
-	elif raw_slots is Array:           # lua: só os nomes
+	elif raw_slots is Array:
 		for item in raw_slots:
 			schema.slots[str(item)] = ""
 	return schema
 
 
-## Props finais = BASE_PROPS + schema.props, com default e coerção de tipo.
+## Props finais = base + schema, cada uma com default e coerção de tipo.
+## Props que ninguém declarou passam adiante como vieram (o make_element já avisou).
+## Um schema de Lua pode marcar uma prop com `required = true` para gerar aviso quando faltar.
 static func resolve_props(schema: Dictionary, given: Dictionary) -> Dictionary:
 	var out := {}
-	var all_defs: Dictionary = BASE_PROPS.duplicate()
+	var all_defs: Dictionary = base_props().duplicate()
 	all_defs.merge(schema.get("props", {}), true)
 	for key: String in all_defs:
 		var def: Dictionary = all_defs[key]
@@ -307,21 +348,31 @@ static func resolve_props(schema: Dictionary, given: Dictionary) -> Dictionary:
 				push_warning("[ComponentRegistry] prop obrigatória ausente: '%s'" % key)
 			var d: Variant = def.get("default")
 			out[key] = d.duplicate(true) if (d is Array or d is Dictionary) else d
-	# props não declaradas (já avisadas em make_element) seguem adiante
 	for key: String in given:
 		if not out.has(key):
 			out[key] = given[key]
 	return out
 
 
+## Valida e converte um valor para a definição da prop.
+##   nulo            -> default
+##   fora de options -> aviso e default
+##   cor             -> parse_color (aceita "#hex", nome ou lista {r, g, b, a})
+##   Vector2         -> aceita lista de 2 números
+##   tipo ANY/OBJECT -> sem conversão
 static func coerce(value: Variant, def: Dictionary) -> Variant:
 	if value == null:
+		return def.get("default")
+	var options: Array = def.get("options", [])
+	if not options.is_empty() and not options.any(func(o): return str(o) == str(value)):
+		push_warning("[ComponentRegistry] valor '%s' inválido, opções: %s" % [value, options])
 		return def.get("default")
 	var t: int = def.get("type", TYPE_NIL)
 	if t == TYPE_NIL or t == TYPE_OBJECT or typeof(value) == t:
 		return value
 	if t == TYPE_VECTOR2 and value is Array and value.size() == 2:
 		return Vector2(value[0], value[1])
+	if t == TYPE_COLOR:
+		return LuaHelper.parse_color(value)
 	return type_convert(value, t)
-
 #endregion

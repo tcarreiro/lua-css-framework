@@ -100,9 +100,7 @@ static func parse_distributable(value) -> Array:
 	return [0.0, 0.0, 0.0, 0.0]
 
 
-## Converte o campo "class" do Lua (string "a b c" ou Array) numa lista de
-## StringName, formato que GDSSUiBridge espera.
-static func parse_gdss_classes(value) -> Array[StringName]:
+static func parse_style_classes(value) -> Array[StringName]:
 	var out: Array[StringName] = []
 	if value is String:
 		for part in value.split(" ", false):

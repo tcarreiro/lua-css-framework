@@ -7,11 +7,5 @@ layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_ckica")
 
-[node name="ScreenLayer" type="CanvasLayer" parent="." unique_id=1932308988]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=558420518]
 unique_name_in_owner = true
-
-[node name="Body" type="VBoxContainer" parent="ScreenLayer" unique_id=893384190]
-unique_name_in_owner = true
-anchors_preset = 10
-anchor_right = 1.0
-grow_horizontal = 2
