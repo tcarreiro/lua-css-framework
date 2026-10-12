@@ -1,10 +1,10 @@
 extends Node
 ## Autoload: LuaUI  (depois de ComponentRegistry)
 ## Dono do LuaState de UI. Expõe o namespace `UI`, uma "tag" global por
-## componente, e a LcssRegistry compartilhada por todos os LuaComponent.
+## componente, e a LCSSRegistry compartilhada por todos os LuaComponent.
 
 var state: LuaState
-var lcss := LcssRegistry.new()
+var lcss := LCSSRegistry.new()
 var _root: Control
 
 func _ready() -> void:
@@ -41,7 +41,7 @@ func load_lcss(path: String) -> void:
 
 #region Lua-facing API
 func _lua_define_component(component_name: Variant, definition: Variant) -> void:
-	ComponentRegistry.register_lua(str(component_name), LuaHelper.as_dict(definition), state)
+	ComponentRegistry.register_lua(str(component_name), LuaHelper.as_dict(definition))
 
 
 func _lua_get_component(component_name: Variant, raw: Variant = null) -> Variant:

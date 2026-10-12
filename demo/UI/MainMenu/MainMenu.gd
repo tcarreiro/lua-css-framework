@@ -6,8 +6,8 @@ var _menu_instance: Control
 
 func _ready() -> void:
 	LuaUi.set_root(self)
-	LuaUi.load_lcss("res://addons/lua-modder/Styles/layout.lcss")
-	LuaUi.load_lcss("res://addons/lua-modder/Styles/global.lcss")
+	LuaUi.load_lcss("res://addons/lua-modder/UI/Styles/layout.lcss")
+	LuaUi.load_lcss("res://addons/lua-modder/UI/Styles/global.lcss")
 	LuaUi.load_file("res://demo/UI/MainMenu/test_frame_animation.lua")
 	#LuaUi.load_file("res://demo/UI/MainMenu/test_div.lua")
 	#LuaUi.load_file("res://demo/UI/MainMenu/profile.lua")
@@ -27,7 +27,3 @@ func _mount_menu() -> void:
 func _on_menu_state_changed(new_state: Variant) -> void:
 	player_state = LuaHelper.normalize_lua(new_state)
 	_mount_menu()   # dispose do antigo + mount do novo, com o dado fresco
-
-
-func _process(delta: float) -> void:
-	print(Input.get_current_cursor_shape())

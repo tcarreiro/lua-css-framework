@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://dpmtoectxvdg7"]
+
+[ext_resource type="Script" uid="uid://dmudf8oexd5bj" path="res://addons/lua-modder/UI/Styles/Components/Premade/Div/Div.gd" id="1_2h76v"]
+[ext_resource type="Script" uid="uid://bspsj7f8qcc7d" path="res://addons/lua-modder/UI/Styles/Components/LuaFlowBox.gd" id="2_xeydh"]
+
+[node name="Div" type="BoxContainer" unique_id=270868245]
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("1_2h76v")
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=104701820]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Background" type="PanelContainer" parent="Margin" unique_id=1773208487]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Padding" type="MarginContainer" parent="Margin/Background" unique_id=1124177761]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Items" type="BoxContainer" parent="Margin/Background/Padding" unique_id=1861146002]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 17
+size_flags_vertical = 17
+script = ExtResource("2_xeydh")
+metadata/_custom_type_script = "uid://bspsj7f8qcc7d"
