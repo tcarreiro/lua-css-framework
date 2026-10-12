@@ -1,0 +1,63 @@
+// ---------- telas ----------
+.menu-screen {
+	//background_image: texture('demo/assets/images/background.png');
+	//background_image_slice: 24;
+	background_color: #000000;
+	padding: 24;
+}
+.menu-actions {
+	margin: 48;
+}
+.menu-logo {
+	margin: 48;
+}
+.menu-version {
+	padding: 15 5;
+}
+// ---------- botões ----------
+.menu-button {
+	background_color: #2b3040;
+	border_color: #4a5270;
+	border_width: 2;
+	border_radius: 6;
+	padding: 14;
+	font_color: #e8ecff;
+	font_size: 22;
+	transition_duration: 150ms;
+}
+.menu-button:hover { background_color: #3a4260; }
+.menu-button:pressed { background_color: #1f2433; }
+.menu-button:disabled { background_color: #20232d; border_color: #2e3345; font_color: #6b7088; }
+
+.text-color-red {
+	font_color: #DE0000;
+}
+
+// ---------- settings ----------
+.settings-screen { padding: 48; }
+.settings-title { font_size: 36; font_color: #ffffff; }
+.settings-hint { font_size: 16; font_color: #8f96b8; }
+.settings-label { font_size: 20; font_color: #c9cfe8; }
+.settings-input {
+	background_color: #1b1f2b;
+	border_color: #4a5270;
+	border_width: 1;
+	border_radius: 4;
+	padding: 8;
+	input_font_color: #e8ecff;
+	input_font_size: 20;
+	transition_duration: 120ms;
+}
+.settings-input:focus { border_color: #7a8cff; }
+
+// ---------- modal ----------
+.dialog {
+	background_color: #1b1f2b;
+	border_color: #4a5270;
+	border_width: 2;
+	border_radius: 8;
+	padding: 20;
+	drop_shadow_color: #00000099;
+	drop_shadow_size: 16;
+}
+.dialog-message { font_size: 20; font_color: #e8ecff; }
