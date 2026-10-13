@@ -34,7 +34,10 @@
 }
 
 // ---------- settings ----------
-.settings-screen { padding: 48; }
+.settings-screen { 
+	background_color: #000000;
+	padding: 24;
+}
 .settings-title { font_size: 36; font_color: #ffffff; }
 .settings-hint { font_size: 16; font_color: #8f96b8; }
 .settings-label { font_size: 20; font_color: #c9cfe8; }

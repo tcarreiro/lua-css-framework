@@ -6,6 +6,7 @@ class_name LuaComponent extends Control
 signal prop_changed(key: String, value: Variant)
 signal disposing
 
+# Common methods allowd in UI.callMethod()
 const BASE_METHODS: Array[String] = ["add_class", "remove_class", "toggle_class", "set_state", "get_state", "set_prop"]
 const DRAG_EVENTS := ["drag_started", "drag_ended"]
 
@@ -94,11 +95,11 @@ func _apply_prop_internal(key: String, value: Variant) -> void:
 		_apply_drag_prop(StringName(key))
 		return
 	match key:
-		ComponentProps.ID:#"id":
+		ComponentProps.ID:
 			component_id = value
 			if value != "":
 				name = value
-		ComponentProps.CLASS:#"class":
+		ComponentProps.CLASS:
 			style_classes = LuaHelper.parse_style_classes(value)
 			_refresh_style(true, _is_ready)
 		ComponentProps.VISIBLE:
@@ -107,6 +108,8 @@ func _apply_prop_internal(key: String, value: Variant) -> void:
 			tooltip_text = value
 		ComponentProps.FLEX_GROW:
 			_apply_flex_grow(float(value))
+		ComponentProps.ALIGN_SELF:
+			_apply_align_self(StringName(str(value)))
 		_:
 			_apply_prop(key, value)
 
@@ -352,27 +355,19 @@ func _on_binding_changed(key: String, binding: LuaBinding) -> void:
 #endregion
 
 
-#region Flex grow
-## Ocupa uma fatia do espaço livre do container. O LuaFlowBox respeita estas flags.
+#region Flow (layout dentro de um LuaFlowBox)
 func _apply_flex_grow(grow: float) -> void:
-	var previous := float(get_meta(ComponentProps.FLEX_GROW, 0.0))
 	set_meta(ComponentProps.FLEX_GROW, grow)
-	if grow > 0.0:
-		size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		size_flags_vertical = Control.SIZE_EXPAND_FILL
-		size_flags_stretch_ratio = grow
-	elif previous > 0.0:
-		size_flags_horizontal = Control.SIZE_FILL
-		size_flags_vertical = Control.SIZE_FILL
-		size_flags_stretch_ratio = 1.0
-	if grow > 0.0 or previous > 0.0:
-		var flow := get_parent() as LuaFlowBox
-		if flow != null:
-			flow.refresh_flow()
+	_refresh_in_parent_flow()
 
-func _apply_fit_content(value: bool) -> void:
-	set_meta(ComponentProps.FIT_CONTENT, value)
+
+func _apply_align_self(value: StringName) -> void:
+	set_meta(ComponentProps.ALIGN_SELF, value)
+	_refresh_in_parent_flow()
+
+
+func _refresh_in_parent_flow() -> void:
 	var flow := get_parent() as LuaFlowBox
 	if flow != null:
-		flow.refresh_flow()
+		flow.refresh_child(self)
 #endregion

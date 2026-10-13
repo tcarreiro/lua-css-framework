@@ -3,7 +3,7 @@ class_name ComponentProps extends RefCounted
 ## via pick() e só podem sobrescrever o default.
 
 ## Props que todo componente aceita sem declarar no schema (ver ComponentRegistry.base_props).
-const BASE: Array[StringName] = [ID, CLASS, VISIBLE, TOOLTIP, DISABLED, FLEX_GROW]
+const BASE: Array[StringName] = [ID, CLASS, VISIBLE, TOOLTIP, DISABLED, FLEX_GROW, ALIGN_SELF]
 
 const ANY := TYPE_NIL 
 const TYPE := &"type"
@@ -40,6 +40,8 @@ const PADDING_RIGHT := &"padding_right"
 const PADDING_BOTTOM := &"padding_bottom"
 
 const DISPLAY := &"display"
+const ALIGN_ITEMS := &"align_items"
+const ALIGN_SELF := &"align_self"
 
 const BACKGROUND_COLOR := &"background_color"
 const BORDER_COLOR := &"border_color"
@@ -66,6 +68,7 @@ const MAX_HEIGHT := &"max_height"
 
 const DIRECTION := &"direction"
 const ALIGNMENT := &"alignment"
+
 const FOLLOW_FOCUS := &"follow_focus"
 const EDGE_THRESHOLD := &"edge_threshold"
 const SCROLLBAR_MODE := &"scrollbar_mode"
@@ -346,7 +349,6 @@ static func resolve_family(family: StringName, layers: Array[Callable]) -> Array
 	return out
 #endregion
 
-
 #region Options
 const DIRECTIONS := [
 	VERTICAL, HORIZONTAL, BOTH
@@ -356,6 +358,13 @@ const ALIGNMENTS := {
 	CENTER: BoxContainer.AlignmentMode.ALIGNMENT_CENTER,
 	START: BoxContainer.AlignmentMode.ALIGNMENT_BEGIN, 
 	END: BoxContainer.AlignmentMode.ALIGNMENT_END,
+}
+
+const CROSS_ALIGNS := {
+	STRETCH: Control.SIZE_FILL,
+	START: Control.SIZE_SHRINK_BEGIN,
+	CENTER: Control.SIZE_SHRINK_CENTER,
+	END: Control.SIZE_SHRINK_END,
 }
 
 const DRAG_MODES := [HOLD, TOGGLE]
@@ -468,11 +477,9 @@ static func pick(names: Array, defaults: Dictionary = {}, prefix: String = "") -
 		var def: Dictionary = all[key].duplicate(true)
 		if overrides.has(key):
 			def[DEFAULT] = overrides[key]
-		#out[key] = def
 		out[prefix + key] = def
 
 	for key in overrides:
-		#if not out.has(key):
 		if not out.has(prefix + key):
 			push_warning("[ComponentProps] default para prop que não está no pick: '%s'" % key)
 	return out
@@ -553,7 +560,9 @@ static func _catalog() -> Dictionary:
 	_add(c, MAX_HEIGHT, TYPE_INT, -1, "Altura máxima em px (-1 = sem limite).")
 
 	_add(c, DIRECTION, TYPE_STRING, "vertical", "Eixos de rolagem.", DIRECTIONS)
-	_add(c, ALIGNMENT, TYPE_STRING, null, "Eixos de rolagem.", ALIGNMENTS.keys())
+	_add(c, ALIGNMENT, TYPE_STRING, null, "Alinhamento dos filhos no eixo principal (vertical em block, horizontal em flex).", ALIGNMENTS.keys())
+	_add(c, ALIGN_ITEMS, TYPE_STRING, "stretch", "Alinhamento dos filhos no eixo cruzado (horizontal em block, vertical em flex). stretch estica.", CROSS_ALIGNS.keys())
+	_add(c, ALIGN_SELF, TYPE_STRING, "auto", "Sobrescreve o align_items do container para este componente.", [AUTO, STRETCH, START, CENTER, END])
 	_add(c, FOLLOW_FOCUS, TYPE_BOOL, true, "Rola até o filho focado.")
 	_add(c, EDGE_THRESHOLD, TYPE_INT, 0, "Folga em px para os eventos de início/fim.")
 	_add(c, SCROLLBAR_MODE, TYPE_STRING, "auto", "Visibilidade da barra e crescimento.", SCROLL_MODES.keys())

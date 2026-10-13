@@ -1,4 +1,24 @@
-local function row(title, input)
+--Div{ class = 'menu-logo', flex_grow = 60, alignment = 'center', align_items = 'center',
+	--children = {
+		--Sprite{ texture = 'demo/assets/images/logo.png', width = 800, height = 500 }, -- get texture path from GameConfig
+	--}
+--}
+--
+--Div{ class = 'menu-actions', flex_grow = 40, display = 'flex', padding_top = 100, 
+	--children = {
+		--Div{flex_grow = 1},
+		--Div{ flex_grow = 1, gap = 20, alignment = 'start',
+			--children = {
+				--button("play_btn", "PLAY", "play", nil),
+				--button("settings_btn", "SETTINGS", "settings", nil),
+				--button("quit_btn", "QUIT", "quit", "text-color-red"),
+			--}
+		--},
+		--Div{flex_grow = 1},
+	--}
+--}
+
+local function row(title, input, label_width)
   return 
 		Div{ 
 			id = "row-wrapper",
@@ -10,7 +30,7 @@ local function row(title, input)
 					id = "label-wrapper",
 					alignment = "center",
 					children = {
-						Label{ text = title, class = "settings-label"},
+						Label{ text = title, class = "settings-label", width = label_width},
 					}
 				},
 				input,
@@ -36,16 +56,8 @@ UI.defineComponent("SettingsScreen", {
 	  UI.mount(ConfirmDialog{ message = message, on_confirm = action })
 	end
 
-	local function get_prop(store, prop)
-		local val = store.get_at(prop)
-		if val == nil then
-			val = 0
-		end
-		return val
-	end
-
 	return Body{ children = {
-	  Div{ class = "screen settings-screen", flex_grow = 1, gap = 16,
+	  Div{ class = "settings-screen", flex_grow = 1, gap = 16,
 		children = {
 			Label{ id = "section_name", text = "SETTINGS", class = "settings-title" },
 			
@@ -53,9 +65,9 @@ UI.defineComponent("SettingsScreen", {
 				id = "applied_config", 
 				class = "settings-hint",
 				text = UI.bind(settings_store, function()
-					return "Aplicado: " .. get_prop(settings_store, "resolution")
-					  .. " | vsync " .. get_prop(settings_store, "vsync")
-					  .. " | volume " .. get_prop(settings_store, "volume")
+					return "Aplicado: " .. settings_store.get_at("resolution")
+					  .. " | vsync " .. settings_store.get_at("vsync")
+					  .. " | volume " .. settings_store.get_at("volume")
 				  end),
 			},
 			
@@ -63,33 +75,33 @@ UI.defineComponent("SettingsScreen", {
 				id = "draft_config", 
 				class = "settings-hint",
 				text = UI.bind(draft_store, function()
-					return "Rascunho: " .. get_prop(draft_store, "resolution")
-					  .. " | vsync " .. get_prop(draft_store, "vsync")
-					  .. " | volume " .. get_prop(draft_store, "volume")
+					return "Rascunho: " .. draft_store.get_at("resolution")
+					  .. " | vsync " .. draft_store.get_at("vsync")
+					  .. " | volume " .. draft_store.get_at("volume")
 				  end),
 			},
 
 			row("Resolução", Input{
-				class = "settings-input", width = 300,
+				class = "settings-input", width = 320,
 				value = draft_store.get_at("resolution"),
 				on_changed = function(v) draft_store.set_at("resolution", v) end,
-			}),
+			}, 240),
 			
 			row("VSync (0 ou 1)", Input{
-				class = "settings-input", width = 300, type = "number",
+				class = "settings-input", width = 320, type = "number",
 				value = draft_store.get_at("vsync"),
 				on_changed = function(v)
 					draft_store.set_at("vsync", v)
 				end,
-			}),
+			}, 240),
 			
 			row("Volume (0 a 100)", Input{
-				class = "settings-input", width = 300, type = "number",
+				class = "settings-input", width = 320, type = "number",
 				value = draft_store.get_at("volume"),
 				on_changed = function(v)
 					draft_store.set_at("volume", v)
 				end,
-			}),
+			}, 240),
 
 			Div{id = "separator_1",  flex_grow = 1 },
 			Div{ id = "actions", display = "flex", gap = 12,
@@ -114,7 +126,7 @@ UI.defineComponent("SettingsScreen", {
 						end,
 					},
 					Button{
-						label = "CANCEL", class = "menu-button",
+						label = "BACK", class = "menu-button",
 						on_pressed = function()
 							if not draft_store.dirty() then
 								back_to_menu()

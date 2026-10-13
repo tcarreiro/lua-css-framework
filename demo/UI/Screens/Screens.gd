@@ -4,7 +4,7 @@ extends Control
 
 const LUA_DIR := "res://demo/UI/Screens/lua/"
 const LUA_FILES := ["confirm_dialog.lua", "main_menu.lua", "settings.lua"]
-const LCSS_FILE := "res://demo/UI/Screens/screens.lcss"
+const LCSS_FILE := ["res://demo/UI/Screens/screens.lcss", "res://addons/lua-modder/UI/Styles/layout.lcss"]
 
 ## Cena aberta pelo PLAY.
 @export_file("*.tscn") var play_scene: String = ""
@@ -21,7 +21,9 @@ var _screen: LuaComponent
 func _ready() -> void:
 	LuaUi.set_root(self)
 	LuaUi.expose_store("settings", settings)
-	LuaUi.load_lcss(LCSS_FILE)
+	#LuaUi.load_lcss(LCSS_FILE)
+	for file in LCSS_FILE:
+		LuaUi.load_lcss(file)
 	for file in LUA_FILES:
 		LuaUi.load_file(LUA_DIR + file)
 	# o motor reage à store: APPLY e SAVE só precisam escrever nela

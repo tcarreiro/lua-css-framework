@@ -1,7 +1,7 @@
 UI.defineComponent("MainMenu", {
-  events = { "navigate" }, -- Declara o evento navigate, vira on_navigate
+  events = { "navigate" }, -- Declara o evento 'navigate'. Quem usa o componente recebe o handler em p.on_navigate
   render = function(p)
-	print(p)
+
 	local function go(target)
 		if p.on_navigate then p.on_navigate(target) end
 	end
@@ -41,39 +41,23 @@ UI.defineComponent("MainMenu", {
 						display = "flex",
 						children = {
 							-- 60%: a logo
-							Div{ 
-								class = "menu-logo", flex_grow = 60,
-								children = {
-									Div{
-										display = "flex", alignment = "center", 
-										children = {
-											Sprite{ 
-												texture = "demo/assets/images/logo.png", 
-												width = 800,
-												height = 500,
-											},
-										},
-									},
-								},
-							},
+							Div{ class = 'menu-logo', flex_grow = 60, align_items = 'center', children = {
+								Sprite{ texture = 'demo/assets/images/logo.png', width = 800, height = 500 }, -- get texture path from GameConfig
+							}},
 							-- 33% de 40%: botões, centralizados na vertical por espaçadores
-							Div{ 
-								class = "menu-actions", flex_grow = 40, padding_top = 150, 
-								display = "flex", alignment = "center",
+							Div{ class = 'menu-actions', flex_grow = 40, display = 'flex', padding_bottom = 120, 
 								children = {
 									Div{flex_grow = 1},
-									Div{
-										gap = 20, 
-										flex_grow = 3,
+									Div{ flex_grow = 1, gap = 20, alignment = 'end',
 										children = {
-											button("play_btn", "PLAY", "play", null),
-											button("settings_btn", "SETTINGS", "settings", null),
+											button("play_btn", "PLAY", "play", nil),
+											button("settings_btn", "SETTINGS", "settings", nil),
 											button("quit_btn", "QUIT", "quit", "text-color-red"),
 										}
 									},
 									Div{flex_grow = 1},
-								},
-							},
+								}
+							}
 						} 
 					},
 					Div{
@@ -81,7 +65,7 @@ UI.defineComponent("MainMenu", {
 						alignment = "end",
 						display = "flex",
 						children = {
-							Label{text = "v. 0.00.01-00001"}
+							Label{text = "v. 0.00.01-00001"},  -- get version from GameConfig
 						}
 					}
 				}

@@ -3,7 +3,7 @@ extends LuaStyledBox
 @onready var _items: LuaFlowBox = %Items
 
 func get_schema() -> Dictionary:
-	var names: Array = [ComponentProps.DISPLAY, ComponentProps.GAP, ComponentProps.ALIGNMENT]
+	var names: Array = [ComponentProps.DISPLAY, ComponentProps.GAP, ComponentProps.ALIGNMENT, ComponentProps.ALIGN_ITEMS]
 	names.append_array(LuaStyledBox.box_names())
 	names.append_array(ComponentProps.DRAG_GRP)
 	return {
@@ -26,5 +26,7 @@ func _apply_prop(key: String, value: Variant) -> void:
 			_items.add_theme_constant_override("separation", maxi(int(value), 0))
 		ComponentProps.DISABLED:
 			set_state(&"disabled", value)
+		ComponentProps.ALIGN_ITEMS:
+			_items.align_items = StringName(str(value))
 		_:
 			super._apply_prop(key, value)
