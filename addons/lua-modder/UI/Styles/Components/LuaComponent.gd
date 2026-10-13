@@ -110,6 +110,10 @@ func _apply_prop_internal(key: String, value: Variant) -> void:
 			_apply_flex_grow(float(value))
 		ComponentProps.ALIGN_SELF:
 			_apply_align_self(StringName(str(value)))
+		ComponentProps.JUSTIFY_SELF:
+			_apply_justify_self(StringName(str(value)))
+		ComponentProps.POINTER_EVENTS:
+			mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED if str(value) == "none" else Control.MOUSE_BEHAVIOR_INHERITED
 		_:
 			_apply_prop(key, value)
 
@@ -355,6 +359,19 @@ func _on_binding_changed(key: String, binding: LuaBinding) -> void:
 #endregion
 
 
+#region Model
+func _has_model() -> bool:
+	return _bindings.has(String(ComponentProps.MODEL))
+
+
+## Componentes de valor chamam isto quando o USUÁRIO muda o valor.
+func _write_model(value: Variant) -> void:
+	var model := _bindings.get(String(ComponentProps.MODEL)) as LuaModel
+	if model != null:
+		model.write(value)
+#endregion
+
+
 #region Flow (layout dentro de um LuaFlowBox)
 func _apply_flex_grow(grow: float) -> void:
 	set_meta(ComponentProps.FLEX_GROW, grow)
@@ -366,8 +383,14 @@ func _apply_align_self(value: StringName) -> void:
 	_refresh_in_parent_flow()
 
 
+func _apply_justify_self(value: StringName) -> void:
+	set_meta(&"justify_self", value)
+	_refresh_in_parent_flow()
+
+
 func _refresh_in_parent_flow() -> void:
-	var flow := get_parent() as LuaFlowBox
-	if flow != null:
-		flow.refresh_child(self)
+	var parent := get_parent()
+	if parent != null and parent.has_method(&"refresh_child"):
+		parent.refresh_child(self)
+
 #endregion

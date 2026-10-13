@@ -1,24 +1,4 @@
---Div{ class = 'menu-logo', flex_grow = 60, alignment = 'center', align_items = 'center',
-	--children = {
-		--Sprite{ texture = 'demo/assets/images/logo.png', width = 800, height = 500 }, -- get texture path from GameConfig
-	--}
---}
---
---Div{ class = 'menu-actions', flex_grow = 40, display = 'flex', padding_top = 100, 
-	--children = {
-		--Div{flex_grow = 1},
-		--Div{ flex_grow = 1, gap = 20, alignment = 'start',
-			--children = {
-				--button("play_btn", "PLAY", "play", nil),
-				--button("settings_btn", "SETTINGS", "settings", nil),
-				--button("quit_btn", "QUIT", "quit", "text-color-red"),
-			--}
-		--},
-		--Div{flex_grow = 1},
-	--}
---}
-
-local function row(title, input, label_width)
+local function row(title, control, label_width)
   return 
 		Div{ 
 			id = "row-wrapper",
@@ -33,7 +13,7 @@ local function row(title, input, label_width)
 						Label{ text = title, class = "settings-label", width = label_width},
 					}
 				},
-				input,
+				control,
 				Div{id = "separator", flex_grow = 5}
 			}
 	}
@@ -44,8 +24,8 @@ UI.defineComponent("SettingsScreen", {
   render = function(p)
 	local settings_store = UI.store("settings")
 	local draft_store = settings_store.draft()        -- cópia local, editada pelos inputs
-	
-	-- true enquanto o rascunho for igual ao aplicado; APPLY e SAVE acompanham
+	print(settings_store.get_at("quality_options")[0])
+	-- true enquanto o rascunho for igual ao aplicado; APPLY e SAVE acompanham -- Reativo
 	local not_dirty = UI.bind(draft_store, function() return not draft_store.dirty() end)
 	
 	local function back_to_menu()
@@ -65,9 +45,11 @@ UI.defineComponent("SettingsScreen", {
 				id = "applied_config", 
 				class = "settings-hint",
 				text = UI.bind(settings_store, function()
+					--return settings_store.get_at("vsync")
 					return "Aplicado: " .. settings_store.get_at("resolution")
-					  .. " | vsync " .. settings_store.get_at("vsync")
+					  .. " | vsync " .. tostring(settings_store.get_at("vsync"))
 					  .. " | volume " .. settings_store.get_at("volume")
+					  .. " | quality " .. settings_store.get_at("quality_options")[settings_store.get_at("quality")-1].label
 				  end),
 			},
 			
@@ -75,41 +57,55 @@ UI.defineComponent("SettingsScreen", {
 				id = "draft_config", 
 				class = "settings-hint",
 				text = UI.bind(draft_store, function()
+					--return draft_store.get_at("vsync")
 					return "Rascunho: " .. draft_store.get_at("resolution")
-					  .. " | vsync " .. draft_store.get_at("vsync")
+					  .. " | vsync " .. tostring(draft_store.get_at("vsync"))
 					  .. " | volume " .. draft_store.get_at("volume")
+					  .. " | quality " .. draft_store.get_at("quality_options")[draft_store.get_at("quality")-1].label
 				  end),
 			},
-
-			row("Resolução", Input{
-				class = "settings-input", width = 320,
-				value = draft_store.get_at("resolution"),
-				on_changed = function(v) draft_store.set_at("resolution", v) end,
-			}, 240),
 			
-			row("VSync (0 ou 1)", Input{
-				class = "settings-input", width = 320, type = "number",
-				value = draft_store.get_at("vsync"),
-				on_changed = function(v)
-					draft_store.set_at("vsync", v)
-				end,
-			}, 240),
+			Scroll{
+				flex_grow = 1,
+				children = {
+					row('Resolução', Dropdown{
+						class = 'settings-input', width = 300,
+						options = settings_store.get_at("resolution_options"),
+						model = draft_store.model('resolution'),
+					}, 240),
+					row('VSync', Checkbox{
+						class = 'checkbox', label = 'Ligado',
+						model = draft_store.model('vsync')
+					}, 240),
+					row('Volume', Slider{
+						class = 'slider', width = 300, min = 0, max = 100, step = 1, show_value = true,
+						track_height = 8, thumb_size = 22,
+						model = draft_store.model('volume'),
+					}, 240),
+					row('Qualidade', RadioGroup{
+						options = settings_store.get_at("quality_options"),
+						model = draft_store.model('quality'),
+						on_changed = function(v) print(v) end
+					}, 240),
+				}
+			},
 			
-			row("Volume (0 a 100)", Input{
-				class = "settings-input", width = 320, type = "number",
-				value = draft_store.get_at("volume"),
-				on_changed = function(v)
-					draft_store.set_at("volume", v)
-				end,
-			}, 240),
 
-			Div{id = "separator_1",  flex_grow = 1 },
 			Div{ id = "actions", display = "flex", gap = 12,
 				children = {
 					Div{ flex_grow = 1 },   -- empurra os botões para a direita
 					Button{
 						label = "APPLY", class = "menu-button", disabled = not_dirty,
-						on_pressed = function() draft_store.commit() end,
+						on_mouse_entered = function()
+							if draft_store.dirty() then
+								UI.playSoundEffect("som")
+							end
+						end,
+						on_pressed = function() 
+							confirm("Salvar as configurações?", function()
+								draft_store.commit()
+							end)
+						end,
 					},
 					Button{
 						label = "SAVE", class = "menu-button", disabled = not_dirty,

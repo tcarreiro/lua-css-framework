@@ -8,7 +8,6 @@ var _at_start := true
 var _at_end := false
 
 func get_schema() -> Dictionary:
-	# testados: GAP
 	var names: Array = [
 		ComponentProps.PADDING, ComponentProps.GAP,
 		ComponentProps.WIDTH, ComponentProps.HEIGHT,

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://comtpa2djorgk"]
+
+[ext_resource type="Script" uid="uid://dswli55on45yt" path="res://addons/lua-modder/UI/Styles/Components/Premade/ShaderEffect/ShaderEffect.gd" id="1_1b6mp"]
+
+[node name="ShaderEffect" type="ColorRect" unique_id=846408953]
+script = ExtResource("1_1b6mp")

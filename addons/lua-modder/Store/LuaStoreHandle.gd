@@ -34,6 +34,7 @@ func to_lua() -> Dictionary:
 		"dirty": Callable(self, "lua_dirty"),
 		"commit": Callable(self, "lua_commit"),
 		"discard": Callable(self, "lua_discard"),
+		"model": Callable(self, "lua_model"),
 	}
 
 
@@ -67,3 +68,8 @@ func lua_commit() -> void:
 func lua_discard() -> void:
 	if origin != null:
 		store.assign(origin.value)
+
+
+func lua_model(key: Variant) -> LuaModel:
+	var k := str(key)
+	return LuaModel.new(dependencies(), func() -> Variant: return store.get_at(k), func(v: Variant) -> void: lua_set(k, v))

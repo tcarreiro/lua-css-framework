@@ -3,7 +3,10 @@ class_name ComponentProps extends RefCounted
 ## via pick() e só podem sobrescrever o default.
 
 ## Props que todo componente aceita sem declarar no schema (ver ComponentRegistry.base_props).
-const BASE: Array[StringName] = [ID, CLASS, VISIBLE, TOOLTIP, DISABLED, FLEX_GROW, ALIGN_SELF]
+const BASE: Array[StringName] = [
+	ID, CLASS, VISIBLE, TOOLTIP, DISABLED,
+	FLEX_GROW, ALIGN_SELF, JUSTIFY_SELF, POINTER_EVENTS,
+]
 
 const ANY := TYPE_NIL 
 const TYPE := &"type"
@@ -22,11 +25,32 @@ const CLASS := &"class"
 const VISIBLE := &"visible"
 const TOOLTIP := &"tooltip"
 
+const MIN := &"min"
+const MAX := &"max"
+const STEP := &"step"
+const SHOW_VALUE := &"show_value"
+const TRACK_HEIGHT := &"track_height"
+const THUMB_SIZE := &"thumb_size"
+
 const DRAGGABLE := &"draggable"
 const DRAG_MODE := &"drag_mode"
 const DRAG_HANDLE := &"drag_handle"
 const DRAG_BOUNDS := &"drag_bounds"
 const DRAG_CURSOR := &"drag_cursor"
+
+const MODEL := &"model"
+const CHECKED := &"checked"
+const RADIO := &"radio"
+const INDICATOR_SIZE := &"indicator_size"
+const MARK_INSET := &"mark_inset"
+const OPTION_LIST := &"options"   # OPTIONS já é a chave de definição do catálogo
+const OPTION_CLASS := &"option_class"
+const LIST_CLASS := &"list_class"
+const LIST_MAX_HEIGHT := &"list_max_height"
+const PLACEHOLDER := &"placeholder"
+const CARET := &"caret"
+const JUSTIFY_SELF := &"justify_self"
+const POINTER_EVENTS := &"pointer_events"
 
 const MARGIN := &"margin"
 const MARGIN_LEFT := &"margin_left"
@@ -161,6 +185,25 @@ const FPS := &"fps"
 const DURATION := &"duration"
 const LOOP := &"loop"
 const PLAYING := &"playing"
+
+const EFFECT := &"effect"
+const PARAMS := &"params"
+const ACTIVE := &"active"
+const EMITTING := &"emitting"
+const AMOUNT := &"amount"
+const LIFETIME := &"lifetime"
+const EXPLOSIVENESS := &"explosiveness"
+const RANDOMNESS := &"randomness"
+const PREWARM := &"prewarm"
+const SHAPE := &"shape"
+const EMIT_ANGLE := &"emit_angle"
+const SPREAD := &"spread"
+const SPEED := &"speed"
+const GRAVITY := &"gravity"
+const PARTICLE_SCALE := &"particle_scale"
+const COLOR := &"color"
+const COLOR_END := &"color_end"
+const BLEND := &"blend"
 #endregion
 
 #region Values
@@ -220,6 +263,14 @@ const BOUNCE := &"bounce"
 
 const ONE_SHOT := &"one_shot"
 const PING_PONG := &"ping_pong"
+const POINT := &"point"
+const BOX := &"box"
+const SPHERE := &"sphere"
+const MIX := &"mix"
+const ADD := &"add"
+const SUBTRACT := &"subtract"
+const MULTIPLY := &"multiply"
+const PREMULTIPLIED_ALPHA := &"premultiplied_alpha"
 
 const OFF := &"off"
 const WORD := &"word"
@@ -452,6 +503,13 @@ const TEXT_OVERFLOWS := {
 	WORD: TextServer.OVERRUN_TRIM_WORD, ELLIPSIS: TextServer.OVERRUN_TRIM_ELLIPSIS,
 	WORD_ELLIPSIS: TextServer.OVERRUN_TRIM_WORD_ELLIPSIS,
 }
+
+const EMIT_SHAPES := {
+	POINT: CPUParticles2D.EMISSION_SHAPE_POINT,
+	BOX: CPUParticles2D.EMISSION_SHAPE_RECTANGLE,
+	SPHERE: CPUParticles2D.EMISSION_SHAPE_SPHERE,
+}
+const BLENDS := [MIX, ADD, SUBTRACT, MULTIPLY, PREMULTIPLIED_ALPHA]
 #endregion
 
 static var _cache: Dictionary = {}
@@ -505,6 +563,13 @@ static func _catalog() -> Dictionary:
 	_add(c, TOOLTIP, TYPE_STRING, "", "Tooltip do componente") # To be implemented 
 	_add(c, FLEX_GROW, TYPE_FLOAT, 0.0, "Parte do espaço livre do container que o componente ocupa. 0 = só o tamanho do conteúdo; valores diferentes dividem o espaço na proporção entre eles.")
 
+	_add(c, MIN, TYPE_FLOAT, 0.0, "Menor valor.")
+	_add(c, MAX, TYPE_FLOAT, 100.0, "Maior valor.")
+	_add(c, STEP, TYPE_FLOAT, 1.0, "Passo entre valores (0 = contínuo).")
+	_add(c, SHOW_VALUE, TYPE_BOOL, false, "Mostra o valor atual ao lado da barra.")
+	_add(c, TRACK_HEIGHT, TYPE_INT, 6, "Espessura da barra em px.")
+	_add(c, THUMB_SIZE, ANY, 20, "Tamanho do marcador em px: número ou {largura, altura}.")
+	
 	_add(c, DRAGGABLE, TYPE_BOOL, false, "Permite arrastar o componente com o mouse.")
 	_add(c, DRAG_MODE, TYPE_STRING, "hold", "hold: arrasta com o botão pressionado. toggle: clica para pegar e clica de novo para soltar.", DRAG_MODES)
 	_add(c, DRAG_HANDLE, TYPE_BOOL, false, "Marca este componente como a região de arraste do ancestral com draggable. Sem nenhum handle, o ancestral inteiro é a região.")
@@ -562,7 +627,22 @@ static func _catalog() -> Dictionary:
 	_add(c, DIRECTION, TYPE_STRING, "vertical", "Eixos de rolagem.", DIRECTIONS)
 	_add(c, ALIGNMENT, TYPE_STRING, null, "Alinhamento dos filhos no eixo principal (vertical em block, horizontal em flex).", ALIGNMENTS.keys())
 	_add(c, ALIGN_ITEMS, TYPE_STRING, "stretch", "Alinhamento dos filhos no eixo cruzado (horizontal em block, vertical em flex). stretch estica.", CROSS_ALIGNS.keys())
-	_add(c, ALIGN_SELF, TYPE_STRING, "auto", "Sobrescreve o align_items do container para este componente.", [AUTO, STRETCH, START, CENTER, END])
+	_add(c, ALIGN_SELF, TYPE_STRING, "auto", "Em block/flex: alinhamento no eixo cruzado. Em um Stack: alinhamento vertical. Sobrescreve o align_items do container.", [AUTO, STRETCH, START, CENTER, END])
+	_add(c, JUSTIFY_SELF, TYPE_STRING, "auto", "Alinhamento horizontal em um Stack.", [AUTO, STRETCH, START, CENTER, END])
+	_add(c, POINTER_EVENTS, TYPE_STRING, "auto", "none: o componente e tudo dentro dele ignoram o mouse, e os cliques passam para o que está atrás.", [AUTO, NONE])
+	
+	_add(c, MODEL, ANY, null, "Liga o valor a uma entrada de store: model = handle.model('chave'). Lê, atualiza sozinho e grava o que o usuário muda.")
+	_add(c, CHECKED, TYPE_BOOL, false, "Marcado.")
+	_add(c, RADIO, TYPE_BOOL, false, "Age como opção de rádio: o usuário só marca, nunca desmarca.")
+	_add(c, INDICATOR_SIZE, TYPE_INT, 20, "Lado do quadrado do indicador, em px.")
+	_add(c, MARK_INSET, TYPE_INT, 4, "Distância entre a borda do indicador e a marca, em px.")
+	_add(c, OPTION_LIST, ANY, null, "Opções: lista de textos ou de { value, label, disabled }.")
+	_add(c, OPTION_CLASS, TYPE_STRING, "", "Classe de estilo de cada opção.")
+	_add(c, LIST_CLASS, TYPE_STRING, "", "Classe da lista aberta do dropdown.")
+	_add(c, LIST_MAX_HEIGHT, TYPE_INT, 240, "Altura máxima da lista aberta, em px.")
+	_add(c, PLACEHOLDER, TYPE_STRING, "", "Texto mostrado quando nenhuma opção está selecionada.")
+	_add(c, CARET, TYPE_STRING, "▾", "Texto do indicador de abertura.")
+	
 	_add(c, FOLLOW_FOCUS, TYPE_BOOL, true, "Rola até o filho focado.")
 	_add(c, EDGE_THRESHOLD, TYPE_INT, 0, "Folga em px para os eventos de início/fim.")
 	_add(c, SCROLLBAR_MODE, TYPE_STRING, "auto", "Visibilidade da barra e crescimento.", SCROLL_MODES.keys())
@@ -642,5 +722,27 @@ static func _catalog() -> Dictionary:
 	_add(c, DURATION, TYPE_FLOAT, 0.0, "Duração do ciclo completo em segundos. Se maior que 0, vence o fps.")
 	_add(c, LOOP, TYPE_BOOL, true, "Repete a animação.")
 	_add(c, PLAYING, TYPE_BOOL, true, "Toca automaticamente.")
+	
+	_add(c, EFFECT, TYPE_STRING, "tint", "Efeito de tela pré-definido.", LuaShaderLibrary.names())
+	_add(c, PARAMS, ANY, null, "Parâmetros do efeito: { nome = valor }.")
+	_add(c, ACTIVE, TYPE_BOOL, true, "Liga ou desliga o efeito.")
+
+	_add(c, EMITTING, TYPE_BOOL, true, "Emite partículas.")
+	_add(c, AMOUNT, TYPE_INT, 32, "Partículas vivas ao mesmo tempo.")
+	_add(c, LIFETIME, TYPE_FLOAT, 1.5, "Vida de cada partícula, em segundos.")
+	_add(c, ONE_SHOT, TYPE_BOOL, false, "Emite uma vez só. Use restart() para repetir.")
+	_add(c, EXPLOSIVENESS, TYPE_FLOAT, 0.0, "0 = emissão contínua; 1 = todas de uma vez.")
+	_add(c, RANDOMNESS, TYPE_FLOAT, 0.0, "Aleatoriedade do início de cada partícula, de 0 a 1.")
+	_add(c, PREWARM, TYPE_FLOAT, 0.0, "Segundos simulados antes de aparecer (efeitos de ambiente).")
+	_add(c, SHAPE, TYPE_STRING, "box", "Onde nascem: point (centro), box (todo o retângulo) ou sphere.", EMIT_SHAPES.keys())
+	_add(c, EMIT_ANGLE, TYPE_FLOAT, -90.0, "Direção da emissão em graus (0 = direita, -90 = cima).")
+	_add(c, SPREAD, TYPE_FLOAT, 25.0, "Abertura do cone de emissão, em graus.")
+	_add(c, SPEED, ANY, null, "Velocidade inicial em px/s: número ou {min, max}. Padrão: {20, 60}.")
+	_add(c, GRAVITY, ANY, null, "Aceleração em px/s²: número (vertical) ou {x, y}.")
+	_add(c, PARTICLE_SCALE, ANY, null, "Escala da partícula: número ou {min, max}.")
+	_add(c, COLOR, TYPE_COLOR, null, "Cor inicial. Padrão: branco.")
+	_add(c, COLOR_END, TYPE_COLOR, null, "Cor final. Padrão: a inicial, transparente.")
+	_add(c, BLEND, TYPE_STRING, "mix", "mix, add (brilho aditivo), multiply, subtract ou premultiplied_alpha.", BLENDS)
+	_add(c, CLIP, TYPE_BOOL, false, "Corta as partículas que saem do retângulo.")
 	
 	return c

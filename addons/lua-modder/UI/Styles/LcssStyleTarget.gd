@@ -45,6 +45,7 @@ class Transition extends RefCounted:
 
 var _property_targets: Dictionary[StringName, Node] = {}
 var _family_targets: Dictionary[StringName, Node] = {}
+var _defaults: Dictionary = {}   # contexto -> valor padrão (camada mais baixa, abaixo do .lcss)
 var _simple: Dictionary = {}     # context -> Binding
 var _families: Dictionary = {}   # context -> FamilyBinding
 var _contexts: Dictionary = {}   # todo contexto conhecido -> Binding | FamilyBinding
@@ -124,6 +125,10 @@ func unregister_family(context: StringName) -> void:
 	for m in fb.members:
 		_contexts.erase(m)
 	_families.erase(context)
+
+
+func set_default(context: StringName, value: Variant) -> void:
+	_defaults[context] = value
 #endregion
 
 
@@ -163,6 +168,9 @@ func apply_style(style: LCSSStyle, overrides: Dictionary[StringName, Variant] = 
 	for context: StringName in _simple:
 		var binding: Binding = _simple[context]
 		var value: Variant = overrides[context] if overrides.has(context) else _style_value(style, context)
+		# TODO: aqui?
+		if value == null:
+			value = _defaults.get(context)
 		_drive(context, binding.property, value, binding.target, transition, false)
 
 	# famílias: inline > lcss; dentro de cada camada, parte > atalho
@@ -170,6 +178,7 @@ func apply_style(style: LCSSStyle, overrides: Dictionary[StringName, Variant] = 
 		var layers: Array[Callable] = [
 			func(p: StringName) -> Variant: return overrides.get(fb.context_of(p)),
 			func(p: StringName) -> Variant: return _style_value(style, fb.context_of(p)),
+			func(p: StringName) -> Variant: return _defaults.get(fb.context_of(p)),
 		]
 		var values := ComponentProps.resolve_family(fb.family, layers)
 		_drive(fb.shorthand, fb.family, values, fb.target, transition, true)
@@ -272,6 +281,7 @@ func _cancel_tween(key: StringName) -> void:
 		tween.kill()
 	_tweens.erase(key)
 #endregion
+
 
 #region Interpolação
 static func _kind(property: StringName, from: Variant, to: Variant, is_family: bool) -> int:

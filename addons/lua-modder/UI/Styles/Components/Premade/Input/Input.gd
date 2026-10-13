@@ -16,6 +16,7 @@ var _updating := false
 var _icon_path: String = ""
 var _icon_side: String = "left"
 
+var value: ReactiveString = ReactiveString.new("")
 
 func get_schema() -> Dictionary:
 	var names: Array = [
@@ -23,6 +24,7 @@ func get_schema() -> Dictionary:
 		ComponentProps.THOUSAND_SEPARATOR, ComponentProps.DECIMAL_SEPARATOR,
 		ComponentProps.LABEL, ComponentProps.ICON, ComponentProps.ICON_SIDE,
 		ComponentProps.CURSOR, ComponentProps.WIDTH, ComponentProps.HEIGHT,
+		ComponentProps.MODEL,
 	]
 	names.append_array(LuaStyledBox.box_names())
 	var props: Dictionary = ComponentProps.pick(names, {ComponentProps.CURSOR: ComponentProps.TEXT})
@@ -43,6 +45,10 @@ func _setup_style_target() -> void:
 func _component_ready() -> void:
 	LuaStyledBox.strip_native_stylebox(_line_edit, ["normal", "focus", "read_only"])
 	_line_edit.mouse_filter = Control.MOUSE_FILTER_PASS
+	
+	if _has_model() and props.get("model") != null:
+		_apply_model_value(props["model"])
+		
 	for node in [_icon_left, _icon_right, _label]:
 		node.mouse_filter = Control.MOUSE_FILTER_PASS
 
@@ -77,6 +83,9 @@ func _apply_prop(key: String, value: Variant) -> void:
 			_type = InputType.get(str(value).to_upper(), InputType.TEXT)
 			_line_edit.secret = (_type == InputType.SECRET)
 			_refresh_display()
+		ComponentProps.MODEL:
+			if _is_ready and value != null:
+				_apply_model_value(value)
 		ComponentProps.DECIMALS:
 			_decimals = int(value)
 			_refresh_display()
@@ -131,6 +140,16 @@ func _reflow_content_margins() -> void:
 	_label.position.x = left_reserved
 
 
+## Não reescreve o texto se ele já é o mesmo: durante a digitação o caret não pula.
+func _apply_model_value(value: Variant) -> void:
+	var shown := _format_number(str(value)) if _type == InputType.NUMBER else str(value)
+	if _line_edit.text == shown:
+		return
+	_updating = true
+	_line_edit.text = shown
+	_updating = false
+
+
 #region Validação de NUMBER
 func _on_text_changed(new_text: String) -> void:
 	if _updating:
@@ -139,6 +158,7 @@ func _on_text_changed(new_text: String) -> void:
 	if _type != InputType.NUMBER:
 		props["value"] = new_text
 		emit_event("changed", [new_text])
+		_write_model(new_text)
 		return
 
 	var normalized: Variant = _sanitize_number(new_text)
@@ -160,6 +180,7 @@ func _on_text_changed(new_text: String) -> void:
 
 	props["value"] = formatted
 	emit_event("changed", [_parse_number(normalized)])
+	_write_model(_parse_number(normalized))    # ramo number
 
 
 func _sanitize_number(text: String) -> Variant:

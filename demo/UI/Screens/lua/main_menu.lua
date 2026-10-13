@@ -13,6 +13,7 @@ UI.defineComponent("MainMenu", {
 			label = label,
 			class = "menu-button",
 			on_pressed = function()
+				UI.callMethod('click_fx', 'set_param', { 'intensity', 0.9 })
 				UI.playSoundEffect("click")
 				go(navigation_target)
 			end,
@@ -29,6 +30,8 @@ UI.defineComponent("MainMenu", {
 			end
 		}
 	end
+	
+	local click_particle = ParticleEmitter{ ref = "click_fx", amount = 100, color = '#7a8cff', blend = 'add', one_shot = true }
 
 	return Body{
 		children = {
@@ -42,7 +45,20 @@ UI.defineComponent("MainMenu", {
 						children = {
 							-- 60%: a logo
 							Div{ class = 'menu-logo', flex_grow = 60, align_items = 'center', children = {
-								Sprite{ texture = 'demo/assets/images/logo.png', width = 800, height = 500 }, -- get texture path from GameConfig
+								--Sprite{ texture = 'demo/assets/images/logo.png', width = 800, height = 500 }, -- get texture path from GameConfig
+								Stack{ 
+									children = {
+										ParticleEmitter{ amount = 40, color = '#7a8cff', blend = 'add', particle_scale = { 0.5, 0.8 } },
+										Sprite{ texture = 'demo/assets/images/logo.png', width = 800, height = 500 },
+										ShaderEffect{ ref = 'hero_fx', effect = 'scanlines', params = { intensity = 0.6 } },
+										ShaderEffect{ ref = 'hero_fx', effect = 'vignette', params = { intensity = 1 } },
+										ParticleEmitter{
+											amount = 40, texture = "demo/assets/images/T_VFX_RoundSmoke71.png", emit_angle = -90, -- get texture path from GameConfig
+											spread = 30, speed = { 40, 80 }, color = '#ffd27a',
+											color_end = '#ff4000', blend = 'add', particle_scale = { 0.2, 0.3 },
+										},
+									} 
+								},
 							}},
 							-- 33% de 40%: botões, centralizados na vertical por espaçadores
 							Div{ class = 'menu-actions', flex_grow = 40, display = 'flex', padding_bottom = 120, 
