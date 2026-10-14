@@ -23,7 +23,7 @@ func get_schema() -> Dictionary:
 			ComponentProps.DURATION, ComponentProps.LOOP, ComponentProps.PLAYING,
 			ComponentProps.WIDTH, ComponentProps.HEIGHT,
 		]),
-		"events": ["finished", "frame_changed"],
+		"events": ["finished", "frame_changed", "pressed"],
 		"methods": ["play", "pause", "stop", "set_frame"],
 	}
 
@@ -32,6 +32,15 @@ func _ready() -> void:
 	_tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE   # o tamanho vem de width/height, não da sheet inteira
 	_tr.stretch_mode = TextureRect.STRETCH_SCALE
 	super._ready()
+
+
+func _component_ready() -> void:
+	_tr.gui_input.connect(_on_click)
+
+
+func _on_click(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		emit_event("pressed")
 
 
 func _apply_prop(key: String, value: Variant) -> void:

@@ -1,0 +1,14 @@
+[remap]
+
+importer="lcss"
+type="Resource"
+uid="uid://bttupg0kukhwc"
+path="res://.godot/imported/layout.lcss-a45192784f061cd29d90fc52623c45ab.res"
+
+[deps]
+
+source_file="res://addons/lua-modder/UI/Styles/layout.lcss"
+dest_files=["res://.godot/imported/layout.lcss-a45192784f061cd29d90fc52623c45ab.res"]
+
+[params]
+

@@ -2,18 +2,26 @@
 .menu-screen {
 	//background_image: texture('demo/assets/images/background.png');
 	//background_image_slice: 24;
-	background_color: #000000;
+	/*background_color: #000000;*/
 	padding: 24;
 }
+
 .menu-actions {
 	margin: 48;
 }
+
 .menu-logo {
 	margin: 48;
 }
+
 .menu-version {
 	padding: 15 5;
 }
+
+.background {
+	background_
+}
+
 // ---------- botões ----------
 .menu-button {
 	background_color: #2b3040;
@@ -24,16 +32,47 @@
 	font_color: #e8ecff;
 	font_size: 22;
 	transition_duration: 150ms;
+	transition_easing: ease_out;
+	rotate: 0;
+	scale: 1;
 }
+
+@keyframes hang { 
+	0%   { rotate: 0; }
+	12.5%  { rotate: -5; }
+	37.5%  { rotate: 4; }
+	62.5%   { rotate: -3; }
+	87.5%  { rotate: 2; }
+	100% { rotate: 1; }
+}
+
 .menu-button:hover {
-	background_color: #3a4260;
+	transform_origin: 0.5 0;
+	transition_easing: ease_out;
+	animation_name: hang;
+	animation_duration: 2000ms;
+	animation_direction: normal;
+	animation_iterations: 1;
+	scale: 1.02;
+	background_color: #2f3463;
 }
-.menu-button:pressed { background_color: #1f2433; }
+
+.menu-button:pressed { scale: 0.97; background_color: #1f2433;}
+
 .menu-button:disabled { background_color: #20232d; border_color: #2e3345; font_color: #6b7088; }
 
 .text-color-red {
 	font_color: #DE0000;
 }
+
+@keyframes pulse {
+	0%   { scale: 1;    background_color: #202020; }
+	25%  { scale: 1.02; background_color: #303050; }
+	50%  { scale: 1.08; background_color: #303050; }
+	75%  { scale: 1.02; background_color: #303050; }
+	100% { scale: 1;    background_color: #202020; }
+}
+@keyframes wobble { from { rotate: -3; } to { rotate: 3; } }
 
 // ---------- settings ----------
 .settings-screen { 

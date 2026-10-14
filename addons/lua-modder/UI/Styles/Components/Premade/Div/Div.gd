@@ -9,10 +9,19 @@ func get_schema() -> Dictionary:
 	return {
 		"name": "Div",
 		"props": ComponentProps.pick(names, {ComponentProps.GAP: 4, ComponentProps.ALIGNMENT: ComponentProps.START}),
-		"events": ["drag_started", "drag_ended"],
+		"events": ["drag_started", "drag_ended", "pressed"],
 		"methods": ["reset_drag_position"],
 		"slots": {"default": "%Items"},
 	}
+
+
+func _component_ready() -> void:
+	_background.gui_input.connect(_on_click)
+
+
+func _on_click(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		emit_event("pressed")
 
 
 func _apply_prop(key: String, value: Variant) -> void:
