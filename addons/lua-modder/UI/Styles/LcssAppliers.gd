@@ -42,6 +42,8 @@ static func apply(property: StringName, value: Variant, target: Node) -> void:
 		ComponentProps.LINE_SPACING, ComponentProps.PARAGRAPH_SPACING, \
 		ComponentProps.SELECTION_COLOR, ComponentProps.SELECTED_FONT_COLOR:
 			_apply_text_extras(target as Control, property, value)
+		ComponentProps.SCALE, ComponentProps.ROTATE, ComponentProps.TRANSLATE, ComponentProps.TRANSFORM_ORIGIN:
+			_apply_transform(target as Control, property, value)
 		# TODO: SCROLL_HINT e SCROLL_HINT_TILE entram aqui quando existir o handler de textura
 		_:
 			push_warning("[LCSSAppliers] propriedade sem applier: '%s'" % property)
@@ -282,7 +284,27 @@ static func _apply_text_extras(target: Control, property: StringName, value: Var
 			target.add_theme_color_override("selection_color", LuaHelper.parse_color(value))
 		ComponentProps.SELECTED_FONT_COLOR:
 			target.add_theme_color_override("font_selected_color", LuaHelper.parse_color(value))
+
+
+static func _apply_transform(target: Control, property: StringName, value: Variant) -> void:
+	if target == null or value == null:
+		return
+	target.offset_transform_enabled = true
+	target.offset_transform_visual_only = true
+	match property:
+		ComponentProps.SCALE:
+			var s := LuaHelper.parse_distributable(value)
+			target.offset_transform_scale = Vector2(s[0], s[1])
+		ComponentProps.ROTATE:
+			target.offset_transform_rotation = deg_to_rad(float(value))
+		ComponentProps.TRANSLATE:
+			var t := LuaHelper.parse_distributable(value)
+			target.offset_transform_position = Vector2(t[0], t[1])
+		ComponentProps.TRANSFORM_ORIGIN:
+			var o := LuaHelper.parse_distributable(value)
+			target.offset_transform_pivot_ratio = Vector2(o[0], o[1])
 #endregion
+
 
 #region StyleBoxTexture
 static func _get_box(target: Control) -> StyleBoxFlat:
@@ -363,6 +385,7 @@ static func reset(property: StringName, target: Node) -> void:
 	var control := target as Control
 	if control == null:
 		return
+	
 	if control is RichTextLabel and ComponentProps.FONT.has(property):
 		match property:
 			ComponentProps.FONT_COLOR: control.remove_theme_color_override("default_color")
@@ -393,6 +416,14 @@ static func reset(property: StringName, target: Node) -> void:
 			if tex:
 				tex.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
 				tex.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+		ComponentProps.SCALE:
+			control.offset_transform_scale = Vector2.ONE
+		ComponentProps.ROTATE:
+			control.offset_transform_rotation = 0.0
+		ComponentProps.TRANSLATE:
+			control.offset_transform_position = Vector2.ZERO
+		ComponentProps.TRANSFORM_ORIGIN:
+			control.offset_transform_pivot_ratio = Vector2(0.5, 0.5)
 		ComponentProps.FONT_COLOR:
 			control.remove_theme_color_override("font_color")
 		ComponentProps.FONT_SIZE:

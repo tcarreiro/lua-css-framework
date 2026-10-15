@@ -24,16 +24,49 @@
 	font_color: #e8ecff;
 	font_size: 22;
 	transition_duration: 150ms;
+	transition_duration: 150ms;
+	transition_easing: ease_out;
+	scale: 1.0;
+	rotate: 0;
+	translate: 0 0;
 }
 .menu-button:hover {
 	background_color: #3a4260;
+	scale: 1.08;
+	rotate: -2;
+	animation_name: hang;
+	animation_duration: 1.2s;
+	animation_easing: ease_in_out;
+	animation_iterations: infinite;
 }
-.menu-button:pressed { background_color: #1f2433; }
+
+.menu-button:pressed {
+	background_color: #1f2433;
+	scale: 0.97;
+	translate: 0 -2;
+}
+
 .menu-button:disabled { background_color: #20232d; border_color: #2e3345; font_color: #6b7088; }
 
 .text-color-red {
 	font_color: #DE0000;
 }
+
+@keyframes pulse {
+	0%   { scale: 1;    background_color: #202020; }
+	50%  { scale: 1.08; background_color: #303050; }
+	100% { scale: 1;    background_color: #202020; }
+}
+
+@keyframes wobble { from { rotate: -3; } to { rotate: 3; } }
+
+@keyframes hang {
+	0% { rotate: -3; }
+	33% { rotate: 0; }
+	67% {rotate: 3;}
+	100% { rotate: 0; }
+}
+
 
 // ---------- settings ----------
 .settings-screen { 

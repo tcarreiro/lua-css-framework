@@ -6,6 +6,7 @@ class_name ComponentProps extends RefCounted
 const BASE: Array[StringName] = [
 	ID, CLASS, VISIBLE, TOOLTIP, DISABLED,
 	FLEX_GROW, ALIGN_SELF, JUSTIFY_SELF, POINTER_EVENTS,
+	EFFECTS,
 ]
 
 const ANY := TYPE_NIL 
@@ -24,6 +25,7 @@ const ID := &"id"
 const CLASS := &"class"
 const VISIBLE := &"visible"
 const TOOLTIP := &"tooltip"
+const EFFECTS := &"effects"
 
 const MIN := &"min"
 const MAX := &"max"
@@ -62,6 +64,11 @@ const PADDING_LEFT := &"padding_left"
 const PADDING_TOP := &"padding_top"
 const PADDING_RIGHT := &"padding_right"
 const PADDING_BOTTOM := &"padding_bottom"
+
+const COLUMNS := &"columns"
+const COLUMN_GAP := &"column_gap"
+const ROW_GAP := &"row_gap"
+const FILL_CELLS := &"fill_cells"   # FILL já é um valor ('fill'), por isso o nome
 
 const DISPLAY := &"display"
 const ALIGN_ITEMS := &"align_items"
@@ -170,11 +177,24 @@ const BACKGROUND_IMAGE_SLICE_TOP := &"background_image_slice_top"
 const BACKGROUND_IMAGE_SLICE_RIGHT := &"background_image_slice_right"
 const BACKGROUND_IMAGE_SLICE_BOTTOM := &"background_image_slice_bottom"
 
+const ANIMATION_NAME := &"animation_name"
+const ANIMATION_DURATION := &"animation_duration"
+const ANIMATION_EASING := &"animation_easing"
+const ANIMATION_ITERATIONS := &"animation_iterations"
+const ANIMATION_DIRECTION := &"animation_direction"
+const ANIMATION_DELAY := &"animation_delay"
+const ANIMATION_FILL := &"animation_fill"
+
 const TRANSITION_DURATION := &"transition_duration"
 const TRANSITION_EASING := &"transition_easing"
 const TRANSITION_LOOP := &"transition_loop"
 const TRANSITION_REPETITIONS := &"transition_repetitions"
 const TRANSITION_PROPERTIES := &"transition_properties"
+
+const SCALE := &"scale"
+const ROTATE := &"rotate"
+const TRANSLATE := &"translate"
+const TRANSFORM_ORIGIN := &"transform_origin"
 
 const TEXTURE := &"texture"
 const HFRAMES := &"hframes"
@@ -250,6 +270,11 @@ const HELP := &"help"
 const DRAG := &"drag"
 const CAN_DROP := &"can_drop"
 
+const NORMAL := &"normal"
+const ALTERNATE := &"alternate"
+const FORWARDS := &"forwards"
+const INFINITE := &"infinite"
+
 const STRETCH := &"stretch"
 const TILE := &"tile"
 const TILE_FIT := &"tile_fit"
@@ -292,10 +317,21 @@ const PANEL: Array[StringName] = [
 	BACKGROUND_IMAGE_SLICE,
 ]
 
+const ANIMATION: Array[StringName] = [
+	ANIMATION_NAME, ANIMATION_DURATION, ANIMATION_EASING, ANIMATION_ITERATIONS,
+	ANIMATION_DIRECTION, ANIMATION_DELAY, ANIMATION_FILL,
+]
+
+const ANIMATION_DIRECTIONS := [NORMAL, ALTERNATE]
+
+const ANIMATION_FILLS := [NONE, FORWARDS]
+
 const TRANSITION: Array[StringName] = [
 	TRANSITION_DURATION, TRANSITION_EASING, TRANSITION_PROPERTIES,
 	TRANSITION_LOOP, TRANSITION_REPETITIONS,
 ]
+
+const TRANSFORM: Array[StringName] = [SCALE, ROTATE, TRANSLATE, TRANSFORM_ORIGIN]
 
 const SCROLLBAR: Array[StringName] = [
 	SCROLLBAR_WIDTH, SCROLLBAR_GAP, SCROLLBAR_BORDER_RADIUS, SCROLLBAR_TRACK_COLOR,
@@ -563,6 +599,8 @@ static func _catalog() -> Dictionary:
 	_add(c, TOOLTIP, TYPE_STRING, "", "Tooltip do componente") # To be implemented 
 	_add(c, FLEX_GROW, TYPE_FLOAT, 0.0, "Parte do espaço livre do container que o componente ocupa. 0 = só o tamanho do conteúdo; valores diferentes dividem o espaço na proporção entre eles.")
 
+	_add(c, EFFECTS, ANY, null, "Efeitos de cor sobre o componente e tudo dentro dele, em ordem: nomes ou { effect = 'nome', param = valor }.")
+
 	_add(c, MIN, TYPE_FLOAT, 0.0, "Menor valor.")
 	_add(c, MAX, TYPE_FLOAT, 100.0, "Maior valor.")
 	_add(c, STEP, TYPE_FLOAT, 1.0, "Passo entre valores (0 = contínuo).")
@@ -586,6 +624,11 @@ static func _catalog() -> Dictionary:
 	_add(c, PADDING_TOP, ANY, null, "Espaço interno superior.")
 	_add(c, PADDING_RIGHT, ANY, null, "Espaço interno direito.")
 	_add(c, PADDING_BOTTOM, ANY, null, "Espaço interno inferior.")
+
+	_add(c, COLUMNS, TYPE_INT, 2, "Número de colunas.")
+	_add(c, COLUMN_GAP, TYPE_INT, null, "Espaço entre colunas. Sem valor, usa gap.")
+	_add(c, ROW_GAP, TYPE_INT, null, "Espaço entre linhas. Sem valor, usa gap.")
+	_add(c, FILL_CELLS, TYPE_BOOL, true, "Os filhos preenchem a célula. false = só o tamanho do conteúdo.")
 
 	_add(c, DISPLAY, TYPE_STRING, "block", "Layout do container. {block} stacka verticalmente, {flex} stacka horizontalmente.", DISPLAYS)
 	_add(c, DISABLED, TYPE_BOOL, false, "Desabilita a interação e ativa o estado :disabled.")
@@ -707,11 +750,24 @@ static func _catalog() -> Dictionary:
 	_add(c, BACKGROUND_IMAGE_SLICE_RIGHT, ANY, null, "Margem direita do 9-slice.")
 	_add(c, BACKGROUND_IMAGE_SLICE_BOTTOM, ANY, null, "Margem inferior do 9-slice.")
 
+	_add(c, ANIMATION_NAME, TYPE_STRING, null, "Nome de um @keyframes do .lcss. Vazio = sem animação.")
+	_add(c, ANIMATION_DURATION, TYPE_FLOAT, null, "Duração de um ciclo, em segundos.")
+	_add(c, ANIMATION_EASING, TYPE_STRING, null, "Curva entre os quadros (padrão: ease_in_out).", EASINGS.keys())
+	_add(c, ANIMATION_ITERATIONS, ANY, null, "Repetições: número ou infinite (padrão: 1).")
+	_add(c, ANIMATION_DIRECTION, TYPE_STRING, null, "normal ou alternate (ida e volta).", ANIMATION_DIRECTIONS)
+	_add(c, ANIMATION_DELAY, TYPE_FLOAT, null, "Espera antes de começar, em segundos.")
+	_add(c, ANIMATION_FILL, TYPE_STRING, null, "forwards mantém o último quadro ao terminar.", ANIMATION_FILLS)
+
 	_add(c, TRANSITION_DURATION, TYPE_FLOAT, null, "Segundos de animação quando uma propriedade de estilo muda. Ausente ou 0 = sem animação.")
 	_add(c, TRANSITION_EASING, TYPE_STRING, null, "Curva da animação (padrão: ease_out).", EASINGS.keys())
 	_add(c, TRANSITION_LOOP, TYPE_STRING, null, "Configuração de loop da animação (one_shot, ping_pong, loop)", LOOP_OPTIONS)
 	_add(c, TRANSITION_REPETITIONS, TYPE_INT, null, "Número de repetições de loop da animação (padrão = -1, infinito)")
 	_add(c, TRANSITION_PROPERTIES, ANY, null, "Quais propriedades animam: all (padrão) ou uma lista de nomes.")
+
+	_add(c, SCALE, ANY, null, "Escala visual: número ou {x, y}. Não altera o layout.")
+	_add(c, ROTATE, TYPE_FLOAT, null, "Rotação visual em graus. Não altera o layout.")
+	_add(c, TRANSLATE, ANY, null, "Deslocamento visual em px: {x, y}. Não altera o layout.")
+	_add(c, TRANSFORM_ORIGIN, ANY, null, "Ponto fixo da transformação, de 0 a 1: {x, y}. Padrão: {0.5, 0.5}.")
 
 	_add(c, TEXTURE, TYPE_STRING, "", "Caminho da imagem (sprite sheet).")
 	_add(c, HFRAMES, TYPE_INT, 1, "Colunas da sheet.")

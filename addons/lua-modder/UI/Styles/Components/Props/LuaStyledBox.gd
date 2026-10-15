@@ -14,6 +14,8 @@ static func box_names() -> Array:
 	names.append_array(ComponentProps.BOX_SPACING)
 	names.append_array(ComponentProps.PANEL)
 	names.append_array(ComponentProps.TRANSITION)
+	names.append_array(ComponentProps.TRANSFORM)
+	names.append_array(ComponentProps.ANIMATION)
 	return names
 
 
@@ -21,6 +23,7 @@ func _ready() -> void:
 	_style_target.register_property(ComponentProps.MARGIN, _margin)
 	_style_target.register_property(ComponentProps.PADDING, _padding)
 	_style_target.register_group(ComponentProps.PANEL, _background)
+	_style_target.register_group(ComponentProps.TRANSFORM, _background)
 	_setup_style_target()
 	_bind_style_state_source(_style_state_source())
 	_background.gui_input.connect(_on_background_gui_input)
