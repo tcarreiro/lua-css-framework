@@ -8,15 +8,15 @@ const DEFAULT_BACKDROP_COLOR := Color(0, 0, 0, 0.25)
 
 func get_schema() -> Dictionary:
 	var names: Array = [
-		ComponentProps.BLOCKING, ComponentProps.BACKDROP_COLOR, ComponentProps.MARGIN,
-		ComponentProps.DROP_SHADOW_COLOR, ComponentProps.DROP_SHADOW_SIZE,
-		ComponentProps.DROP_SHADOW_OFFSET,
+		LCSS.BLOCKING, LCSS.BACKDROP_COLOR, LCSS.MARGIN,
+		LCSS.DROP_SHADOW_COLOR, LCSS.DROP_SHADOW_SIZE,
+		LCSS.DROP_SHADOW_OFFSET,
 	]
 	names.append_array(LuaStyledBox.box_names())
-	names.append_array(ComponentProps.DRAG_GRP)
+	names.append_array(LCSS.DRAG_GRP)
 	return {
 		"name": "Modal",
-		"props": ComponentProps.pick(names),
+		"props": LCSS.pick(names),
 		"events": ["closed", "drag_started", "drag_ended"],
 		"methods": ["close","reset_drag_position"],
 		"slots": {"content": "%Background"},
@@ -33,13 +33,13 @@ func _drag_default_handle() -> Control:
 
 func _ready() -> void:
 	# contexto: no .lua/.lcss o nome é "backdrop_color"; o applier recebe BACKGROUND_COLOR
-	_style_target.register_property(ComponentProps.BACKGROUND_COLOR, _backdrop, ComponentProps.BACKDROP_COLOR)
-	_style_target.register_property(ComponentProps.MARGIN, _content_slot)
-	_style_target.register_property(ComponentProps.DROP_SHADOW_COLOR, _background)
-	_style_target.register_property(ComponentProps.DROP_SHADOW_SIZE, _background)
-	_style_target.register_property(ComponentProps.DROP_SHADOW_OFFSET, _background)
+	_style_target.register_property(LCSS.BACKGROUND_COLOR, _backdrop, LCSS.BACKDROP_COLOR)
+	_style_target.register_property(LCSS.MARGIN, _content_slot)
+	_style_target.register_property(LCSS.DROP_SHADOW_COLOR, _background)
+	_style_target.register_property(LCSS.DROP_SHADOW_SIZE, _background)
+	_style_target.register_property(LCSS.DROP_SHADOW_OFFSET, _background)
 	# default: um valor vindo do .lua ou do .lcss sobrescreve
-	LCSSAppliers.apply(ComponentProps.BACKGROUND_COLOR, DEFAULT_BACKDROP_COLOR, _backdrop)
+	LCSSAppliers.apply(LCSS.BACKGROUND_COLOR, DEFAULT_BACKDROP_COLOR, _backdrop)
 	super._ready()
 
 func _component_ready() -> void:
@@ -48,7 +48,7 @@ func _component_ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		ComponentProps.BLOCKING:
+		LCSS.BLOCKING:
 			_backdrop.mouse_filter = Control.MOUSE_FILTER_STOP if value else Control.MOUSE_FILTER_IGNORE
 		_:
 			super._apply_prop(key, value)

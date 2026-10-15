@@ -7,23 +7,23 @@ class_name LuaStyledBox extends LuaComponent
 
 
 ## Props de caixa para o get_schema() de quem herda:
-##   var names: Array = [ComponentProps.GAP]
+##   var names: Array = [LCSS.GAP]
 ##   names.append_array(LuaStyledBox.box_names())
 static func box_names() -> Array:
 	var names: Array = []
-	names.append_array(ComponentProps.BOX_SPACING)
-	names.append_array(ComponentProps.PANEL)
-	names.append_array(ComponentProps.TRANSITION)
-	names.append_array(ComponentProps.TRANSFORM)
-	names.append_array(ComponentProps.ANIMATION)
+	names.append_array(LCSS.BOX_SPACING)
+	names.append_array(LCSS.PANEL)
+	names.append_array(LCSS.TRANSITION)
+	names.append_array(LCSS.TRANSFORM)
+	names.append_array(LCSS.ANIMATION)
 	return names
 
 
 func _ready() -> void:
-	_style_target.register_property(ComponentProps.MARGIN, _margin)
-	_style_target.register_property(ComponentProps.PADDING, _padding)
-	_style_target.register_group(ComponentProps.PANEL, _background)
-	_style_target.register_group(ComponentProps.TRANSFORM, _background)
+	_style_target.register_property(LCSS.MARGIN, _margin)
+	_style_target.register_property(LCSS.PADDING, _padding)
+	_style_target.register_group(LCSS.PANEL, _background)
+	_style_target.register_group(LCSS.TRANSFORM, _background)
 	_setup_style_target()
 	_bind_style_state_source(_style_state_source())
 	_background.gui_input.connect(_on_background_gui_input)

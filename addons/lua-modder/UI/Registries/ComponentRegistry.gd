@@ -139,11 +139,11 @@ static func get_prop_def(schema: Dictionary, key: String) -> Dictionary:
 
 #region Base props
 ## Props que TODO componente aceita, sem precisar declarar no schema. Quem as aplica
-## é o LuaComponent. A lista fica em ComponentProps.BASE e as definições (tipo, default,
+## é o LuaComponent. A lista fica em LCSS.BASE e as definições (tipo, default,
 ## doc) vêm do catálogo, para existir uma fonte de verdade só.
 static func base_props() -> Dictionary:
 	if _base_props.is_empty():
-		_base_props = ComponentProps.pick(ComponentProps.BASE)
+		_base_props = LCSS.pick(LCSS.BASE)
 	return _base_props
 #endregion
 

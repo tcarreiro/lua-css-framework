@@ -3,12 +3,12 @@ extends LuaStyledBox
 @onready var _items: LuaFlowBox = %Items
 
 func get_schema() -> Dictionary:
-	var names: Array = [ComponentProps.DISPLAY, ComponentProps.GAP, ComponentProps.ALIGNMENT, ComponentProps.ALIGN_ITEMS]
+	var names: Array = [LCSS.DISPLAY, LCSS.GAP, LCSS.ALIGNMENT, LCSS.ALIGN_ITEMS]
 	names.append_array(LuaStyledBox.box_names())
-	names.append_array(ComponentProps.DRAG_GRP)
+	names.append_array(LCSS.DRAG_GRP)
 	return {
 		"name": "Div",
-		"props": ComponentProps.pick(names, {ComponentProps.GAP: 4, ComponentProps.ALIGNMENT: ComponentProps.START}),
+		"props": LCSS.pick(names, {LCSS.GAP: 4, LCSS.ALIGNMENT: LCSS.START}),
 		"events": ["drag_started", "drag_ended", "pressed"],
 		"methods": ["reset_drag_position"],
 		"slots": {"default": "%Items"},
@@ -26,16 +26,16 @@ func _on_click(event: InputEvent) -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		ComponentProps.DISPLAY:
+		LCSS.DISPLAY:
 			_items.vertical = (value != "flex")
-		ComponentProps.ALIGNMENT:
-			if ComponentProps.ALIGNMENTS.has(value):
-				_items.alignment = ComponentProps.ALIGNMENTS[value]
-		ComponentProps.GAP:
+		LCSS.ALIGNMENT:
+			if LCSS.ALIGNMENTS.has(value):
+				_items.alignment = LCSS.ALIGNMENTS[value]
+		LCSS.GAP:
 			_items.add_theme_constant_override("separation", maxi(int(value), 0))
-		ComponentProps.DISABLED:
+		LCSS.DISABLED:
 			set_state(&"disabled", value)
-		ComponentProps.ALIGN_ITEMS:
+		LCSS.ALIGN_ITEMS:
 			_items.align_items = StringName(str(value))
 		_:
 			super._apply_prop(key, value)

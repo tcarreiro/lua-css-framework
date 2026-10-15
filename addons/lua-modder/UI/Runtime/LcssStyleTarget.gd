@@ -1,10 +1,10 @@
 class_name LCSSStyleTarget extends RefCounted
 ## Liga NOMES DE PROP (como aparecem no .lua e no .lcss, o "contexto") a um alvo do
-## componente e à propriedade (ComponentProps.*) que o LCSSAppliers aplica, e anima as mudanças de valor.
+## componente e à propriedade (LCSS.*) que o LCSSAppliers aplica, e anima as mudanças de valor.
 ##
-##   register_property(ComponentProps.FONT_COLOR, _label)                      # contexto = "font_color"
-##   register_property(ComponentProps.FONT_COLOR, _label, &"label_font_color") # contexto explícito
-##   register_group(ComponentProps.FONT, _label, "label_")                     # label_font_color, label_font_size...
+##   register_property(LCSS.FONT_COLOR, _label)                      # contexto = "font_color"
+##   register_property(LCSS.FONT_COLOR, _label, &"label_font_color") # contexto explícito
+##   register_group(LCSS.FONT, _label, "label_")                     # label_font_color, label_font_size...
 ##
 ## Famílias: o contexto é o do atalho; as partes herdam o sufixo
 ## (input_padding -> input_padding_left, input_padding_top, ...).
@@ -26,7 +26,7 @@ class FamilyBinding extends RefCounted:
 	func context_of(canonical: StringName) -> StringName:
 		if canonical == family:
 			return shorthand
-		var i := ComponentProps.members_of(family).find(canonical)
+		var i := LCSS.members_of(family).find(canonical)
 		return members[i] if i >= 0 else &""
 
 
@@ -35,12 +35,12 @@ class Transition extends RefCounted:
 	var duration := 0.0
 	var trans: int = Tween.TRANS_QUAD
 	var ease_type: int = Tween.EASE_OUT
-	var loop: StringName = ComponentProps.ONE_SHOT
+	var loop: StringName = LCSS.ONE_SHOT
 	var repetitions: int = -1
 	var properties: Array[String] = []   # vazio = all
 
 	func covers(key: StringName) -> bool:
-		return properties.is_empty() or properties.has(ComponentProps.ALL) or properties.has(String(key))
+		return properties.is_empty() or properties.has(LCSS.ALL) or properties.has(String(key))
 #endregion
 
 var _last_style: LCSSStyle
@@ -64,10 +64,10 @@ var _transitions_enabled := false
 
 #region Register
 func register_property(property: StringName, target: Node, context: StringName = &"") -> void:
-	if ComponentProps.FAMILIES.has(property):
+	if LCSS.FAMILIES.has(property):
 		register_family(property, target, context)
 		return
-	var family := ComponentProps.family_of(property)
+	var family := LCSS.family_of(property)
 	if family != &"":
 		push_warning("[LCSSStyleTarget] '%s' é parte de uma família; registre o atalho '%s'." % [property, family])
 		return
@@ -80,7 +80,7 @@ func register_property(property: StringName, target: Node, context: StringName =
 
 
 func register_family(family: StringName, target: Node, context: StringName = &"") -> void:
-	if not ComponentProps.FAMILIES.has(family):
+	if not LCSS.FAMILIES.has(family):
 		push_warning("[LCSSStyleTarget] '%s' não é uma família." % family)
 		return
 	var fb := FamilyBinding.new()
@@ -88,7 +88,7 @@ func register_family(family: StringName, target: Node, context: StringName = &""
 	fb.target = target
 	fb.shorthand = context if context != &"" else family
 	_contexts[fb.shorthand] = fb
-	for member: StringName in ComponentProps.members_of(family):
+	for member: StringName in LCSS.members_of(family):
 		var suffix := String(member).trim_prefix(String(family))
 		var ctx := StringName(String(fb.shorthand) + suffix)
 		fb.members.append(ctx)
@@ -107,9 +107,9 @@ func register_group(properties: Array, target: Node, prefix: String = "") -> voi
 
 ## transition_duration / _easing / _properties: só configuram, não têm alvo.
 func register_transitions() -> void:
-	for ctx in ComponentProps.TRANSITION:
+	for ctx in LCSS.TRANSITION:
 		_meta[ctx] = true
-	for ctx in ComponentProps.ANIMATION:
+	for ctx in LCSS.ANIMATION:
 		_meta[ctx] = true
 
 
@@ -191,7 +191,7 @@ func apply_style(style: LCSSStyle, overrides: Dictionary[StringName, Variant] = 
 			func(p: StringName) -> Variant: return _style_value(style, fb.context_of(p)),
 			func(p: StringName) -> Variant: return _defaults.get(fb.context_of(p)),
 		]
-		var values: Variant = ComponentProps.resolve_family(fb.family, layers)
+		var values: Variant = LCSS.resolve_family(fb.family, layers)
 		var animating := _anim_values.has(fb.shorthand)
 		if animating:
 			values = _anim_values[fb.shorthand]
@@ -237,9 +237,9 @@ func _drive(key: StringName, property: StringName, value: Variant, target: Node,
 	tween.set_trans(transition.trans).set_ease(transition.ease_type)
 	_tweens[key] = tween
 
-	var infinite := transition.loop != ComponentProps.ONE_SHOT and transition.repetitions < 1
+	var infinite := transition.loop != LCSS.ONE_SHOT and transition.repetitions < 1
 	match transition.loop:
-		ComponentProps.PING_PONG:
+		LCSS.PING_PONG:
 			if infinite:
 				tween.tween_method(step, 0.0, 1.0, d)
 				tween.tween_method(step, 1.0, 0.0, d)
@@ -250,7 +250,7 @@ func _drive(key: StringName, property: StringName, value: Variant, target: Node,
 					tween.tween_method(step, 0.0, 1.0, d)
 					tween.tween_method(step, 1.0, 0.0, d)
 				tween.tween_method(step, 0.0, 1.0, d)
-		ComponentProps.LOOP:
+		LCSS.LOOP:
 			tween.tween_method(step, 0.0, 1.0, d)
 			if infinite:
 				tween.set_loops()
@@ -301,11 +301,11 @@ func _cancel_tween(key: StringName) -> void:
 
 #region Interpolação
 static func _kind(property: StringName, from: Variant, to: Variant, is_family: bool) -> int:
-	if ComponentProps.SCROLLBAR.has(property):
+	if LCSS.SCROLLBAR.has(property):
 		return Kind.NONE   # scrollbar tween is very expensive. Disabled for now
 	if is_family:
 		return Kind.FAMILY if (from is Array and to is Array) else Kind.NONE
-	if ComponentProps.type_of(property) == TYPE_COLOR:
+	if LCSS.type_of(property) == TYPE_COLOR:
 		return Kind.COLOR
 	if _is_numeric(from) and _is_numeric(to):
 		return Kind.NUMBER if (_is_number(from) and _is_number(to)) else Kind.VECTOR
@@ -373,27 +373,27 @@ static func _copy(v: Variant) -> Variant:
 
 #region Config
 func _read_transition(style: LCSSStyle, overrides: Dictionary) -> Transition:
-	var duration: Variant = _resolve(style, overrides, ComponentProps.TRANSITION_DURATION)
+	var duration: Variant = _resolve(style, overrides, LCSS.TRANSITION_DURATION)
 	if duration == null or float(duration) <= 0.0:
 		return null
 	var t := Transition.new()
 	t.duration = float(duration)
 
-	var easing: Variant = _resolve(style, overrides, ComponentProps.TRANSITION_EASING)
-	if easing != null and ComponentProps.EASINGS.has(StringName(str(easing))):
-		var pair: Array = ComponentProps.EASINGS[StringName(str(easing))]
+	var easing: Variant = _resolve(style, overrides, LCSS.TRANSITION_EASING)
+	if easing != null and LCSS.EASINGS.has(StringName(str(easing))):
+		var pair: Array = LCSS.EASINGS[StringName(str(easing))]
 		t.trans = pair[0]
 		t.ease_type = pair[1]
 	
-	var loop: Variant = _resolve(style, overrides, ComponentProps.TRANSITION_LOOP)
-	if loop != null and ComponentProps.LOOP_OPTIONS.has(StringName(str(loop))):
+	var loop: Variant = _resolve(style, overrides, LCSS.TRANSITION_LOOP)
+	if loop != null and LCSS.LOOP_OPTIONS.has(StringName(str(loop))):
 		t.loop = StringName(str(loop))
 
-	var repetitions: Variant = _resolve(style, overrides, ComponentProps.TRANSITION_REPETITIONS)
+	var repetitions: Variant = _resolve(style, overrides, LCSS.TRANSITION_REPETITIONS)
 	if repetitions != null:
 		t.repetitions = -1 if str(repetitions) == "infinite" else int(repetitions)
 
-	var listed: Variant = _resolve(style, overrides, ComponentProps.TRANSITION_PROPERTIES)
+	var listed: Variant = _resolve(style, overrides, LCSS.TRANSITION_PROPERTIES)
 	if listed is Array:
 		for p in listed:
 			t.properties.append(str(p))
@@ -419,15 +419,15 @@ func _style_value(style: LCSSStyle, context: StringName) -> Variant:
 func _update_animation(style: LCSSStyle, overrides: Dictionary) -> void:
 	if not _transitions_enabled:
 		return
-	var raw_name: Variant = _resolve(style, overrides, ComponentProps.ANIMATION_NAME)
+	var raw_name: Variant = _resolve(style, overrides, LCSS.ANIMATION_NAME)
 	var spec := {
 		"name": StringName(str(raw_name)) if raw_name != null else &"",
-		"duration": _as_float(_resolve(style, overrides, ComponentProps.ANIMATION_DURATION), 0.0),
-		"delay": _as_float(_resolve(style, overrides, ComponentProps.ANIMATION_DELAY), 0.0),
-		"easing": _as_name(_resolve(style, overrides, ComponentProps.ANIMATION_EASING), ComponentProps.EASE_IN_OUT),
-		"direction": _as_name(_resolve(style, overrides, ComponentProps.ANIMATION_DIRECTION), ComponentProps.NORMAL),
-		"fill": _as_name(_resolve(style, overrides, ComponentProps.ANIMATION_FILL), ComponentProps.NONE),
-		"iterations": _iterations(_resolve(style, overrides, ComponentProps.ANIMATION_ITERATIONS)),
+		"duration": _as_float(_resolve(style, overrides, LCSS.ANIMATION_DURATION), 0.0),
+		"delay": _as_float(_resolve(style, overrides, LCSS.ANIMATION_DELAY), 0.0),
+		"easing": _as_name(_resolve(style, overrides, LCSS.ANIMATION_EASING), LCSS.EASE_IN_OUT),
+		"direction": _as_name(_resolve(style, overrides, LCSS.ANIMATION_DIRECTION), LCSS.NORMAL),
+		"fill": _as_name(_resolve(style, overrides, LCSS.ANIMATION_FILL), LCSS.NONE),
+		"iterations": _iterations(_resolve(style, overrides, LCSS.ANIMATION_ITERATIONS)),
 	}
 	var signature := var_to_str(spec)
 	if signature == _anim_signature:
@@ -468,7 +468,7 @@ func _run_animation(tracks: Dictionary, spec: Dictionary) -> void:
 	var tween := anchor.create_tween()
 	_anim_tween = tween
 	tween.tween_method(step, 0.0, 1.0, d)
-	if spec.direction == ComponentProps.ALTERNATE:
+	if spec.direction == LCSS.ALTERNATE:
 		tween.tween_method(step, 1.0, 0.0, d)
 	var iterations: int = spec.iterations
 	if iterations < 1:
@@ -480,7 +480,7 @@ func _run_animation(tracks: Dictionary, spec: Dictionary) -> void:
 		if _anim_tween != tween:
 			return
 		_anim_tween = null
-		if spec.fill != ComponentProps.FORWARDS:
+		if spec.fill != LCSS.FORWARDS:
 			_stop_animation(true))   # forwards mantém o último quadro
 
 
@@ -531,7 +531,7 @@ func _build_tracks(keyframes: LCSSKeyframes) -> Dictionary:
 
 
 func _anim_step(tracks: Dictionary, t: float, easing: StringName) -> void:
-	var pair: Array = ComponentProps.EASINGS.get(easing, ComponentProps.EASINGS[ComponentProps.EASE_IN_OUT])
+	var pair: Array = LCSS.EASINGS.get(easing, LCSS.EASINGS[LCSS.EASE_IN_OUT])
 	for key: StringName in tracks:
 		var track: Dictionary = tracks[key]
 		var target: Node = track.target

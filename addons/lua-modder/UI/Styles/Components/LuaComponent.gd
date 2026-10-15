@@ -99,30 +99,30 @@ func set_prop(key: String, value: Variant) -> void:
 
 
 func _apply_prop_internal(key: String, value: Variant) -> void:
-	if ComponentProps.DRAG_GRP.has(StringName(key)):
+	if LCSS.DRAG_GRP.has(StringName(key)):
 		_apply_drag_prop(StringName(key))
 		return
 	match key:
-		ComponentProps.ID:
+		LCSS.ID:
 			component_id = value
 			if value != "":
 				name = value
-		ComponentProps.CLASS:
+		LCSS.CLASS:
 			style_classes = LuaHelper.parse_style_classes(value)
 			_refresh_style(true, _is_ready)
-		ComponentProps.VISIBLE:
+		LCSS.VISIBLE:
 			visible = value
-		ComponentProps.TOOLTIP:
+		LCSS.TOOLTIP:
 			tooltip_text = value
-		ComponentProps.FLEX_GROW:
+		LCSS.FLEX_GROW:
 			_apply_flex_grow(float(value))
-		ComponentProps.ALIGN_SELF:
+		LCSS.ALIGN_SELF:
 			_apply_align_self(StringName(str(value)))
-		ComponentProps.JUSTIFY_SELF:
+		LCSS.JUSTIFY_SELF:
 			_apply_justify_self(StringName(str(value)))
-		ComponentProps.POINTER_EVENTS:
+		LCSS.POINTER_EVENTS:
 			mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED if str(value) == "none" else Control.MOUSE_BEHAVIOR_INHERITED
-		ComponentProps.EFFECTS:
+		LCSS.EFFECTS:
 			_apply_effects(value)
 		_:
 			_apply_prop(key, value)
@@ -164,7 +164,7 @@ func _drag_handle_node() -> Control:
 
 
 func _apply_drag_prop(key: StringName) -> void:
-	if key == ComponentProps.DRAG_HANDLE:
+	if key == LCSS.DRAG_HANDLE:
 		if _is_ready:
 			_notify_ancestor_drag()   # handle novo ou removido em runtime
 		return
@@ -197,7 +197,7 @@ func _refresh_drag() -> void:
 		enabled,
 		StringName(str(props.get("drag_mode", "hold"))),
 		StringName(str(props.get("drag_bounds", "viewport"))),
-		ComponentProps.CURSORS.get(StringName(str(props.get("drag_cursor", "move"))), Control.CURSOR_MOVE))
+		LCSS.CURSORS.get(StringName(str(props.get("drag_cursor", "move"))), Control.CURSOR_MOVE))
 	_refresh_drag_handles()
 
 
@@ -371,12 +371,12 @@ func _on_binding_changed(key: String, binding: LuaBinding) -> void:
 
 #region Model
 func _has_model() -> bool:
-	return _bindings.has(String(ComponentProps.MODEL))
+	return _bindings.has(String(LCSS.MODEL))
 
 
 ## Componentes de valor chamam isto quando o USUÁRIO muda o valor.
 func _write_model(value: Variant) -> void:
-	var model := _bindings.get(String(ComponentProps.MODEL)) as LuaModel
+	var model := _bindings.get(String(LCSS.MODEL)) as LuaModel
 	if model != null:
 		model.write(value)
 #endregion
@@ -384,12 +384,12 @@ func _write_model(value: Variant) -> void:
 
 #region Flow (layout dentro de um LuaFlowBox)
 func _apply_flex_grow(grow: float) -> void:
-	set_meta(ComponentProps.FLEX_GROW, grow)
+	set_meta(LCSS.FLEX_GROW, grow)
 	_refresh_in_parent_flow()
 
 
 func _apply_align_self(value: StringName) -> void:
-	set_meta(ComponentProps.ALIGN_SELF, value)
+	set_meta(LCSS.ALIGN_SELF, value)
 	_refresh_in_parent_flow()
 
 

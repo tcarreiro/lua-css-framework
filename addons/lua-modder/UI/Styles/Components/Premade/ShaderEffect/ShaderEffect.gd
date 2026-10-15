@@ -13,9 +13,9 @@ var _tween: Tween
 func get_schema() -> Dictionary:
 	return {
 		"name": "ShaderEffect",
-		"props": ComponentProps.pick([
-			ComponentProps.EFFECT, ComponentProps.PARAMS, ComponentProps.ACTIVE,
-			ComponentProps.WIDTH, ComponentProps.HEIGHT,
+		"props": LCSS.pick([
+			LCSS.EFFECT, LCSS.PARAMS, LCSS.ACTIVE,
+			LCSS.WIDTH, LCSS.HEIGHT,
 		]),
 		"methods": ["set_param", "tween_param"],
 	}
@@ -31,13 +31,13 @@ func _component_ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		ComponentProps.EFFECT, ComponentProps.PARAMS, ComponentProps.ACTIVE:
+		LCSS.EFFECT, LCSS.PARAMS, LCSS.ACTIVE:
 			if _is_ready:
 				_rebuild()
-		ComponentProps.WIDTH:
+		LCSS.WIDTH:
 			if int(value) >= 0:
 				custom_minimum_size.x = value
-		ComponentProps.HEIGHT:
+		LCSS.HEIGHT:
 			if int(value) >= 0:
 				custom_minimum_size.y = value
 		_:
@@ -46,7 +46,7 @@ func _apply_prop(key: String, value: Variant) -> void:
 
 ## Lê de `props`: a ordem em que as props chegam não importa.
 func _rebuild() -> void:
-	var preset := StringName(str(props.get(ComponentProps.EFFECT, "tint")))
+	var preset := StringName(str(props.get(LCSS.EFFECT, "tint")))
 	if not LuaShaderLibrary.has_preset(preset):
 		push_warning("[ShaderEffect] efeito desconhecido: '%s'" % preset)
 		material = null
@@ -58,7 +58,7 @@ func _rebuild() -> void:
 	var active := bool(props.get("active", true))
 	_rect.material = _material if active else null
 	_copy.visible = active
-	var given: Variant = props.get(ComponentProps.PARAMS)
+	var given: Variant = props.get(LCSS.PARAMS)
 	if given is Dictionary:
 		for param in given:
 			set_param(str(param), given[param])

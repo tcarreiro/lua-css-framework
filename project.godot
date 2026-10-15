@@ -45,11 +45,10 @@ enabled=PackedStringArray("res://addons/lua-gdextension/plugin.cfg", "res://addo
 [gdss]
 
 internal/initialized=true
-storage/save_path="res://demo/assets/gdss/gdss-components.tgdss"
 editor/use_minimap=true
 editor/show_outline=true
-storage/save_paths=PackedStringArray("res://demo/assets/gdss/gdss-components.tgdss")
-storage/save_uid="uid://dnprrgv3jpwl6"
+storage/save_uid="uid://bttupg0kukhwc"
+editor/show_resources=false
 
 [physics]
 
