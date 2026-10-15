@@ -4,7 +4,7 @@ class_name LuaFlowBox extends BoxContainer
 ##   eixo principal: o filho ocupa o conteúdo; com flex_grow, uma fatia do espaço livre
 ##   eixo cruzado:   o filho estica, a menos que tenha tamanho explícito, align_self ou align_items
 
-var align_items: StringName = LCSS.STRETCH:
+var align_items: StringName = ComponentProps.STRETCH:
 	set(value):
 		align_items = value
 		refresh_flow()
@@ -32,7 +32,7 @@ func _on_child_entered(child: Node) -> void:
 
 #func _watch(child: Control) -> void:
 	## quem tem flex_grow já definiu as próprias flags (em LuaComponent._apply_flex_grow)
-	#if float(child.get_meta(LCSS.FLEX_GROW, 0.0)) > 0.0:
+	#if float(child.get_meta(ComponentProps.FLEX_GROW, 0.0)) > 0.0:
 		#return
 	#var cb := _apply_flow_sizing.bind(child)
 	#if not child.minimum_size_changed.is_connected(cb):
@@ -45,7 +45,7 @@ func _watch(child: Control) -> void:
 
 
 #func _apply_flow_sizing(child: Control) -> void:
-	#if float(child.get_meta(LCSS.FLEX_GROW, 0.0)) > 0.0: return
+	#if float(child.get_meta(ComponentProps.FLEX_GROW, 0.0)) > 0.0: return
 	#var has_explicit_width := child.custom_minimum_size.x > 0.0
 #
 	#if vertical:
@@ -60,14 +60,14 @@ func _apply_flow_sizing(child: Control) -> void:
 	var grow := float(child.get_meta(&"flex_grow", 0.0))
 	var main_flag := Control.SIZE_EXPAND_FILL if grow > 0.0 else Control.SIZE_FILL
 
-	var align := StringName(child.get_meta(&"align_self", LCSS.AUTO))
-	if align == LCSS.AUTO:
+	var align := StringName(child.get_meta(&"align_self", ComponentProps.AUTO))
+	if align == ComponentProps.AUTO:
 		align = align_items
-	var cross_flag: int = LCSS.CROSS_ALIGNS.get(align, Control.SIZE_FILL)
+	var cross_flag: int = ComponentProps.CROSS_ALIGNS.get(align, Control.SIZE_FILL)
 
 	# tamanho explícito no eixo cruzado vale como mínimo e não estica
 	var explicit_cross := (child.custom_minimum_size.x if vertical else child.custom_minimum_size.y) > 0.0
-	if explicit_cross and align == LCSS.STRETCH:
+	if explicit_cross and align == ComponentProps.STRETCH:
 		cross_flag = Control.SIZE_SHRINK_BEGIN
 
 	if vertical:

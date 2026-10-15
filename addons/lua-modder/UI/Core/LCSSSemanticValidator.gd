@@ -3,7 +3,7 @@ class_name LCSSSemanticValidator extends RefCounted
 
 
 func validate_declaration(property_name: String, value_text: String) -> Dictionary:
-	var catalog: Dictionary = LCSS._catalog()
+	var catalog: Dictionary = ComponentProps._catalog()
 	var property_key := StringName(property_name)
 	var resolved_key: StringName = &""
 
@@ -32,7 +32,7 @@ func validate_declaration(property_name: String, value_text: String) -> Dictiona
 		return {}
 
 	var definition: Dictionary = catalog[resolved_key]
-	var options: Array = definition.get(LCSS.OPTIONS, [])
+	var options: Array = definition.get(ComponentProps.OPTIONS, [])
 
 	if not options.is_empty():
 		var value := value_text.strip_edges()
@@ -86,7 +86,7 @@ func _validate_declarations(declarations: Array, diagnostics: Array[Dictionary])
 		})
 
 func _resolve_property(property_name: String) -> Dictionary:
-	var catalog: Dictionary = LCSS._catalog()
+	var catalog: Dictionary = ComponentProps._catalog()
 	var property_key := StringName(property_name)
 
 	# Exact match: standard property.
@@ -97,7 +97,7 @@ func _resolve_property(property_name: String) -> Dictionary:
 		}
 
 	# Exact match: base property.
-	if property_key in LCSS.BASE:
+	if property_key in ComponentProps.BASE:
 		return {
 			"name": property_key,
 			"definition": {}
@@ -110,7 +110,7 @@ func _resolve_property(property_name: String) -> Dictionary:
 	for key: Variant in catalog.keys():
 		candidates.append(StringName(key))
 
-	for key: Variant in LCSS.BASE:
+	for key: Variant in ComponentProps.BASE:
 		var base_key := StringName(key)
 		if not candidates.has(base_key):
 			candidates.append(base_key)

@@ -4,23 +4,23 @@ extends LuaStyledBox
 
 
 func get_schema() -> Dictionary:
-	var names: Array = [LCSS.COLUMNS, LCSS.GAP, LCSS.COLUMN_GAP,
-			LCSS.ROW_GAP, LCSS.FILL_CELLS]
+	var names: Array = [ComponentProps.COLUMNS, ComponentProps.GAP, ComponentProps.COLUMN_GAP,
+			ComponentProps.ROW_GAP, ComponentProps.FILL_CELLS]
 	names.append_array(LuaStyledBox.box_names())
 	return {
 		"name": "Grid",
-		"props": LCSS.pick(names, {LCSS.GAP: 4}),
+		"props": ComponentProps.pick(names, {ComponentProps.GAP: 4}),
 		"slots": {"default": "%Items"},
 	}
 
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		LCSS.COLUMNS:
+		ComponentProps.COLUMNS:
 			_items.columns = maxi(int(value), 1)
-		LCSS.GAP, LCSS.COLUMN_GAP, LCSS.ROW_GAP:
+		ComponentProps.GAP, ComponentProps.COLUMN_GAP, ComponentProps.ROW_GAP:
 			_refresh_gaps()
-		LCSS.FILL_CELLS:
+		ComponentProps.FILL_CELLS:
 			_items.fill = bool(value)
 		_:
 			super._apply_prop(key, value)

@@ -20,16 +20,16 @@ var value: ReactiveString = ReactiveString.new("")
 
 func get_schema() -> Dictionary:
 	var names: Array = [
-		LCSS.VALUE, LCSS.INPUT_TYPE, LCSS.DECIMALS,
-		LCSS.THOUSAND_SEPARATOR, LCSS.DECIMAL_SEPARATOR,
-		LCSS.LABEL, LCSS.ICON, LCSS.ICON_SIDE,
-		LCSS.CURSOR, LCSS.WIDTH, LCSS.HEIGHT,
-		LCSS.MODEL,
+		ComponentProps.VALUE, ComponentProps.INPUT_TYPE, ComponentProps.DECIMALS,
+		ComponentProps.THOUSAND_SEPARATOR, ComponentProps.DECIMAL_SEPARATOR,
+		ComponentProps.LABEL, ComponentProps.ICON, ComponentProps.ICON_SIDE,
+		ComponentProps.CURSOR, ComponentProps.WIDTH, ComponentProps.HEIGHT,
+		ComponentProps.MODEL,
 	]
 	names.append_array(LuaStyledBox.box_names())
-	var props: Dictionary = LCSS.pick(names, {LCSS.CURSOR: LCSS.TEXT})
-	props.merge(LCSS.pick(LCSS.FONT, {}, "input_"))   # input_font_color, ...
-	props.merge(LCSS.pick(LCSS.FONT, {}, "label_"))   # label_font_color, ...
+	var props: Dictionary = ComponentProps.pick(names, {ComponentProps.CURSOR: ComponentProps.TEXT})
+	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "input_"))   # input_font_color, ...
+	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "label_"))   # label_font_color, ...
 	return {
 		"name": "Input",
 		"props": props,
@@ -38,8 +38,8 @@ func get_schema() -> Dictionary:
 
 
 func _setup_style_target() -> void:
-	_style_target.register_group(LCSS.FONT, _line_edit, "input_")
-	_style_target.register_group(LCSS.FONT, _label, "label_")
+	_style_target.register_group(ComponentProps.FONT, _line_edit, "input_")
+	_style_target.register_group(ComponentProps.FONT, _label, "label_")
 
 
 func _component_ready() -> void:
@@ -71,42 +71,42 @@ func _on_background_click_focus(event: InputEvent) -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		LCSS.VALUE:
+		ComponentProps.VALUE:
 			_set_display_value(str(value))
-		LCSS.WIDTH:
+		ComponentProps.WIDTH:
 			if int(value) >= 0:
 				_wrapper.custom_minimum_size.x = value
-		LCSS.HEIGHT:
+		ComponentProps.HEIGHT:
 			if int(value) >= 0:
 				_wrapper.custom_minimum_size.y = value
-		LCSS.INPUT_TYPE:
+		ComponentProps.INPUT_TYPE:
 			_type = InputType.get(str(value).to_upper(), InputType.TEXT)
 			_line_edit.secret = (_type == InputType.SECRET)
 			_refresh_display()
-		LCSS.MODEL:
+		ComponentProps.MODEL:
 			if _is_ready and value != null:
 				_apply_model_value(value)
-		LCSS.DECIMALS:
+		ComponentProps.DECIMALS:
 			_decimals = int(value)
 			_refresh_display()
-		LCSS.THOUSAND_SEPARATOR:
+		ComponentProps.THOUSAND_SEPARATOR:
 			_thousand_sep = str(value)
-		LCSS.DECIMAL_SEPARATOR:
+		ComponentProps.DECIMAL_SEPARATOR:
 			_decimal_sep = str(value)
-		LCSS.DISABLED:
+		ComponentProps.DISABLED:
 			_line_edit.editable = not value
 			set_state(&"disabled", value)
-		LCSS.LABEL:
+		ComponentProps.LABEL:
 			_label.text = str(value)
 			_label.visible = (str(value) != "")
-		LCSS.ICON:
+		ComponentProps.ICON:
 			_icon_path = str(value)
 			_refresh_icon()
-		LCSS.ICON_SIDE:
+		ComponentProps.ICON_SIDE:
 			_icon_side = str(value)
 			_refresh_icon()
-		LCSS.CURSOR:
-			_set_cursor(LCSS.CURSORS.get(StringName(value), Control.CURSOR_IBEAM))
+		ComponentProps.CURSOR:
+			_set_cursor(ComponentProps.CURSORS.get(StringName(value), Control.CURSOR_IBEAM))
 		_:
 			super._apply_prop(key, value)
 

@@ -1,7 +1,7 @@
 class_name LCSSAppliers extends RefCounted
 ## Handler único usado por TODO componente que registra propriedades em um
 ## LCSSStyleTarget. Sabe COMO cada propriedade vira Godot de verdade; o componente
-## só declara ONDE. Recebe sempre nomes CANÔNICOS (LCSS.*), nunca o contexto
+## só declara ONDE. Recebe sempre nomes CANÔNICOS (ComponentProps.*), nunca o contexto
 ## escrito no .lua/.lcss (quem traduz contexto -> canônico é o LCSSStyleTarget).
 
 #region Meta names
@@ -12,7 +12,7 @@ const LCSS_TEX_BOX := &"_lcss_tex_box"
 const LCSS_IMAGE := &"_lcss_image"
 #endregion
 
-# mesma ordem de LCSS.FAMILIES
+# mesma ordem de ComponentProps.FAMILIES
 const _SIDES := [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]
 const _CORNERS := [CORNER_TOP_LEFT, CORNER_TOP_RIGHT, CORNER_BOTTOM_RIGHT, CORNER_BOTTOM_LEFT]
 # padding também usa margin_*: o alvo é um MarginContainer
@@ -22,44 +22,44 @@ const _RICH_FONT_SIZES := ["normal_font_size", "bold_font_size", "italics_font_s
 
 static func apply(property: StringName, value: Variant, target: Node) -> void:
 	match property:
-		LCSS.BACKGROUND_COLOR, LCSS.BORDER_COLOR, \
-		LCSS.DROP_SHADOW_COLOR, LCSS.DROP_SHADOW_SIZE, \
-		LCSS.DROP_SHADOW_OFFSET:
+		ComponentProps.BACKGROUND_COLOR, ComponentProps.BORDER_COLOR, \
+		ComponentProps.DROP_SHADOW_COLOR, ComponentProps.DROP_SHADOW_SIZE, \
+		ComponentProps.DROP_SHADOW_OFFSET:
 			_apply_stylebox_field(target as Control, property, value)
-		LCSS.BACKGROUND_IMAGE, LCSS.BACKGROUND_IMAGE_TINT, \
-		LCSS.BACKGROUND_IMAGE_STRETCH:
+		ComponentProps.BACKGROUND_IMAGE, ComponentProps.BACKGROUND_IMAGE_TINT, \
+		ComponentProps.BACKGROUND_IMAGE_STRETCH:
 			_apply_image_field(target as Control, property, value)
-		LCSS.FONT_COLOR, LCSS.FONT_SIZE, \
-		LCSS.OUTLINE_COLOR, LCSS.OUTLINE_THICKNESS:
+		ComponentProps.FONT_COLOR, ComponentProps.FONT_SIZE, \
+		ComponentProps.OUTLINE_COLOR, ComponentProps.OUTLINE_THICKNESS:
 			_apply_text_style(target as Control, property, value)
-		LCSS.SCROLLBAR_WIDTH, LCSS.SCROLLBAR_TRACK_COLOR, \
-		LCSS.SCROLLBAR_GRABBER_COLOR, LCSS.SCROLLBAR_GRABBER_HOVER_COLOR, \
-		LCSS.SCROLLBAR_GRABBER_PRESSED_COLOR, LCSS.SCROLL_HINT_COLOR:
+		ComponentProps.SCROLLBAR_WIDTH, ComponentProps.SCROLLBAR_TRACK_COLOR, \
+		ComponentProps.SCROLLBAR_GRABBER_COLOR, ComponentProps.SCROLLBAR_GRABBER_HOVER_COLOR, \
+		ComponentProps.SCROLLBAR_GRABBER_PRESSED_COLOR, ComponentProps.SCROLL_HINT_COLOR:
 			_apply_scrollbar(target as ScrollContainer, property, value)
-		LCSS.SCROLLBAR_GAP:
+		ComponentProps.SCROLLBAR_GAP:
 			_apply_scrollbar_gap(target as ScrollContainer, value)
-		LCSS.TEXT_SHADOW_COLOR, LCSS.TEXT_SHADOW_OFFSET, LCSS.TEXT_SHADOW_OUTLINE, \
-		LCSS.LINE_SPACING, LCSS.PARAGRAPH_SPACING, \
-		LCSS.SELECTION_COLOR, LCSS.SELECTED_FONT_COLOR:
+		ComponentProps.TEXT_SHADOW_COLOR, ComponentProps.TEXT_SHADOW_OFFSET, ComponentProps.TEXT_SHADOW_OUTLINE, \
+		ComponentProps.LINE_SPACING, ComponentProps.PARAGRAPH_SPACING, \
+		ComponentProps.SELECTION_COLOR, ComponentProps.SELECTED_FONT_COLOR:
 			_apply_text_extras(target as Control, property, value)
 		# TODO: SCROLL_HINT e SCROLL_HINT_TILE entram aqui quando existir o handler de textura
-		LCSS.SCALE, LCSS.ROTATE, LCSS.TRANSLATE, LCSS.TRANSFORM_ORIGIN:
+		ComponentProps.SCALE, ComponentProps.ROTATE, ComponentProps.TRANSLATE, ComponentProps.TRANSFORM_ORIGIN:
 			_apply_transform(target as Control, property, value)
 		_:
 			push_warning("[LCSSAppliers] propriedade sem applier: '%s'" % property)
 
 
 #region Famílias
-## Recebe UM valor por parte (ordem de LCSS.FAMILIES); null = indefinido.
+## Recebe UM valor por parte (ordem de ComponentProps.FAMILIES); null = indefinido.
 static func apply_family(family: StringName, values: Array, target: Node) -> void:
 	match family:
-		LCSS.MARGIN, LCSS.PADDING:
+		ComponentProps.MARGIN, ComponentProps.PADDING:
 			_apply_box_family(target as MarginContainer, family, values)
-		LCSS.BORDER_WIDTH, LCSS.BORDER_RADIUS:
+		ComponentProps.BORDER_WIDTH, ComponentProps.BORDER_RADIUS:
 			_apply_border_family(target as Control, family, values)
-		LCSS.SCROLLBAR_BORDER_RADIUS:
+		ComponentProps.SCROLLBAR_BORDER_RADIUS:
 			_apply_scrollbar_radius(target as ScrollContainer, values)
-		LCSS.BACKGROUND_IMAGE_SLICE:
+		ComponentProps.BACKGROUND_IMAGE_SLICE:
 			_apply_slice_family(target as Control, values)
 		_:
 			push_warning("[LCSSAppliers] família sem applier: '%s'" % family)
@@ -82,7 +82,7 @@ static func _apply_border_family(target: Control, family: StringName, values: Ar
 	if not _has_any(values) and not target.has_meta(LCSS_BOX):
 		return
 	var box := _get_box(target)
-	if family == LCSS.BORDER_WIDTH:
+	if family == ComponentProps.BORDER_WIDTH:
 		_apply_parts(target, family, values,
 			func(i, v): box.set_border_width(_SIDES[i], int(v)),
 			func(i): box.set_border_width(_SIDES[i], 0))
@@ -123,11 +123,11 @@ static func _apply_stylebox_field(target: Control, property: StringName, value: 
 		return
 	var box := _get_box(target)
 	match property:
-		LCSS.BACKGROUND_COLOR: box.bg_color = LuaHelper.parse_color(value)
-		LCSS.BORDER_COLOR: box.border_color = LuaHelper.parse_color(value)
-		LCSS.DROP_SHADOW_COLOR: box.shadow_color = LuaHelper.parse_color(value)
-		LCSS.DROP_SHADOW_SIZE: box.shadow_size = int(value)
-		LCSS.DROP_SHADOW_OFFSET:
+		ComponentProps.BACKGROUND_COLOR: box.bg_color = LuaHelper.parse_color(value)
+		ComponentProps.BORDER_COLOR: box.border_color = LuaHelper.parse_color(value)
+		ComponentProps.DROP_SHADOW_COLOR: box.shadow_color = LuaHelper.parse_color(value)
+		ComponentProps.DROP_SHADOW_SIZE: box.shadow_size = int(value)
+		ComponentProps.DROP_SHADOW_OFFSET:
 			var v := LuaHelper.parse_distributable(value)
 			box.shadow_offset = Vector2(v[0], v[1])
 
@@ -140,29 +140,29 @@ static func _apply_text_style(target: Control, property: StringName, value: Vari
 		_apply_rich_text_style(target, property, value)
 		return
 	match property:
-		LCSS.FONT_COLOR:
+		ComponentProps.FONT_COLOR:
 			var color := LuaHelper.parse_color(value)
 			target.add_theme_color_override("font_color", color)
 			if target is LineEdit:
 				target.add_theme_color_override("font_uneditable_color", color)
-		LCSS.FONT_SIZE:
+		ComponentProps.FONT_SIZE:
 			target.add_theme_font_size_override("font_size", int(value))
-		LCSS.OUTLINE_COLOR:
+		ComponentProps.OUTLINE_COLOR:
 			target.add_theme_color_override("font_outline_color", LuaHelper.parse_color(value))
-		LCSS.OUTLINE_THICKNESS:
+		ComponentProps.OUTLINE_THICKNESS:
 			target.add_theme_constant_override("outline_size", int(value))
 
 
 static func _apply_rich_text_style(target: Control, property: StringName, value: Variant) -> void:
 	match property:
-		LCSS.FONT_COLOR:
+		ComponentProps.FONT_COLOR:
 			target.add_theme_color_override("default_color", LuaHelper.parse_color(value))
-		LCSS.FONT_SIZE:
+		ComponentProps.FONT_SIZE:
 			for n in _RICH_FONT_SIZES:
 				target.add_theme_font_size_override(n, int(value))
-		LCSS.OUTLINE_COLOR:
+		ComponentProps.OUTLINE_COLOR:
 			target.add_theme_color_override("font_outline_color", LuaHelper.parse_color(value))
-		LCSS.OUTLINE_THICKNESS:
+		ComponentProps.OUTLINE_THICKNESS:
 			target.add_theme_constant_override("outline_size", int(value))   # verificar
 
 #endregion
@@ -183,24 +183,24 @@ static func _apply_scrollbar_radius(scroll: ScrollContainer, values: Array) -> v
 	if scroll == null:
 		return
 	var cfg: Dictionary = scroll.get_meta(LCSS_SCROLLBAR, {})
-	if not _has_any(values) and not cfg.has(LCSS.SCROLLBAR_BORDER_RADIUS):
+	if not _has_any(values) and not cfg.has(ComponentProps.SCROLLBAR_BORDER_RADIUS):
 		return
-	cfg[LCSS.SCROLLBAR_BORDER_RADIUS] = values
+	cfg[ComponentProps.SCROLLBAR_BORDER_RADIUS] = values
 	scroll.set_meta(LCSS_SCROLLBAR, cfg)
 	_rebuild_scrollbar(scroll)
 
 
 static func _rebuild_scrollbar(scroll: ScrollContainer) -> void:
 	var cfg: Dictionary = scroll.get_meta(LCSS_SCROLLBAR, {})
-	var thickness := maxi(int(cfg.get(LCSS.SCROLLBAR_WIDTH, 12)), 1)
-	var track_color := LuaHelper.parse_color(cfg.get(LCSS.SCROLLBAR_TRACK_COLOR, Color(0, 0, 0, 0.1)))
-	var grabber_color := LuaHelper.parse_color(cfg.get(LCSS.SCROLLBAR_GRABBER_COLOR, Color(1, 1, 1, 0.3)))
-	var hover_color := LuaHelper.parse_color(cfg.get(LCSS.SCROLLBAR_GRABBER_HOVER_COLOR, grabber_color))
-	var pressed_color := LuaHelper.parse_color(cfg.get(LCSS.SCROLLBAR_GRABBER_PRESSED_COLOR, grabber_color))
-	var radius: Array = cfg.get(LCSS.SCROLLBAR_BORDER_RADIUS, [])
+	var thickness := maxi(int(cfg.get(ComponentProps.SCROLLBAR_WIDTH, 12)), 1)
+	var track_color := LuaHelper.parse_color(cfg.get(ComponentProps.SCROLLBAR_TRACK_COLOR, Color(0, 0, 0, 0.1)))
+	var grabber_color := LuaHelper.parse_color(cfg.get(ComponentProps.SCROLLBAR_GRABBER_COLOR, Color(1, 1, 1, 0.3)))
+	var hover_color := LuaHelper.parse_color(cfg.get(ComponentProps.SCROLLBAR_GRABBER_HOVER_COLOR, grabber_color))
+	var pressed_color := LuaHelper.parse_color(cfg.get(ComponentProps.SCROLLBAR_GRABBER_PRESSED_COLOR, grabber_color))
+	var radius: Array = cfg.get(ComponentProps.SCROLLBAR_BORDER_RADIUS, [])
 
-	if cfg.has(LCSS.SCROLL_HINT_COLOR):
-		var hint := LuaHelper.parse_color(cfg[LCSS.SCROLL_HINT_COLOR])
+	if cfg.has(ComponentProps.SCROLL_HINT_COLOR):
+		var hint := LuaHelper.parse_color(cfg[ComponentProps.SCROLL_HINT_COLOR])
 		scroll.add_theme_color_override("scroll_hint_vertical_color", hint)
 		scroll.add_theme_color_override("scroll_hint_horizontal_color", hint)
 
@@ -268,21 +268,21 @@ static func _apply_text_extras(target: Control, property: StringName, value: Var
 		return
 	var rich := target is RichTextLabel
 	match property:
-		LCSS.TEXT_SHADOW_COLOR:
+		ComponentProps.TEXT_SHADOW_COLOR:
 			target.add_theme_color_override("font_shadow_color", LuaHelper.parse_color(value))
-		LCSS.TEXT_SHADOW_OFFSET:
+		ComponentProps.TEXT_SHADOW_OFFSET:
 			var v := LuaHelper.parse_distributable(value)
 			target.add_theme_constant_override("shadow_offset_x", int(v[0]))
 			target.add_theme_constant_override("shadow_offset_y", int(v[1]))
-		LCSS.TEXT_SHADOW_OUTLINE:
+		ComponentProps.TEXT_SHADOW_OUTLINE:
 			target.add_theme_constant_override("shadow_outline_size", int(value))
-		LCSS.LINE_SPACING:
+		ComponentProps.LINE_SPACING:
 			target.add_theme_constant_override("line_separation" if rich else "line_spacing", int(value))
-		LCSS.PARAGRAPH_SPACING:
+		ComponentProps.PARAGRAPH_SPACING:
 			target.add_theme_constant_override("paragraph_separation" if rich else "paragraph_spacing", int(value))
-		LCSS.SELECTION_COLOR:
+		ComponentProps.SELECTION_COLOR:
 			target.add_theme_color_override("selection_color", LuaHelper.parse_color(value))
-		LCSS.SELECTED_FONT_COLOR:
+		ComponentProps.SELECTED_FONT_COLOR:
 			target.add_theme_color_override("font_selected_color", LuaHelper.parse_color(value))
 #endregion
 
@@ -293,15 +293,15 @@ static func _apply_transform(target: Control, property: StringName, value: Varia
 	target.offset_transform_enabled = true
 	target.offset_transform_visual_only = true
 	match property:
-		LCSS.SCALE:
+		ComponentProps.SCALE:
 			var s := LuaHelper.parse_distributable(value)
 			target.offset_transform_scale = Vector2(s[0], s[1])
-		LCSS.ROTATE:
+		ComponentProps.ROTATE:
 			target.offset_transform_rotation = deg_to_rad(float(value))
-		LCSS.TRANSLATE:
+		ComponentProps.TRANSLATE:
 			var t := LuaHelper.parse_distributable(value)
 			target.offset_transform_position = Vector2(t[0], t[1])
-		LCSS.TRANSFORM_ORIGIN:
+		ComponentProps.TRANSFORM_ORIGIN:
 			var o := LuaHelper.parse_distributable(value)
 			target.offset_transform_pivot_ratio = Vector2(o[0], o[1])
 #endregion
@@ -337,7 +337,7 @@ static func _apply_image_field(target: Control, property: StringName, value: Var
 	var box := _tex_box(target)
 	var path_prefix := "res://"
 	match property:
-		LCSS.BACKGROUND_IMAGE:
+		ComponentProps.BACKGROUND_IMAGE:
 			var path := path_prefix+str(value)
 			if path == path_prefix:
 				_remove_image(target)
@@ -349,10 +349,10 @@ static func _apply_image_field(target: Control, property: StringName, value: Var
 			box.texture = texture
 			target.set_meta(LCSS_IMAGE, path)
 			target.add_theme_stylebox_override("panel", box)
-		LCSS.BACKGROUND_IMAGE_TINT:
+		ComponentProps.BACKGROUND_IMAGE_TINT:
 			box.modulate_color = LuaHelper.parse_color(value)
-		LCSS.BACKGROUND_IMAGE_STRETCH:
-			var mode: int = LCSS.STRETCH_MODES.get(StringName(str(value)), StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH)
+		ComponentProps.BACKGROUND_IMAGE_STRETCH:
+			var mode: int = ComponentProps.STRETCH_MODES.get(StringName(str(value)), StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH)
 			box.axis_stretch_horizontal = mode
 			box.axis_stretch_vertical = mode
 
@@ -373,7 +373,7 @@ static func _apply_slice_family(target: Control, values: Array) -> void:
 	if not _has_any(values) and not target.has_meta(LCSS_TEX_BOX):
 		return
 	var box := _tex_box(target)
-	_apply_parts(target, LCSS.BACKGROUND_IMAGE_SLICE, values,
+	_apply_parts(target, ComponentProps.BACKGROUND_IMAGE_SLICE, values,
 		func(i, v): box.set_texture_margin(_SIDES[i], float(v)),
 		func(i): box.set_texture_margin(_SIDES[i], 0.0))
 #endregion
@@ -385,46 +385,46 @@ static func reset(property: StringName, target: Node) -> void:
 	var control := target as Control
 	if control == null:
 		return
-	if control is RichTextLabel and LCSS.FONT.has(property):
+	if control is RichTextLabel and ComponentProps.FONT.has(property):
 		match property:
-			LCSS.SCALE: control.offset_transform_scale = Vector2.ONE
-			LCSS.ROTATE: control.offset_transform_rotation = 0.0
-			LCSS.TRANSLATE: control.offset_transform_position = Vector2.ZERO
-			LCSS.TRANSFORM_ORIGIN: control.offset_transform_pivot_ratio = Vector2(0.5, 0.5)
-			LCSS.FONT_COLOR: control.remove_theme_color_override("default_color")
-			LCSS.FONT_SIZE:
+			ComponentProps.SCALE: control.offset_transform_scale = Vector2.ONE
+			ComponentProps.ROTATE: control.offset_transform_rotation = 0.0
+			ComponentProps.TRANSLATE: control.offset_transform_position = Vector2.ZERO
+			ComponentProps.TRANSFORM_ORIGIN: control.offset_transform_pivot_ratio = Vector2(0.5, 0.5)
+			ComponentProps.FONT_COLOR: control.remove_theme_color_override("default_color")
+			ComponentProps.FONT_SIZE:
 				for n in _RICH_FONT_SIZES:
 					control.remove_theme_font_size_override(n)
-			LCSS.OUTLINE_COLOR: control.remove_theme_color_override("font_outline_color")
-			LCSS.OUTLINE_THICKNESS: control.remove_theme_constant_override("outline_size")
+			ComponentProps.OUTLINE_COLOR: control.remove_theme_color_override("font_outline_color")
+			ComponentProps.OUTLINE_THICKNESS: control.remove_theme_constant_override("outline_size")
 		return
 	var flat: StyleBoxFlat = control.get_meta(LCSS_BOX) if control.has_meta(LCSS_BOX) else null
 	var tex: StyleBoxTexture = control.get_meta(LCSS_TEX_BOX) if control.has_meta(LCSS_TEX_BOX) else null
 	match property:
-		LCSS.BACKGROUND_COLOR:
+		ComponentProps.BACKGROUND_COLOR:
 			if flat: flat.bg_color = Color.TRANSPARENT
-		LCSS.BORDER_COLOR:
+		ComponentProps.BORDER_COLOR:
 			if flat: flat.border_color = Color.TRANSPARENT
-		LCSS.DROP_SHADOW_COLOR:
+		ComponentProps.DROP_SHADOW_COLOR:
 			if flat: flat.shadow_color = Color(0, 0, 0, 0.6)
-		LCSS.DROP_SHADOW_SIZE:
+		ComponentProps.DROP_SHADOW_SIZE:
 			if flat: flat.shadow_size = 0
-		LCSS.DROP_SHADOW_OFFSET:
+		ComponentProps.DROP_SHADOW_OFFSET:
 			if flat: flat.shadow_offset = Vector2.ZERO
-		LCSS.BACKGROUND_IMAGE:
+		ComponentProps.BACKGROUND_IMAGE:
 			_remove_image(control)
-		LCSS.BACKGROUND_IMAGE_TINT:
+		ComponentProps.BACKGROUND_IMAGE_TINT:
 			if tex: tex.modulate_color = Color.WHITE
-		LCSS.BACKGROUND_IMAGE_STRETCH:
+		ComponentProps.BACKGROUND_IMAGE_STRETCH:
 			if tex:
 				tex.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
 				tex.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
-		LCSS.FONT_COLOR:
+		ComponentProps.FONT_COLOR:
 			control.remove_theme_color_override("font_color")
-		LCSS.FONT_SIZE:
+		ComponentProps.FONT_SIZE:
 			control.remove_theme_font_size_override("font_size")
-		LCSS.OUTLINE_COLOR:
+		ComponentProps.OUTLINE_COLOR:
 			control.remove_theme_color_override("font_outline_color")
-		LCSS.OUTLINE_THICKNESS:
+		ComponentProps.OUTLINE_THICKNESS:
 			control.remove_theme_constant_override("outline_size")
 #endregion

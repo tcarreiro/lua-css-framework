@@ -30,15 +30,15 @@ func _on_child_entered(child: Node) -> void:
 
 
 func _apply(child: Control) -> void:
-	var h := StringName(child.get_meta(&"justify_self", LCSS.AUTO))
-	var v := StringName(child.get_meta(&"align_self", LCSS.AUTO))
+	var h := StringName(child.get_meta(&"justify_self", ComponentProps.AUTO))
+	var v := StringName(child.get_meta(&"align_self", ComponentProps.AUTO))
 	child.size_flags_horizontal = _flag(h, child.custom_minimum_size.x > 0.0)
 	child.size_flags_vertical = _flag(v, child.custom_minimum_size.y > 0.0)
 
 
 func _flag(align: StringName, explicit: bool) -> int:
-	if align == LCSS.AUTO:
-		align = LCSS.STRETCH if fill else LCSS.START
-	if align == LCSS.STRETCH:
+	if align == ComponentProps.AUTO:
+		align = ComponentProps.STRETCH if fill else ComponentProps.START
+	if align == ComponentProps.STRETCH:
 		return Control.SIZE_SHRINK_BEGIN if explicit else Control.SIZE_EXPAND_FILL
-	return LCSS.CROSS_ALIGNS.get(align, Control.SIZE_FILL)
+	return ComponentProps.CROSS_ALIGNS.get(align, Control.SIZE_FILL)

@@ -11,21 +11,21 @@ var _checked := false
 
 func get_schema() -> Dictionary:
 	var names: Array = [
-		LCSS.CHECKED, LCSS.LABEL, LCSS.RADIO, LCSS.DISABLED,
-		LCSS.MODEL, LCSS.INDICATOR_SIZE, LCSS.MARK_INSET, LCSS.GAP,
+		ComponentProps.CHECKED, ComponentProps.LABEL, ComponentProps.RADIO, ComponentProps.DISABLED,
+		ComponentProps.MODEL, ComponentProps.INDICATOR_SIZE, ComponentProps.MARK_INSET, ComponentProps.GAP,
 	]
 	names.append_array(LuaStyledBox.box_names())
-	var props := LCSS.pick(names, {LCSS.GAP: 8})
-	props.merge(LCSS.pick(LCSS.PANEL, {}, "box_"))
-	props.merge(LCSS.pick(LCSS.PANEL, {}, "mark_"))
-	props.merge(LCSS.pick(LCSS.FONT, {}, "label_"))
+	var props := ComponentProps.pick(names, {ComponentProps.GAP: 8})
+	props.merge(ComponentProps.pick(ComponentProps.PANEL, {}, "box_"))
+	props.merge(ComponentProps.pick(ComponentProps.PANEL, {}, "mark_"))
+	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "label_"))
 	return {"name": "Checkbox", "props": props, "events": ["changed"], "methods": ["toggle"]}
 
 
 func _setup_style_target() -> void:
-	_style_target.register_group(LCSS.PANEL, _box, "box_")
-	_style_target.register_group(LCSS.PANEL, _mark, "mark_")
-	_style_target.register_group(LCSS.FONT, _label, "label_")
+	_style_target.register_group(ComponentProps.PANEL, _box, "box_")
+	_style_target.register_group(ComponentProps.PANEL, _mark, "mark_")
+	_style_target.register_group(ComponentProps.FONT, _label, "label_")
 
 
 func _component_ready() -> void:
@@ -36,23 +36,23 @@ func _component_ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		LCSS.CHECKED:
+		ComponentProps.CHECKED:
 			if not _has_model():
 				_set_checked(bool(value), false)
-		LCSS.MODEL:
+		ComponentProps.MODEL:
 			if value != null:
 				_set_checked(bool(value), false)
-		LCSS.LABEL:
+		ComponentProps.LABEL:
 			_label.text = str(value)
 			_label.visible = str(value) != ""
-		LCSS.GAP:
+		ComponentProps.GAP:
 			_row.add_theme_constant_override("separation", maxi(int(value), 0))
-		LCSS.INDICATOR_SIZE:
+		ComponentProps.INDICATOR_SIZE:
 			_box.custom_minimum_size = Vector2.ONE * maxi(int(value), 1)
-		LCSS.MARK_INSET:
+		ComponentProps.MARK_INSET:
 			for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
 				_inset.add_theme_constant_override(side, maxi(int(value), 0))
-		LCSS.DISABLED:
+		ComponentProps.DISABLED:
 			set_state(&"disabled", bool(value))
 			_background.focus_mode = Control.FOCUS_NONE if value else Control.FOCUS_ALL
 		_:

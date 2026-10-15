@@ -9,13 +9,13 @@ var _nodes: Array[LuaComponent] = []
 
 func get_schema() -> Dictionary:
 	var names: Array = [
-		LCSS.OPTION_LIST, LCSS.VALUE, LCSS.MODEL, LCSS.DISPLAY,
-		LCSS.GAP, LCSS.DISABLED, LCSS.OPTION_CLASS,
+		ComponentProps.OPTION_LIST, ComponentProps.VALUE, ComponentProps.MODEL, ComponentProps.DISPLAY,
+		ComponentProps.GAP, ComponentProps.DISABLED, ComponentProps.OPTION_CLASS,
 	]
 	names.append_array(LuaStyledBox.box_names())
 	return {
 		"name": "RadioGroup",
-		"props": LCSS.pick(names, {LCSS.GAP: 8, LCSS.OPTION_CLASS: "radio"}),
+		"props": ComponentProps.pick(names, {ComponentProps.GAP: 8, ComponentProps.OPTION_CLASS: "radio"}),
 		"events": ["changed"],
 	}
 
@@ -28,23 +28,23 @@ func _component_ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		LCSS.DISPLAY:
+		ComponentProps.DISPLAY:
 			_items.vertical = (value != "flex")
 			_items.refresh_flow()
-		LCSS.GAP:
+		ComponentProps.GAP:
 			_items.add_theme_constant_override("separation", maxi(int(value), 0))
-		LCSS.DISABLED:
+		ComponentProps.DISABLED:
 			set_state(&"disabled", bool(value))
 			if _is_ready:
 				_rebuild()
-		LCSS.OPTION_LIST, LCSS.OPTION_CLASS:
+		ComponentProps.OPTION_LIST, ComponentProps.OPTION_CLASS:
 			if _is_ready:
 				_options = LuaHelper.parse_options(props.get("options"))
 				_rebuild()
-		LCSS.VALUE:
+		ComponentProps.VALUE:
 			if _is_ready and not _has_model():
 				_select(value, false)
-		LCSS.MODEL:
+		ComponentProps.MODEL:
 			if _is_ready and value != null:
 				_select(value, false)
 		_:

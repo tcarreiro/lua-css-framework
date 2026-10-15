@@ -3,18 +3,18 @@ extends LuaStyledBox
 @onready var _btn: Button = %Button
 
 func get_schema() -> Dictionary:
-	var names: Array = [LCSS.LABEL]
-	names.append_array(LCSS.FONT)
+	var names: Array = [ComponentProps.LABEL]
+	names.append_array(ComponentProps.FONT)
 	names.append_array(LuaStyledBox.box_names())
 	return {
 		"name": "Button",
-		"props": LCSS.pick(names),
+		"props": ComponentProps.pick(names),
 		"events": ["pressed", "mouse_entered", "mouse_exited", "focus_entered", "focus_exited"],
 	}
 
 
 func _setup_style_target() -> void:
-	_style_target.register_group(LCSS.FONT, _btn)
+	_style_target.register_group(ComponentProps.FONT, _btn)
 
 
 func _component_ready() -> void:
@@ -34,9 +34,9 @@ func _component_ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		LCSS.LABEL:
+		ComponentProps.LABEL:
 			_btn.text = str(value)
-		LCSS.DISABLED:
+		ComponentProps.DISABLED:
 			_btn.disabled = value
 			set_state(&"disabled", value)
 		_:

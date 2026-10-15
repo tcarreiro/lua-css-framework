@@ -10,13 +10,13 @@ var _additive: CanvasItemMaterial
 func get_schema() -> Dictionary:
 	return {
 		"name": "ParticleEmitter",
-		"props": LCSS.pick([
-			LCSS.EMITTING, LCSS.AMOUNT, LCSS.LIFETIME, LCSS.ONE_SHOT,
-			LCSS.EXPLOSIVENESS, LCSS.RANDOMNESS, LCSS.PREWARM,
-			LCSS.SHAPE, LCSS.EMIT_ANGLE, LCSS.SPREAD, LCSS.SPEED,
-			LCSS.GRAVITY, LCSS.PARTICLE_SCALE, LCSS.COLOR, LCSS.COLOR_END,
-			LCSS.BLEND, LCSS.TEXTURE, LCSS.CLIP,
-			LCSS.WIDTH, LCSS.HEIGHT,
+		"props": ComponentProps.pick([
+			ComponentProps.EMITTING, ComponentProps.AMOUNT, ComponentProps.LIFETIME, ComponentProps.ONE_SHOT,
+			ComponentProps.EXPLOSIVENESS, ComponentProps.RANDOMNESS, ComponentProps.PREWARM,
+			ComponentProps.SHAPE, ComponentProps.EMIT_ANGLE, ComponentProps.SPREAD, ComponentProps.SPEED,
+			ComponentProps.GRAVITY, ComponentProps.PARTICLE_SCALE, ComponentProps.COLOR, ComponentProps.COLOR_END,
+			ComponentProps.BLEND, ComponentProps.TEXTURE, ComponentProps.CLIP,
+			ComponentProps.WIDTH, ComponentProps.HEIGHT,
 		]),
 		"methods": ["restart"],
 	}
@@ -30,10 +30,10 @@ func _component_ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		LCSS.WIDTH:
+		ComponentProps.WIDTH:
 			if int(value) >= 0:
 				custom_minimum_size.x = value
-		LCSS.HEIGHT:
+		ComponentProps.HEIGHT:
 			if int(value) >= 0:
 				custom_minimum_size.y = value
 		_:
@@ -59,7 +59,7 @@ func _configure() -> void:
 	_particles.explosiveness = clampf(float(props.get("explosiveness", 0.0)), 0.0, 1.0)
 	_particles.randomness = clampf(float(props.get("randomness", 0.0)), 0.0, 1.0)
 	_particles.preprocess = maxf(float(props.get("prewarm", 0.0)), 0.0)
-	_particles.emission_shape = LCSS.EMIT_SHAPES.get(
+	_particles.emission_shape = ComponentProps.EMIT_SHAPES.get(
 		StringName(str(props.get("shape", "box"))), CPUParticles2D.EMISSION_SHAPE_RECTANGLE)
 	_particles.direction = Vector2.from_angle(deg_to_rad(float(props.get("emit_angle", -90.0))))
 	_particles.spread = float(props.get("spread", 25.0))
@@ -77,16 +77,16 @@ func _configure() -> void:
 
 	if _additive == null:
 		_additive = CanvasItemMaterial.new()
-	match str(props.get(LCSS.BLEND, LCSS.MIX)):
-		LCSS.ADD:
+	match str(props.get(ComponentProps.BLEND, ComponentProps.MIX)):
+		ComponentProps.ADD:
 			_additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-		LCSS.MULTIPLY:
+		ComponentProps.MULTIPLY:
 			_additive.blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
-		LCSS.MIX:
+		ComponentProps.MIX:
 			_additive.blend_mode = CanvasItemMaterial.BLEND_MODE_MIX
-		LCSS.PREMULTIPLIED_ALPHA:
+		ComponentProps.PREMULTIPLIED_ALPHA:
 			_additive.blend_mode = CanvasItemMaterial.BLEND_MODE_PREMULT_ALPHA
-		LCSS.SUBTRACT:
+		ComponentProps.SUBTRACT:
 			_additive.blend_mode = CanvasItemMaterial.BLEND_MODE_SUB
 	_particles.material = _additive
 

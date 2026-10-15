@@ -17,11 +17,11 @@ var _loop := true
 func get_schema() -> Dictionary:
 	return {
 		"name": "Sprite",
-		"props": LCSS.pick([
-			LCSS.TEXTURE, LCSS.HFRAMES, LCSS.VFRAMES,
-			LCSS.FRAME_COUNT, LCSS.FRAME, LCSS.FPS,
-			LCSS.DURATION, LCSS.LOOP, LCSS.PLAYING,
-			LCSS.WIDTH, LCSS.HEIGHT,
+		"props": ComponentProps.pick([
+			ComponentProps.TEXTURE, ComponentProps.HFRAMES, ComponentProps.VFRAMES,
+			ComponentProps.FRAME_COUNT, ComponentProps.FRAME, ComponentProps.FPS,
+			ComponentProps.DURATION, ComponentProps.LOOP, ComponentProps.PLAYING,
+			ComponentProps.WIDTH, ComponentProps.HEIGHT,
 		]),
 		"events": ["finished", "frame_changed", "pressed"],
 		"methods": ["play", "pause", "stop", "set_frame"],
@@ -45,16 +45,16 @@ func _on_click(event: InputEvent) -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		LCSS.TEXTURE, LCSS.HFRAMES, LCSS.VFRAMES, LCSS.FRAME_COUNT:
+		ComponentProps.TEXTURE, ComponentProps.HFRAMES, ComponentProps.VFRAMES, ComponentProps.FRAME_COUNT:
 			_rebuild()
-		LCSS.FRAME:
+		ComponentProps.FRAME:
 			set_frame(int(value))
-		LCSS.LOOP:
+		ComponentProps.LOOP:
 			_loop = bool(value)
-		LCSS.PLAYING:
+		ComponentProps.PLAYING:
 			_playing = bool(value)
 			_refresh_processing()
-		LCSS.WIDTH, LCSS.HEIGHT:
+		ComponentProps.WIDTH, ComponentProps.HEIGHT:
 			_update_size()
 		_:
 			super._apply_prop(key, value)

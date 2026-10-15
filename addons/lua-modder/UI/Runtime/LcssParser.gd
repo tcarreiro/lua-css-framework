@@ -128,7 +128,7 @@ func _parse_call(value: String) -> Variant:
 			args.append(_strip_quotes(raw.strip_edges()))
 
 	match function_name:
-		LCSS.TEXTURE_FN, LCSS.URL_FN:
+		ComponentProps.TEXTURE_FN, ComponentProps.URL_FN:
 			if args.is_empty() or str(args[0]).is_empty():
 				push_warning(
 					"[LCSSParser] %s() requires a non-empty path." % function_name

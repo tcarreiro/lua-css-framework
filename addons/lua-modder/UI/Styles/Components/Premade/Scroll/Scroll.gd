@@ -9,19 +9,19 @@ var _at_end := false
 
 func get_schema() -> Dictionary:
 	var names: Array = [
-		LCSS.PADDING, LCSS.GAP,
-		LCSS.WIDTH, LCSS.HEIGHT,
-		LCSS.MAX_WIDTH, LCSS.MAX_HEIGHT,
-		LCSS.DIRECTION, LCSS.SCROLLBAR_MODE,
-		LCSS.FOLLOW_FOCUS, LCSS.EDGE_THRESHOLD,
-		LCSS.SCROLL_HINT, LCSS.SCROLL_HINT_TILE,
-		LCSS.DISPLAY
+		ComponentProps.PADDING, ComponentProps.GAP,
+		ComponentProps.WIDTH, ComponentProps.HEIGHT,
+		ComponentProps.MAX_WIDTH, ComponentProps.MAX_HEIGHT,
+		ComponentProps.DIRECTION, ComponentProps.SCROLLBAR_MODE,
+		ComponentProps.FOLLOW_FOCUS, ComponentProps.EDGE_THRESHOLD,
+		ComponentProps.SCROLL_HINT, ComponentProps.SCROLL_HINT_TILE,
+		ComponentProps.DISPLAY
 	]
-	names.append_array(LCSS.PANEL)
-	names.append_array(LCSS.SCROLLBAR)   # inclui scrollbar_gap e o raio por canto
+	names.append_array(ComponentProps.PANEL)
+	names.append_array(ComponentProps.SCROLLBAR)   # inclui scrollbar_gap e o raio por canto
 	return {
 		"name": "Scroll",
-		"props": LCSS.pick(names, {LCSS.GAP: 4}),
+		"props": ComponentProps.pick(names, {ComponentProps.GAP: 4}),
 		"events": ["scrolled", "reached_start", "reached_end", "scroll_started", "scroll_ended"],
 		"methods": ["scroll_to_top", "scroll_to_bottom", "scroll_to_ref"],
 		"slots": {"default": "%Items"},
@@ -29,10 +29,10 @@ func get_schema() -> Dictionary:
 
 
 func _ready() -> void:
-	_style_target.register_property(LCSS.PADDING, _margin)
-	for prop in LCSS.SCROLLBAR:
+	_style_target.register_property(ComponentProps.PADDING, _margin)
+	for prop in ComponentProps.SCROLLBAR:
 		_style_target.register_property(prop, _sc)
-	for prop in LCSS.PANEL:
+	for prop in ComponentProps.PANEL:
 		_style_target.register_property(prop, _sc)
 	super._ready()
 
@@ -52,44 +52,44 @@ func _component_ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match key:
-		LCSS.DIRECTION, LCSS.SCROLLBAR_MODE:
+		ComponentProps.DIRECTION, ComponentProps.SCROLLBAR_MODE:
 			_refresh_scroll_modes()
-		LCSS.WIDTH:
+		ComponentProps.WIDTH:
 			if value != null and int(value) >= 0:
 				custom_minimum_size.x = value
-		LCSS.HEIGHT:
+		ComponentProps.HEIGHT:
 			if value != null and int(value) >= 0:
 				custom_minimum_size.y = value
-		LCSS.MAX_WIDTH:
+		ComponentProps.MAX_WIDTH:
 			if value != null:
 				custom_maximum_size.x = float(value)   # < 0 = sem limite (doc)
-		LCSS.MAX_HEIGHT:
+		ComponentProps.MAX_HEIGHT:
 			if value != null:
 				custom_maximum_size.y = float(value)
-		LCSS.GAP:
+		ComponentProps.GAP:
 			_items.add_theme_constant_override("separation", int(value))
-		LCSS.FOLLOW_FOCUS:
+		ComponentProps.FOLLOW_FOCUS:
 			_sc.follow_focus = value
-		LCSS.SCROLL_HINT:
-			_sc.scroll_hint_mode = LCSS.HINT_MODES.get(StringName(value), ScrollContainer.SCROLL_HINT_MODE_DISABLED)
-		LCSS.SCROLL_HINT_TILE:
+		ComponentProps.SCROLL_HINT:
+			_sc.scroll_hint_mode = ComponentProps.HINT_MODES.get(StringName(value), ScrollContainer.SCROLL_HINT_MODE_DISABLED)
+		ComponentProps.SCROLL_HINT_TILE:
 			_sc.tile_scroll_hint = value
-		LCSS.DISPLAY:
-			_items.vertical = (value != LCSS.FLEX)
+		ComponentProps.DISPLAY:
+			_items.vertical = (value != ComponentProps.FLEX)
 			_items.refresh_flow()
 		_:
 			super._apply_prop(key, value)
 
 
 func _refresh_scroll_modes() -> void:
-	var dir := StringName(props.get(LCSS.DIRECTION, LCSS.BOTH))
-	var base: int = LCSS.SCROLL_MODES.get(
-			StringName(props.get(LCSS.SCROLLBAR_MODE, LCSS.AUTO)), ScrollContainer.SCROLL_MODE_AUTO)
-	var h_max := int(props.get(LCSS.MAX_WIDTH, -1)) >= 0
-	var v_max := int(props.get(LCSS.MAX_HEIGHT, -1)) >= 0
-	_sc.horizontal_scroll_mode = _axis_mode(dir != LCSS.VERTICAL, h_max, base)
-	_sc.vertical_scroll_mode = _axis_mode(dir != LCSS.HORIZONTAL, v_max, base)
-	_sc.scroll_horizontal_by_default = (dir == LCSS.HORIZONTAL)
+	var dir := StringName(props.get(ComponentProps.DIRECTION, ComponentProps.BOTH))
+	var base: int = ComponentProps.SCROLL_MODES.get(
+			StringName(props.get(ComponentProps.SCROLLBAR_MODE, ComponentProps.AUTO)), ScrollContainer.SCROLL_MODE_AUTO)
+	var h_max := int(props.get(ComponentProps.MAX_WIDTH, -1)) >= 0
+	var v_max := int(props.get(ComponentProps.MAX_HEIGHT, -1)) >= 0
+	_sc.horizontal_scroll_mode = _axis_mode(dir != ComponentProps.VERTICAL, h_max, base)
+	_sc.vertical_scroll_mode = _axis_mode(dir != ComponentProps.HORIZONTAL, v_max, base)
+	_sc.scroll_horizontal_by_default = (dir == ComponentProps.HORIZONTAL)
 
 
 func _axis_mode(enabled: bool, has_max: bool, base: int) -> int:
@@ -126,7 +126,7 @@ func _on_scrolled() -> void:
 
 
 func _check_edges() -> void:
-	var horizontal: bool = props.get(LCSS.DIRECTION, LCSS.BOTH) == LCSS.HORIZONTAL
+	var horizontal: bool = props.get(ComponentProps.DIRECTION, ComponentProps.BOTH) == ComponentProps.HORIZONTAL
 	var bar: ScrollBar = _sc.get_h_scroll_bar() if horizontal else _sc.get_v_scroll_bar()
 	var max_scroll: float = bar.max_value - bar.page
 	if max_scroll <= 0.0:
@@ -134,7 +134,7 @@ func _check_edges() -> void:
 		_at_end = false
 		return   # o conteúdo cabe, não há o que rolar
 
-	var threshold: float = props.get(LCSS.EDGE_THRESHOLD, 0)
+	var threshold: float = props.get(ComponentProps.EDGE_THRESHOLD, 0)
 	var at_start: bool = bar.value <= threshold
 	var at_end: bool = bar.value >= max_scroll - threshold
 	if at_start and not _at_start:
