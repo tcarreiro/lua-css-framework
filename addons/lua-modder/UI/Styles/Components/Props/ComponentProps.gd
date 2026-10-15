@@ -6,7 +6,6 @@ class_name ComponentProps extends RefCounted
 const BASE: Array[StringName] = [
 	ID, CLASS, VISIBLE, TOOLTIP, DISABLED,
 	FLEX_GROW, ALIGN_SELF, JUSTIFY_SELF, POINTER_EVENTS,
-	EFFECTS,
 ]
 
 const ANY := TYPE_NIL 
@@ -90,10 +89,6 @@ const WIDTH := &"width"
 const HEIGHT := &"height"
 const MAX_WIDTH := &"max_width"
 const MAX_HEIGHT := &"max_height"
-const COLUMNS := &"columns"
-const COLUMN_GAP := &"column_gap"
-const ROW_GAP := &"row_gap"
-const FILL_CELLS := &"fill_cells" 
 
 const DIRECTION := &"direction"
 const ALIGNMENT := &"alignment"
@@ -191,20 +186,6 @@ const DURATION := &"duration"
 const LOOP := &"loop"
 const PLAYING := &"playing"
 
-const SCALE := &"scale"
-const ROTATE := &"rotate"
-const TRANSLATE := &"translate"
-const TRANSFORM_ORIGIN := &"transform_origin"
-
-const ANIMATION_NAME := &"animation_name"
-const ANIMATION_DURATION := &"animation_duration"
-const ANIMATION_EASING := &"animation_easing"
-const ANIMATION_ITERATIONS := &"animation_iterations"
-const ANIMATION_DIRECTION := &"animation_direction"
-const ANIMATION_DELAY := &"animation_delay"
-const ANIMATION_FILL := &"animation_fill"
-
-const EFFECTS := &"effects"
 const EFFECT := &"effect"
 const PARAMS := &"params"
 const ACTIVE := &"active"
@@ -269,11 +250,6 @@ const HELP := &"help"
 const DRAG := &"drag"
 const CAN_DROP := &"can_drop"
 
-const NORMAL := &"normal"
-const ALTERNATE := &"alternate"
-const FORWARDS := &"forwards"
-const INFINITE := &"infinite"
-
 const STRETCH := &"stretch"
 const TILE := &"tile"
 const TILE_FIT := &"tile_fit"
@@ -321,9 +297,6 @@ const TRANSITION: Array[StringName] = [
 	TRANSITION_LOOP, TRANSITION_REPETITIONS,
 ]
 
-const TRANSFORM: Array[StringName] = [SCALE, ROTATE, TRANSLATE, TRANSFORM_ORIGIN]
-
-
 const SCROLLBAR: Array[StringName] = [
 	SCROLLBAR_WIDTH, SCROLLBAR_GAP, SCROLLBAR_BORDER_RADIUS, SCROLLBAR_TRACK_COLOR,
 	SCROLLBAR_GRABBER_COLOR, SCROLLBAR_GRABBER_HOVER_COLOR,
@@ -344,13 +317,6 @@ const RICH_ONLY: Array[StringName] = [
 	BBCODE_ENABLED, FIT_CONTENT, SCROLL_ACTIVE, SCROLL_FOLLOWING, SCROLL_FOLLOWING_VISIBLE,
 	SELECTION_ENABLED, META_UNDERLINED, HINT_UNDERLINED, SELECTION_COLOR, SELECTED_FONT_COLOR, TAB_SIZE,
 ]
-
-const ANIMATION: Array[StringName] = [
-	ANIMATION_NAME, ANIMATION_DURATION, ANIMATION_EASING, ANIMATION_ITERATIONS,
-	ANIMATION_DIRECTION, ANIMATION_DELAY, ANIMATION_FILL,
-]
-const ANIMATION_DIRECTIONS := [NORMAL, ALTERNATE]
-const ANIMATION_FILLS := [NONE, FORWARDS]
 
 #endregion
 
@@ -657,10 +623,6 @@ static func _catalog() -> Dictionary:
 	_add(c, HEIGHT, TYPE_INT, -1, "Altura mínima em px (-1 = não definida).")
 	_add(c, MAX_WIDTH, TYPE_INT, -1, "Largura máxima em px (-1 = sem limite).")
 	_add(c, MAX_HEIGHT, TYPE_INT, -1, "Altura máxima em px (-1 = sem limite).")
-	_add(c, COLUMNS, TYPE_INT, 2, "Número de colunas.")
-	_add(c, COLUMN_GAP, TYPE_INT, null, "Espaço entre colunas. Sem valor, usa gap.")
-	_add(c, ROW_GAP, TYPE_INT, null, "Espaço entre linhas. Sem valor, usa gap.")
-	_add(c, FILL_CELLS, TYPE_BOOL, true, "Os filhos preenchem a célula. false = só o tamanho do conteúdo.")
 
 	_add(c, DIRECTION, TYPE_STRING, "vertical", "Eixos de rolagem.", DIRECTIONS)
 	_add(c, ALIGNMENT, TYPE_STRING, null, "Alinhamento dos filhos no eixo principal (vertical em block, horizontal em flex).", ALIGNMENTS.keys())
@@ -751,14 +713,6 @@ static func _catalog() -> Dictionary:
 	_add(c, TRANSITION_REPETITIONS, TYPE_INT, null, "Número de repetições de loop da animação (padrão = -1, infinito)")
 	_add(c, TRANSITION_PROPERTIES, ANY, null, "Quais propriedades animam: all (padrão) ou uma lista de nomes.")
 
-	_add(c, ANIMATION_NAME, TYPE_STRING, null, "Nome de um @keyframes do .lcss. Vazio = sem animação.")
-	_add(c, ANIMATION_DURATION, TYPE_FLOAT, null, "Duração de um ciclo, em segundos.")
-	_add(c, ANIMATION_EASING, TYPE_STRING, null, "Curva entre os quadros (padrão: ease_in_out).", EASINGS.keys())
-	_add(c, ANIMATION_ITERATIONS, ANY, null, "Repetições: número ou infinite (padrão: 1).")
-	_add(c, ANIMATION_DIRECTION, TYPE_STRING, null, "normal ou alternate (ida e volta).", ANIMATION_DIRECTIONS)
-	_add(c, ANIMATION_DELAY, TYPE_FLOAT, null, "Espera antes de começar, em segundos.")
-	_add(c, ANIMATION_FILL, TYPE_STRING, null, "forwards mantém o último quadro ao terminar.", ANIMATION_FILLS)
-	
 	_add(c, TEXTURE, TYPE_STRING, "", "Caminho da imagem (sprite sheet).")
 	_add(c, HFRAMES, TYPE_INT, 1, "Colunas da sheet.")
 	_add(c, VFRAMES, TYPE_INT, 1, "Linhas da sheet.")
@@ -769,12 +723,6 @@ static func _catalog() -> Dictionary:
 	_add(c, LOOP, TYPE_BOOL, true, "Repete a animação.")
 	_add(c, PLAYING, TYPE_BOOL, true, "Toca automaticamente.")
 	
-	_add(c, SCALE, ANY, null, "Escala visual: número ou {x, y}. Não altera o layout.")
-	_add(c, ROTATE, TYPE_FLOAT, null, "Rotação visual em graus. Não altera o layout.")
-	_add(c, TRANSLATE, ANY, null, "Deslocamento visual em px: {x, y}. Não altera o layout.")
-	_add(c, TRANSFORM_ORIGIN, ANY, null, "Ponto fixo da transformação, de 0 a 1: {x, y}. Padrão: {0.5, 0.5}.")
-	
-	_add(c, EFFECTS, ANY, null, "Efeitos de cor sobre o componente e tudo dentro dele, em ordem: nomes ou { effect = 'nome', param = valor }.")
 	_add(c, EFFECT, TYPE_STRING, "tint", "Efeito de tela pré-definido.", LuaShaderLibrary.names())
 	_add(c, PARAMS, ANY, null, "Parâmetros do efeito: { nome = valor }.")
 	_add(c, ACTIVE, TYPE_BOOL, true, "Liga ou desliga o efeito.")

@@ -7,10 +7,7 @@ signal prop_changed(key: String, value: Variant)
 signal disposing
 
 # Common methods allowd in UI.callMethod()
-const BASE_METHODS: Array[String] = [
-	"add_class", "remove_class", "toggle_class", "set_state",
-	"get_state", "set_prop", "set_effect_param", "tween_effect_param"
-]
+const BASE_METHODS: Array[String] = ["add_class", "remove_class", "toggle_class", "set_state", "get_state", "set_prop"]
 const DRAG_EVENTS := ["drag_started", "drag_ended"]
 
 var component_name: String = ""
@@ -24,10 +21,6 @@ var style_classes: Array[StringName] = []
 var _style: LCSSStyle
 var _style_target := LCSSStyleTarget.new()
 var _style_overrides: Dictionary[StringName, Variant] = {}
-
-var _fx_material: ShaderMaterial
-var _fx_specs: Array = []
-var _fx_tweens: Dictionary = {}
 
 var _schema: Dictionary = {}
 var _is_ready := false
@@ -88,7 +81,6 @@ func dispose() -> void:
 #region Props
 func set_prop(key: String, value: Variant) -> void:
 	var def: Dictionary = ComponentRegistry.get_prop_def(_schema, key)
-	print(def)
 	if def.is_empty():
 		push_warning("[LuaComponent:%s] prop desconhecida '%s'" % [component_name, key])
 		return
@@ -122,8 +114,6 @@ func _apply_prop_internal(key: String, value: Variant) -> void:
 			_apply_justify_self(StringName(str(value)))
 		ComponentProps.POINTER_EVENTS:
 			mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED if str(value) == "none" else Control.MOUSE_BEHAVIOR_INHERITED
-		ComponentProps.EFFECTS:
-			_apply_effects(value)
 		_:
 			_apply_prop(key, value)
 
@@ -403,61 +393,4 @@ func _refresh_in_parent_flow() -> void:
 	if parent != null and parent.has_method(&"refresh_child"):
 		parent.refresh_child(self)
 
-#endregion
-
-
-#region Effects
-func _apply_effects(raw: Variant) -> void:
-	if raw == null and _fx_material == null:
-		return
-	_fx_specs = LuaEffectLibrary.parse_specs(raw)
-	if _fx_specs.is_empty():
-		_fx_material = null
-		material = null
-		_share_material(self, false)
-		return
-	_fx_material = LuaEffectLibrary.build_material(_fx_specs)
-	material = _fx_material
-	_share_material(self, true)
-
-
-## Os descendentes desenham com o material do componente. Um componente aninhado que tem
-## material próprio fica de fora, junto com o que há dentro dele.
-func _share_material(node: Node, on: bool) -> void:
-	for child in node.get_children():
-		if child is CanvasItem and (child as CanvasItem).material == null:
-			(child as CanvasItem).use_parent_material = on
-			_share_material(child, on)
-
-
-## Exposto ao Lua. O índice é o do Lua (1 = primeiro efeito).
-func set_effect_param(index: int, param: String, value: Variant) -> void:
-	var default: Variant = _effect_default(index, param)
-	if default != null:
-		_fx_material.set_shader_parameter(LuaEffectLibrary.uniform_name(index - 1, param), LuaEffectLibrary.convert(default, value))
-
-
-func tween_effect_param(index: int, param: String, to: float, seconds: float) -> void:
-	var default: Variant = _effect_default(index, param)
-	if default == null or default is Color:
-		return
-	var uname := LuaEffectLibrary.uniform_name(index - 1, param)
-	var current: Variant = _fx_material.get_shader_parameter(uname)
-	if _fx_tweens.has(uname) and is_instance_valid(_fx_tweens[uname]):
-		_fx_tweens[uname].kill()
-	var tween := create_tween()
-	_fx_tweens[uname] = tween
-	tween.tween_method(func(v: float): _fx_material.set_shader_parameter(uname, v),
-			float(current if current != null else default), to, seconds)
-
-
-func _effect_default(index: int, param: String) -> Variant:
-	if _fx_material == null or index < 1 or index > _fx_specs.size():
-		push_warning("[Effects] não há efeito no índice %d" % index)
-		return null
-	var defaults: Dictionary = LuaEffectLibrary.PRESETS[_fx_specs[index - 1].name].defaults
-	if not defaults.has(param):
-		push_warning("[Effects] '%s' não é parâmetro (use: %s)" % [param, str(defaults.keys())])
-		return null
-	return defaults[param]
 #endregion

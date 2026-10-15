@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b63qpvhhyte5"]
 
-[ext_resource type="Script" uid="uid://bspsj7f8qcc7d" path="res://addons/lua-modder/UI/Styles/Components/Props/LuaFlowBox.gd" id="1_81cju"]
+[ext_resource type="Script" uid="uid://bspsj7f8qcc7d" path="res://addons/lua-modder/UI/Styles/Components/LuaFlowBox.gd" id="1_81cju"]
 [ext_resource type="Script" uid="uid://c5d1ctqpc1tyo" path="res://addons/lua-modder/UI/Styles/Components/Premade/Scroll/Scroll.gd" id="1_ct2wa"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uix52"]

@@ -35,48 +35,6 @@ func _ready() -> void:
 	# o motor reage à store: APPLY e SAVE só precisam escrever nela
 	settings.reactive_changed.connect(_on_settings_changed)
 	show_screen("MainMenu")
-	
-	
-	
-	var parser := LCSSSyntaxParser.new()
-
-	var ast := parser.parse("""
-	.button, .button:hover {
-		background_color: #ff0000;
-		padding: [8, 16];
-		transition: ease_in_out 200ms;
-	}
-
-	@keyframes fade_in {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
-	""")
-
-	print("Regras: ", ast.get_rules().size())
-	print("Animações: ", ast.get_keyframes().size())
-	print("Erros: ", ast.errors.size())
-
-	for error in ast.errors:
-		print(
-			"Linha %d, coluna %d: %s"
-			% [error.line, error.column, error.message]
-		)
-	
-	var rule: LCSSRuleNode = ast.get_rules()[0]
-
-	print(rule.selectors)
-	print(rule.declarations[0].property_name)
-	print(rule.declarations[0].value_text)
-
-	var animation: LCSSKeyframesNode = ast.get_keyframes()[0]
-
-	print(animation.animation_name)
-	print(animation.frames.size())
 
 
 func show_screen(component: String) -> void:

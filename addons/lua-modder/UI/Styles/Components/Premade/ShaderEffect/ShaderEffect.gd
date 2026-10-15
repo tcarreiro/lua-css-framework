@@ -2,9 +2,6 @@ extends LuaComponent
 ## Camada de efeito de tela. O material fica no próprio ColorRect da raiz.
 ## Em um Stack ocupa a área toda e não captura o mouse.
 
-@onready var _copy: BackBufferCopy = %Copy
-@onready var _rect: ColorRect = %Rect
-
 var _material: ShaderMaterial
 var _preset: StringName = &""
 var _tween: Tween
@@ -23,9 +20,6 @@ func get_schema() -> Dictionary:
 
 func _component_ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_copy.copy_mode = BackBufferCopy.COPY_MODE_RECT
-	resized.connect(func(): _copy.rect = Rect2(Vector2.ZERO, size))
 	_rebuild()
 
 
@@ -55,9 +49,7 @@ func _rebuild() -> void:
 		_material = ShaderMaterial.new()
 		_material.shader = LuaShaderLibrary.shader(preset)
 		_preset = preset
-	var active := bool(props.get("active", true))
-	_rect.material = _material if active else null
-	_copy.visible = active
+	material = _material if bool(props.get(ComponentProps.ACTIVE, true)) else null
 	var given: Variant = props.get(ComponentProps.PARAMS)
 	if given is Dictionary:
 		for param in given:

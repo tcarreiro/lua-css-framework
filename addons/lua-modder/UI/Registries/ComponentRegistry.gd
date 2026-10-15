@@ -71,7 +71,7 @@ func register_scene_path(path: String, name_override := "") -> bool:
 ## Registra uma cena cuja raiz herda LuaComponent. O nome vem, nesta ordem, de
 ## `name_override`, do `name` do schema ou do nome do arquivo.
 func register_scene(scene: PackedScene, name_override := "", source := "") -> bool:
-	# Instantiate just to access component schema
+	# a instância "sonda" só serve para ler o schema; nunca entra na árvore
 	var probe := scene.instantiate()
 	if not probe is LuaComponent:
 		push_error("[ComponentRegistry] raiz de '%s' precisa herdar LuaComponent" % source)
@@ -80,39 +80,37 @@ func register_scene(scene: PackedScene, name_override := "", source := "") -> bo
 	var schema := normalize_schema(probe.get_schema())
 	probe.free()
 
-	var component_name := name_override
-	if component_name == "":
-		component_name = schema.get("name", "")
-	if component_name == "" and source != "":
-		component_name = source.get_file().get_basename()
-	if component_name == "":
+	var component := name_override
+	if component == "":
+		component = schema.get("name", "")
+	if component == "" and source != "":
+		component = source.get_file().get_basename()
+	if component == "":
 		push_error("[ComponentRegistry] componente sem nome (%s)" % source)
 		return false
 
 	return _register({
-		"name": component_name, "kind": Kind.SCENE, "schema": schema,
+		"name": component, "kind": Kind.SCENE, "schema": schema,
 		"scene": scene, "source": source,
 	})
 
 
 ## Registra um componente definido em Lua. `definition` é a tabela já normalizada:
 ## { props, events, hooks, methods, slots, render }. O `render` é obrigatório.
-## Render is the LuaFunction at defineComponent
-func register_lua(component_name: String, definition: Dictionary) -> bool:
+func register_lua(component: String, definition: Dictionary) -> bool:
 	var render := LuaHelper.make_callable(definition.get("render"))
 	if not render.is_valid():
-		push_error("[ComponentRegistry] '%s': definição Lua sem função `render`" % component_name)
+		push_error("[ComponentRegistry] '%s': definição Lua sem função `render`" % component)
 		return false
 	return _register({
-		"name": component_name, "kind": Kind.LUA, "schema": normalize_schema(definition),
+		"name": component, "kind": Kind.LUA, "schema": normalize_schema(definition),
 		"render": render, "source": "lua",
 	})
 
 
-## Registers the component at _defs
+## Nome duplicado é ignorado com aviso: vale o primeiro que foi registrado.
 func _register(def: Dictionary) -> bool:
 	var component: String = def.name
-	#Keep oldest so a modder cannot override a premade component
 	if _defs.has(component):
 		push_warning("[ComponentRegistry] '%s' já registrado (%s), ignorando." % [component, _defs[component].source])
 		return false
