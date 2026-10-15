@@ -100,6 +100,24 @@ static func parse_distributable(value) -> Array:
 	return [0.0, 0.0, 0.0, 0.0]
 
 
+## Opções do Lua: lista de textos ou de { value, label, disabled } -> [{ value, label, disabled }]
+static func parse_options(raw: Variant) -> Array:
+	var out: Array = []
+	if not raw is Array:
+		return out
+	for item in raw:
+		if item is Dictionary:
+			var value: Variant = item.get("value", item.get("label", ""))
+			out.append({"value": value, "label": str(item.get("label", value)), "disabled": bool(item.get("disabled", false))})
+		else:
+			out.append({"value": item, "label": str(item), "disabled": false})
+	return out
+
+
+static func same_value(a: Variant, b: Variant) -> bool:
+	return str(a) == str(b)
+
+
 static func parse_style_classes(value) -> Array[StringName]:
 	var out: Array[StringName] = []
 	if value is String:

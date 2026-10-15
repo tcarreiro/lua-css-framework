@@ -11,6 +11,7 @@ class_name LCSSStyleTarget extends RefCounted
 
 enum Kind { NONE, COLOR, NUMBER, VECTOR, FAMILY }
 
+
 #region Internal classes
 class Binding extends RefCounted:
 	var property: StringName
@@ -45,6 +46,7 @@ class Transition extends RefCounted:
 
 var _property_targets: Dictionary[StringName, Node] = {}
 var _family_targets: Dictionary[StringName, Node] = {}
+var _defaults: Dictionary = {}   # contexto -> valor padrão (camada mais baixa, abaixo do .lcss)
 var _simple: Dictionary = {}     # context -> Binding
 var _families: Dictionary = {}   # context -> FamilyBinding
 var _contexts: Dictionary = {}   # todo contexto conhecido -> Binding | FamilyBinding
@@ -54,6 +56,12 @@ var _target_values: Dictionary = {}   # chave -> último valor RESOLVIDO
 var _shown: Dictionary = {}           # chave -> valor aplicado agora (muda durante o tween)
 var _tweens: Dictionary = {}
 var _transitions_enabled := false
+
+var _last_style: LCSSStyle
+var _last_overrides: Dictionary[StringName, Variant] = {}
+var _anim_values: Dictionary = {}   # chave -> valor atual da animação (vence o estilo)
+var _anim_tween: Tween
+var _anim_signature := ""
 
 #region Register
 func register_property(property: StringName, target: Node, context: StringName = &"") -> void:
@@ -102,6 +110,8 @@ func register_group(properties: Array, target: Node, prefix: String = "") -> voi
 func register_transitions() -> void:
 	for ctx in ComponentProps.TRANSITION:
 		_meta[ctx] = true
+	for ctx in ComponentProps.ANIMATION:
+		_meta[ctx] = true
 
 
 ## Liga as animações. O LuaComponent chama no fim do _ready (sem animação de entrada).
@@ -124,6 +134,10 @@ func unregister_family(context: StringName) -> void:
 	for m in fb.members:
 		_contexts.erase(m)
 	_families.erase(context)
+
+
+func set_default(context: StringName, value: Variant) -> void:
+	_defaults[context] = value
 #endregion
 
 
@@ -157,22 +171,33 @@ func apply_property(context: StringName, value: Variant, handler: Callable) -> b
 #region Application
 ## `animate = false` aplica direto, sem tween (usado no boot e ao re-resolver descendentes).
 func apply_style(style: LCSSStyle, overrides: Dictionary[StringName, Variant] = {}, animate := true) -> void:
+	_last_style = style
+	_last_overrides = overrides
 	var transition: Transition = _read_transition(style, overrides) if (_transitions_enabled and animate) else null
-	
-	# simples: inline (props do .lua) > estilo (.lcss)
+
 	for context: StringName in _simple:
 		var binding: Binding = _simple[context]
 		var value: Variant = overrides[context] if overrides.has(context) else _style_value(style, context)
-		_drive(context, binding.property, value, binding.target, transition, false)
+		if value == null:
+			value = _defaults.get(context)
+		var animating := _anim_values.has(context)
+		if animating:
+			value = _anim_values[context]
+		_drive(context, binding.property, value, binding.target, null if animating else transition, false)
 
-	# famílias: inline > lcss; dentro de cada camada, parte > atalho
 	for fb: FamilyBinding in _families.values():
 		var layers: Array[Callable] = [
 			func(p: StringName) -> Variant: return overrides.get(fb.context_of(p)),
 			func(p: StringName) -> Variant: return _style_value(style, fb.context_of(p)),
+			func(p: StringName) -> Variant: return _defaults.get(fb.context_of(p)),
 		]
-		var values := ComponentProps.resolve_family(fb.family, layers)
-		_drive(fb.shorthand, fb.family, values, fb.target, transition, true)
+		var values: Variant = ComponentProps.resolve_family(fb.family, layers)
+		var animating := _anim_values.has(fb.shorthand)
+		if animating:
+			values = _anim_values[fb.shorthand]
+		_drive(fb.shorthand, fb.family, values, fb.target, null if animating else transition, true)
+
+	_update_animation(style, overrides)
 
 
 func _drive(key: StringName, property: StringName, value: Variant, target: Node,
@@ -272,6 +297,7 @@ func _cancel_tween(key: StringName) -> void:
 		tween.kill()
 	_tweens.erase(key)
 #endregion
+
 
 #region Interpolação
 static func _kind(property: StringName, from: Variant, to: Variant, is_family: bool) -> int:
@@ -386,4 +412,178 @@ func _style_value(style: LCSSStyle, context: StringName) -> Variant:
 		return style.get_effective_property(context)
 	return null
 
+#endregion
+
+
+#region Animação (@keyframes)
+func _update_animation(style: LCSSStyle, overrides: Dictionary) -> void:
+	if not _transitions_enabled:
+		return
+	var raw_name: Variant = _resolve(style, overrides, ComponentProps.ANIMATION_NAME)
+	var spec := {
+		"name": StringName(str(raw_name)) if raw_name != null else &"",
+		"duration": _as_float(_resolve(style, overrides, ComponentProps.ANIMATION_DURATION), 0.0),
+		"delay": _as_float(_resolve(style, overrides, ComponentProps.ANIMATION_DELAY), 0.0),
+		"easing": _as_name(_resolve(style, overrides, ComponentProps.ANIMATION_EASING), ComponentProps.EASE_IN_OUT),
+		"direction": _as_name(_resolve(style, overrides, ComponentProps.ANIMATION_DIRECTION), ComponentProps.NORMAL),
+		"fill": _as_name(_resolve(style, overrides, ComponentProps.ANIMATION_FILL), ComponentProps.NONE),
+		"iterations": _iterations(_resolve(style, overrides, ComponentProps.ANIMATION_ITERATIONS)),
+	}
+	var signature := var_to_str(spec)
+	if signature == _anim_signature:
+		return   # nada mudou: a animação em curso continua
+	_anim_signature = signature
+	_stop_animation(true)
+	if spec.name == &"" or spec.duration <= 0.0:
+		return
+	_start_animation(spec)
+
+
+func _start_animation(spec: Dictionary) -> void:
+	var keyframes := LuaUi.lcss.find_keyframes(spec.name)
+	if keyframes == null:
+		push_warning("[LCSSStyleTarget] @keyframes '%s' não encontrado" % spec.name)
+		return
+	var tracks := _build_tracks(keyframes)
+	var anchor := _anchor()
+	if tracks.is_empty() or anchor == null:
+		return
+	if float(spec.delay) > 0.0:
+		var wait := anchor.create_tween()
+		_anim_tween = wait
+		wait.tween_interval(spec.delay)
+		wait.finished.connect(func():
+			if _anim_tween == wait:
+				_run_animation(tracks, spec))
+	else:
+		_run_animation(tracks, spec)
+
+
+func _run_animation(tracks: Dictionary, spec: Dictionary) -> void:
+	var anchor := _anchor()
+	if anchor == null:
+		return
+	var d: float = spec.duration
+	var step := func(t: float): _anim_step(tracks, t, spec.easing)
+	var tween := anchor.create_tween()
+	_anim_tween = tween
+	tween.tween_method(step, 0.0, 1.0, d)
+	if spec.direction == ComponentProps.ALTERNATE:
+		tween.tween_method(step, 1.0, 0.0, d)
+	var iterations: int = spec.iterations
+	if iterations < 1:
+		tween.set_loops()   # infinito: nunca termina, só é interrompida por outro estilo
+		return
+	if iterations > 1:
+		tween.set_loops(iterations)
+	tween.finished.connect(func():
+		if _anim_tween != tween:
+			return
+		_anim_tween = null
+		if spec.fill != ComponentProps.FORWARDS:
+			_stop_animation(true))   # forwards mantém o último quadro
+
+
+func _stop_animation(restore: bool) -> void:
+	if _anim_tween != null and _anim_tween.is_valid():
+		_anim_tween.kill()
+	_anim_tween = null
+	if _anim_values.is_empty():
+		return
+	_anim_values.clear()
+	if restore:
+		apply_style(_last_style, _last_overrides)   # volta ao estilo normal, com transição se houver
+
+
+## Uma trilha por propriedade: pontos { offset, value }. Sem 0% ou 100%, parte do valor do estilo.
+func _build_tracks(keyframes: LCSSKeyframes) -> Dictionary:
+	var tracks := {}
+	for key in keyframes.property_names():
+		var entry: Variant = _contexts.get(key)
+		if entry == null:
+			push_warning("[LCSSStyleTarget] '%s' não é animável neste componente" % key)
+			continue
+		var is_family := entry is FamilyBinding
+		if is_family and key != entry.shorthand:
+			push_warning("[LCSSStyleTarget] anime '%s' inteiro; partes soltas não animam em @keyframes" % entry.shorthand)
+			continue
+		var points: Array = []
+		for frame in keyframes.frames_for(key):
+			points.append({
+				"offset": frame.offset,
+				"value": LuaHelper.parse_distributable(frame.value) if is_family else frame.value,
+			})
+		var base: Variant = _target_values.get(key)
+		if base is Array:
+			base = base.map(func(v): return 0.0 if v == null else v)
+		if base != null:
+			if points[0].offset > 0.0:
+				points.push_front({"offset": 0.0, "value": base})
+			if points[points.size() - 1].offset < 1.0:
+				points.append({"offset": 1.0, "value": base})
+		tracks[key] = {
+			"property": entry.family if is_family else entry.property,
+			"target": entry.target,
+			"is_family": is_family,
+			"points": points,
+		}
+	return tracks
+
+
+func _anim_step(tracks: Dictionary, t: float, easing: StringName) -> void:
+	var pair: Array = ComponentProps.EASINGS.get(easing, ComponentProps.EASINGS[ComponentProps.EASE_IN_OUT])
+	for key: StringName in tracks:
+		var track: Dictionary = tracks[key]
+		var target: Node = track.target
+		if not is_instance_valid(target):
+			continue
+		var value: Variant = _sample(track, t, pair)
+		if value == null:
+			continue
+		_anim_values[key] = value
+		_drive(key, track.property, value, target, null, track.is_family)
+
+
+static func _sample(track: Dictionary, t: float, pair: Array) -> Variant:
+	var points: Array = track.points
+	if points.is_empty():
+		return null
+	if t <= points[0].offset:
+		return points[0].value
+	if t >= points[points.size() - 1].offset:
+		return points[points.size() - 1].value
+	for i in points.size() - 1:
+		var a: Dictionary = points[i]
+		var b: Dictionary = points[i + 1]
+		if t > b.offset:
+			continue
+		var span: float = b.offset - a.offset
+		var r: float = 0.0 if span <= 0.0 else (t - a.offset) / span
+		r = Tween.interpolate_value(0.0, 1.0, r, 1.0, pair[0], pair[1])
+		var kind := _kind(track.property, a.value, b.value, track.is_family)
+		if kind == Kind.NONE:
+			return a.value if r < 0.5 else b.value
+		return _lerp(kind, _normalize(kind, a.value), _normalize(kind, b.value), r)
+	return points[points.size() - 1].value
+
+
+func _anchor() -> Node:
+	for entry in _contexts.values():
+		if is_instance_valid(entry.target) and entry.target.is_inside_tree():
+			return entry.target
+	return null
+
+
+func _as_float(v: Variant, fallback: float) -> float:
+	return float(v) if v != null else fallback
+
+
+func _as_name(v: Variant, fallback: StringName) -> StringName:
+	return StringName(str(v)) if v != null and str(v) != "" else fallback
+
+
+func _iterations(v: Variant) -> int:
+	if v == null:
+		return 1
+	return -1 if str(v) == "infinite" else int(v)
 #endregion

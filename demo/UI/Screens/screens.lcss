@@ -24,17 +24,55 @@
 	font_color: #e8ecff;
 	font_size: 22;
 	transition_duration: 150ms;
+	transition_duration: 150ms;
+	transition_easing: ease_out;
+	scale: 1.0;
+	rotate: 0;
+	translate: 0 0;
 }
-.menu-button:hover { background_color: #3a4260; }
-.menu-button:pressed { background_color: #1f2433; }
+.menu-button:hover {
+	background_color: #3a4260;
+	scale: 1.08;
+	rotate: -2;
+	animation_name: hang;
+	animation_duration: 1.2s;
+	animation_easing: ease_in_out;
+	animation_iterations: infinite;
+}
+
+.menu-button:pressed {
+	background_color: #1f2433;
+	scale: 0.97;
+	translate: 0 -2;
+}
+
 .menu-button:disabled { background_color: #20232d; border_color: #2e3345; font_color: #6b7088; }
 
 .text-color-red {
 	font_color: #DE0000;
 }
 
+@keyframes pulse {
+	0%   { scale: 1;    background_color: #202020; }
+	50%  { scale: 1.08; background_color: #303050; }
+	100% { scale: 1;    background_color: #202020; }
+}
+
+@keyframes wobble { from { rotate: -3; } to { rotate: 3; } }
+
+@keyframes hang {
+	0% { rotate: -3; }
+	33% { rotate: 0; }
+	67% {rotate: 3;}
+	100% { rotate: 0; }
+}
+
+
 // ---------- settings ----------
-.settings-screen { padding: 48; }
+.settings-screen { 
+	background_color: #000000;
+	padding: 24;
+}
 .settings-title { font_size: 36; font_color: #ffffff; }
 .settings-hint { font_size: 16; font_color: #8f96b8; }
 .settings-label { font_size: 20; font_color: #c9cfe8; }
@@ -49,6 +87,68 @@
 	transition_duration: 120ms;
 }
 .settings-input:focus { border_color: #7a8cff; }
+
+// ---------- checkbox / radio ----------
+.checkbox {
+	padding: 4;
+	box_background_color: #1b1f2b;
+	box_border_color: #4a5270;
+	box_border_width: 2;
+	box_border_radius: 4;
+	mark_background_color: #7a8cff;
+	mark_border_radius: 2;
+	label_font_color: #e8ecff;
+	label_font_size: 20;
+	transition_duration: 120ms;
+}
+.checkbox:hover { box_border_color: #7a8cff; }
+.checkbox:focus { background_color: #ffffff10; }
+.checkbox:disabled { label_font_color: #6b7088; box_border_color: #2e3345; }
+
+.radio {
+	padding: 4;
+	box_background_color: #1b1f2b;
+	box_border_color: #4a5270;
+	box_border_width: 2;
+	box_border_radius: 10;
+	mark_background_color: #7a8cff;
+	mark_border_radius: 10;
+	label_font_color: #e8ecff;
+	label_font_size: 20;
+}
+.radio:hover { box_border_color: #7a8cff; }
+
+// ---------- dropdown ----------
+.settings-input { font_color: #e8ecff; font_size: 20; caret_font_color: #8f96b8; }
+.settings-input:open { border_color: #7a8cff; }
+.dropdown-list {
+	background_color: #1b1f2b;
+	border_color: #4a5270;
+	border_width: 1;
+	border_radius: 4;
+	padding: 4;
+}
+.dropdown-option { background_color: #1b1f2b; font_color: #e8ecff; padding: 8; }
+.dropdown-option:hover { background_color: #2b3040; }
+.dropdown-option.selected { background_color: #3a4260; }
+
+// ---------- slider ----------
+.slider {
+	track_background_color: #2b3040;
+	track_border_radius: 4;
+	fill_background_color: #7a8cff;
+	fill_border_radius: 4;
+	thumb_background_color: #e8ecff;
+	thumb_border_radius: 11;
+	thumb_border_color: #7a8cff;
+	thumb_border_width: 2;
+	value_font_color: #c9cfe8;
+	label_font_color: #c9cfe8;
+	transition_duration: 120ms;
+}
+.slider:hover { thumb_background_color: #ffffff; }
+.slider:pressed { fill_background_color: #9aa8ff; }
+.slider:disabled { fill_background_color: #4a5270; thumb_background_color: #8f96b8; }
 
 // ---------- modal ----------
 .dialog {

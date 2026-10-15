@@ -23,6 +23,7 @@ func parse(text: String) -> LCSSStyleSheet:
 		text = text.replace(comment, "")
 	
 	position = 0
+	
 	while position < text.length():
 		var open_brace := text.find("{", position)
 
@@ -33,6 +34,16 @@ func parse(text: String) -> LCSSStyleSheet:
 
 		if selector.is_empty():
 			position = open_brace + 1
+			continue
+
+		if selector.begins_with("@keyframes"):
+			var matching := _find_matching_brace(text, open_brace)
+			if matching == -1:
+				push_error("[LCSSParser] @keyframes não fechado")
+				break
+			var anim_name := selector.trim_prefix("@keyframes").strip_edges()
+			stylesheet.add_keyframes(anim_name, _parse_keyframes(text.substr(open_brace + 1, matching - open_brace - 1)))
+			position = matching + 1
 			continue
 
 		var close_brace := text.find("}", open_brace + 1)
@@ -50,6 +61,45 @@ func parse(text: String) -> LCSSStyleSheet:
 		position = close_brace + 1
 
 	return stylesheet
+
+
+func _find_matching_brace(text: String, open_brace: int) -> int:
+	var depth := 0
+	for i in range(open_brace, text.length()):
+		match text[i]:
+			"{":
+				depth += 1
+			"}":
+				depth -= 1
+				if depth == 0:
+					return i
+	return -1
+
+
+func _parse_keyframes(body: String) -> LCSSKeyframes:
+	var result := LCSSKeyframes.new()
+	var pos := 0
+	while pos < body.length():
+		var open := body.find("{", pos)
+		if open == -1:
+			break
+		var close := body.find("}", open + 1)
+		if close == -1:
+			break
+		var props := _parse_properties(body.substr(open + 1, close - open - 1))
+		for raw in body.substr(pos, open - pos).split(",", false):
+			var key := raw.strip_edges()
+			var offset := -1.0
+			if key == "from":
+				offset = 0.0
+			elif key == "to":
+				offset = 1.0
+			elif key.ends_with("%") and key.trim_suffix("%").is_valid_float():
+				offset = clampf(key.trim_suffix("%").to_float() / 100.0, 0.0, 1.0)
+			if offset >= 0.0:
+				result.add_frame(offset, props)
+		pos = close + 1
+	return result
 
 
 func _parse_properties(body: String) -> Dictionary[StringName, Variant]:

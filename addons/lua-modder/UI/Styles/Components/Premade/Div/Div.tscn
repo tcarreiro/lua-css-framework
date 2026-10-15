@@ -14,6 +14,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_2h76v")
+metadata/_edit_use_anchors_ = true
 
 [node name="Margin" type="MarginContainer" parent="." unique_id=104701820]
 unique_name_in_owner = true
