@@ -33,11 +33,8 @@ func matches(component: LuaComponent, match_states: bool = true) -> bool:
 	return true
 
 
-func _find_matching_ancestor(
-	part: Dictionary,
-	from_component: LuaComponent,
-	match_states: bool
-) -> LuaComponent:
+func _find_matching_ancestor(part: Dictionary, from_component: LuaComponent,
+		match_states: bool) -> LuaComponent:
 	var node := from_component.get_parent()
 
 	while node != null:
@@ -52,11 +49,8 @@ func _find_matching_ancestor(
 	return null
 
 
-func _matches_part(
-	part: Dictionary,
-	component: LuaComponent,
-	match_states: bool
-) -> bool:
+func _matches_part(part: Dictionary, component: LuaComponent,
+		match_states: bool) -> bool:
 	for style_class: StringName in part["classes"]:
 		if not component.has_class(style_class):
 			return false
