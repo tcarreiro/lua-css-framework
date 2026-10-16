@@ -14,6 +14,7 @@ const FROM = &"from"
 const TO = &"to"
 
 const STYLE_CLASS_OPENER := "."
+#const STYLE_CLASS_SEPARATOR := "," # TODO
 const STATE_OPENER := ":"
 const KEYFRAMES_OPENER := "@keyframes"
 const BRACKET_OPENER := "{"

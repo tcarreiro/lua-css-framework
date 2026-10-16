@@ -4,10 +4,14 @@ static func resolve(component: LuaComponent, registry: LCSSRegistry) -> LCSSStyl
 	var matched: Array[Dictionary] = []   # {"rule": LCSSRule, "order": int}
 	var order := 0
 	for sheet in registry.get_stylesheets():
-		for rule in sheet.get_rules():
-			if rule.selector.matches(component, false):
-				matched.append({"rule": rule, "order": order})
+		for style_class:LCSSStyleClass in sheet.get_style_classes():
+			if style_class.matches(component, false):
+				matched.append({"rule": rule, "order": order}) # TODO AQUI
 			order += 1
+		#for rule in sheet.get_rules():
+			#if rule.selector.matches(component, false):
+				#matched.append({"rule": rule, "order": order})
+			#order += 1
 
 	matched.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var sa: int = (a["rule"] as LCSSRule).selector.get_specificity()

@@ -11,7 +11,7 @@ const LCSS_FILE := ["res://demo/UI/Screens/screens.lcss", "res://addons/lua-modd
 
 #func _ready() -> void:
 	#var text = """
-	#.menu-button {
+	#.menu-button.main-button {
 		#background_color: #2b3040;
 		#border_color: #4a5270;
 		#border_width: 2;
@@ -27,31 +27,11 @@ const LCSS_FILE := ["res://demo/UI/Screens/screens.lcss", "res://addons/lua-modd
 		#translate: 0 0;
 	#}
 	#
-	#.menu-button:hover {
-		#background_color: #3a4260;
-		#scale: 1.08;
-		#rotate: -2;
-		#animation_name: hang;
-		#animation_duration: 1.2s;
-		#animation_easing: ease_in_out;
-		#animation_iterations: infinite;
-	#}
-#
-	#.menu-button:pressed {
-		#background_color: #1f2433;
-		#scale: 0.97;
-		#translate: 0 -2;
-	#}
-	#@keyframes pulse {
-		#0%   { scale: 1;    background_color: #202020; }
-		#50%  { scale: 1.08; background_color: #303050; }
-		#100% { scale: 1;    background_color: #202020; }
-	#}
-	#// Comment 2
 	#"""
-	#
+	
 	#var style_sheet := LCSSParser.parse(text)
-	#print(style_sheet)
+	#LuaUi.load_file(LUA_DIR + "main_menu.lua")
+	#show_screen("MainMenu")
 
 var settings := ReactiveDictionary.new({
 	"resolution_options": [

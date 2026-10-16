@@ -4,12 +4,14 @@ var _stylesheets: Array[LCSSStyleSheet] = []
 
 
 func register(text: String) -> LCSSStyleSheet:
+	print("Parsing text into StyleSheet")
 	var stylesheet := LCSSParser.new().parse(text)
 	_stylesheets.append(stylesheet)
 	return stylesheet
 
 
 func register_file(path: String) -> LCSSStyleSheet:
+	print("Registering file")
 	if not FileAccess.file_exists(path):
 		push_error("[LCSSRegistry] arquivo não encontrado: '%s'" % path)
 		return null

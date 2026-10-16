@@ -35,7 +35,7 @@ static func _find_comments_in_style_sheet(stylesheet: LCSSStyleSheet, text: Stri
 
 
 static func _get_comment_end_position(stylesheet: LCSSStyleSheet, position: int) -> int:
-	for comment in stylesheet.comments:
+	for comment in stylesheet.get_comments():
 		if position >= comment.start_position and position <= comment.end_position:
 			return comment.end_position
 	return -1
@@ -217,11 +217,24 @@ static func parse_keyframes(keyframe: LCSSKeyframes) -> LCSSKeyframes:
 	return keyframe
 
 
+static func _split_style_classes(token: LCSSToken) -> Array[StringName]:
+	var found_classes: Array[StringName] = []
+	var body := token.value
+	var first_brace := body.find(LCSS.BRACKET_OPENER, 0)
+	if first_brace == -1:
+		push_error("[LCSSStyleClass] Invalid format")
+		return []
+	found_classes.append_array(body.substr(0, first_brace).strip_edges().split(LCSS.STYLE_CLASS_OPENER, false))
+	return found_classes
+
+
 static func parse_style_class(style_class: LCSSStyleClass) -> LCSSStyleClass:
 	var body := style_class.token.value
 	var pos := 0
 	
-	_parse_style_class_name_and_state(style_class)
+	var found_style_classes: Array[StringName] = _split_style_classes(style_class.token)
+	for found_style_class in found_style_classes:
+		_parse_style_class_name_and_state(style_class, found_style_class)
 	
 	while pos < body.length():
 		var open := body.find(LCSS.BRACKET_OPENER, pos)
@@ -241,24 +254,19 @@ static func parse_style_class(style_class: LCSSStyleClass) -> LCSSStyleClass:
 	return style_class
 
 
-static func _parse_style_class_name_and_state(style_class: LCSSStyleClass) -> void:
-	var body := style_class.token.value
-	var first_brace := body.find(LCSS.BRACKET_OPENER, 0)
-	if first_brace == -1:
-		push_error("[LCSSStyleClass] Invalid format")
-		return
-	var selector_parts = body.substr(0, first_brace).replace(LCSS.STYLE_CLASS_OPENER, "").strip_edges().split(LCSS.STATE_OPENER)
+static func _parse_style_class_name_and_state(style_class: LCSSStyleClass, style_selector_name: StringName) -> void:
+	var selector_parts = style_selector_name.replace(LCSS.STYLE_CLASS_OPENER, "").strip_edges().split(LCSS.STATE_OPENER)
+	var style_selector: LCSSStyleClass.LCSSStyleSelector = null
 	match selector_parts.size():
 		1:
-			style_class.set_name(selector_parts[0])
-			return
+			style_selector = LCSSStyleClass.LCSSStyleSelector.new(selector_parts[0])
 		2:
-			style_class.set_name(selector_parts[0])
-			style_class.add_state(LCSSState.new(selector_parts[1]))
-			return
+			style_selector = LCSSStyleClass.LCSSStyleSelector.new(selector_parts[0], LCSSState.new(selector_parts[1]))
 		_:
 			push_error("[LCSSStyleClass] Invalid format")
 			return
+	if style_selector:
+		style_class.add_style_selector(style_selector)
 
 
 static func parse_properties(body: String) -> Dictionary[StringName, LCSSProperty]:

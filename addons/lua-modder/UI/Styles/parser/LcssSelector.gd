@@ -6,8 +6,8 @@ var parts: Array[Dictionary] = []
 func parse(selector: String) -> void:
 	parts.clear()
 
-	for raw_part in selector.strip_edges().split(" ", false):
-		parts.append(_parse_part(raw_part))
+	#for raw_part in selector.strip_edges().split(" ", false):
+		#parts.append(_parse_part(raw_part))
 
 
 func matches(component: LuaComponent, match_states: bool = true) -> bool:
@@ -63,40 +63,43 @@ func _matches_part(part: Dictionary, component: LuaComponent,
 	return true
 
 
-func _parse_part(raw_part: String) -> Dictionary:
+func _parse_part(style_class: LCSSStyleClass) -> Dictionary:
 	var part: Dictionary = {
 		"classes": [],
 		"states": [],
 	}
+	
+	part["classes"].append(style_class.name)
+	part["states"].append_array(style_class.states.keys())
 
-	var remaining := raw_part
-
-	while not remaining.is_empty():
-		if remaining.begins_with("."):
-			var end := _find_token_end(remaining, 1)
-			var style_class := remaining.substr(1, end - 1)
-
-			if not style_class.is_empty():
-				part["classes"].append(StringName(style_class))
-
-			remaining = remaining.substr(end)
-			continue
-
-		if remaining.begins_with(":"):
-			var end := _find_token_end(remaining, 1)
-			var state := remaining.substr(1, end - 1)
-
-			if not state.is_empty():
-				part["states"].append(StringName(state))
-
-			remaining = remaining.substr(end)
-			continue
-
-		push_warning(
-			"[LCSSSelector] token desconhecido em selector '%s': '%s'"
-			% [raw_part, remaining]
-		)
-		break
+	#var remaining := raw_part
+#
+	#while not remaining.is_empty():
+		#if remaining.begins_with("."):
+			#var end := _find_token_end(remaining, 1)
+			#var style_class := remaining.substr(1, end - 1)
+#
+			#if not style_class.is_empty():
+				#part["classes"].append(StringName(style_class))
+#
+			#remaining = remaining.substr(end)
+			#continue
+#
+		#if remaining.begins_with(":"):
+			#var end := _find_token_end(remaining, 1)
+			#var state := remaining.substr(1, end - 1)
+#
+			#if not state.is_empty():
+				#part["states"].append(StringName(state))
+#
+			#remaining = remaining.substr(end)
+			#continue
+#
+		#push_warning(
+			#"[LCSSSelector] token desconhecido em selector '%s': '%s'"
+			#% [raw_part, remaining]
+		#)
+		#break
 
 	return part
 
