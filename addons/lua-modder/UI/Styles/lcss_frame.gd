@@ -13,12 +13,6 @@ func add_property(_property: LCSSProperty) -> void:
 
 
 func _to_string() -> String:
-	var sb := []
-	var intern := []
-	sb.append("LCSSFrame(Offset: %s"%[offset])
-	intern.append("Properties: ")
-	for prop in properties.values():
-		intern.append("		%s"%prop)
-	intern.append(")")
-	sb.append_array(intern)
-	return ", ".join(sb)
+	return "LCSSFrame(offset=%s, properties=%s)" % [
+		offset, properties.values()
+	]

@@ -1,19 +1,14 @@
 class_name LCSSParser extends RefCounted
 
-static var _comments: Array[LCSSToken] = []
 
-func clear_comments() -> void:
-	_comments.clear()
+static func _append_comments_to_style_sheet(stylesheet: LCSSStyleSheet, text: String, position: int) -> void:
+	for comment in _find_comments_in_style_sheet(stylesheet, text, position, LCSS.MULTI_LINE_COMMENT_OPENER, LCSS.MULTI_LINE_COMMENT_CLOSER, false):
+		stylesheet.add_comment(comment)
+	for comment in _find_comments_in_style_sheet(stylesheet, text, position, LCSS.SINGLE_LINE_COMMENT):
+		stylesheet.add_comment(comment)
 
 
-func append_comments(text: String, position: int) -> Array:
-	var found_comments = _find_comments(text, position, LCSS.MULTI_LINE_COMMENT_STARTER, LCSS.MULTI_LINE_COMMENT_CLOSER, false)
-	_comments.append_array(found_comments)
-	found_comments = _find_comments(text, position, LCSS.SINGLE_LINE_COMMENT)
-	_comments.append_array(found_comments)
-	return _comments
-
-func _find_comments(text: String, position: int, comment_start_marker: String,
+static func _find_comments_in_style_sheet(stylesheet: LCSSStyleSheet, text: String, position: int, comment_start_marker: String,
 		comment_closer_marker: String = "\n", check_if_inside_comment: bool = true) -> Array:
 	var comments := []
 	
@@ -22,7 +17,7 @@ func _find_comments(text: String, position: int, comment_start_marker: String,
 		if comment_start == -1:
 			break
 		if check_if_inside_comment:
-			var end_of_comment := _is_inside_comment(comment_start)
+			var end_of_comment := _get_comment_end_position(stylesheet, comment_start)
 			if end_of_comment >= 0:
 				position = end_of_comment+1
 				continue
@@ -39,34 +34,33 @@ func _find_comments(text: String, position: int, comment_start_marker: String,
 	return comments
 
 
-static func _is_inside_comment(position: int) -> int:
-	for comment in _comments:
+static func _get_comment_end_position(stylesheet: LCSSStyleSheet, position: int) -> int:
+	for comment in stylesheet.comments:
 		if position >= comment.start_position and position <= comment.end_position:
 			return comment.end_position
 	return -1
 
 
-func _sort_next_valid_selector(text: String, position: int) -> Dictionary:
-	var start_keyframe := text.find(LCSS.KEYFRAMES_STARTER, position)
-	var start_style_class := text.find(LCSS.STYLE_CLASS_STARTER, position)
+static func _sort_next_valid_selector(text: String, position: int) -> Dictionary:
+	var start_keyframe := text.find(LCSS.KEYFRAMES_OPENER, position)
+	var start_style_class := text.find(LCSS.STYLE_CLASS_OPENER, position)
 	var ordering = {
-		start_keyframe: LCSS.KEYFRAMES_STARTER,
-		start_style_class: LCSS.STYLE_CLASS_STARTER,
+		start_keyframe: LCSS.KEYFRAMES_OPENER,
+		start_style_class: LCSS.STYLE_CLASS_OPENER,
 	}
 	ordering.sort()
 	var cleared = ordering.keys().filter(func(pos): return pos > -1)
 	return { "position": cleared[0], "type":ordering[cleared[0]]}
 
 
-func parse(text: String) -> LCSSStyleSheet:
+static func parse(text: String) -> LCSSStyleSheet:
 	var stylesheet := LCSSStyleSheet.new()
 	var position := 0
 	
-	clear_comments()
-	append_comments(text, position)
+	_append_comments_to_style_sheet(stylesheet, text, position)
 	
 	while position < text.length():
-		var end_of_comment := _is_inside_comment(position)
+		var end_of_comment := _get_comment_end_position(stylesheet, position)
 		if end_of_comment > -1:
 			position = end_of_comment + 1
 			continue
@@ -76,7 +70,7 @@ func parse(text: String) -> LCSSStyleSheet:
 			break
 		
 		# Check if inside a comment
-		end_of_comment = _is_inside_comment(open_brace)
+		end_of_comment = _get_comment_end_position(stylesheet, open_brace)
 		if end_of_comment >= 0:
 			position = end_of_comment + 1
 			continue
@@ -89,41 +83,41 @@ func parse(text: String) -> LCSSStyleSheet:
 		
 		var next_valid_selector = _sort_next_valid_selector(text, position)
 		match next_valid_selector["type"]:
-			LCSS.KEYFRAMES_STARTER:
-				var matching := _find_matching_brace(text, open_brace)
+			LCSS.KEYFRAMES_OPENER:
+				var matching := _find_matching_brace(stylesheet, text, open_brace)
 				if matching == -1:
 					push_error("[LCSSParser] Unclosed @keyframes at position %s"%[open_brace])
 					break
 				var val = text.substr(next_valid_selector["position"], matching - next_valid_selector["position"] + LCSS.BRACKET_CLOSER.length())
 				var token := LCSSToken.new(LCSS.KEYFRAMES, open_brace, matching, val)
-				var keyframes := LCSSKeyframes.new(token)
+				var keyframes := LCSSKeyframes.new(stylesheet, token)
 				stylesheet.add_keyframes("kf_%s"%str(next_valid_selector["position"]), keyframes)
 				position = matching + 1
 				continue
-			LCSS.STYLE_CLASS_STARTER:
-				var matching := _find_matching_brace(text, open_brace)
+			LCSS.STYLE_CLASS_OPENER:
+				var matching := _find_matching_brace(stylesheet, text, open_brace)
 				if matching == -1:
 					push_error("[LCSSParser] Unclosed Style Class at position %s"%[open_brace])
 					break
 				
 				var val = text.substr(next_valid_selector["position"], matching - next_valid_selector["position"] + LCSS.BRACKET_CLOSER.length())
 				var token := LCSSToken.new(LCSS.STYLE_CLASS, open_brace, matching, val)
-				var style_class := LCSSStyleClass.new(token)
+				var style_class := LCSSStyleClass.new(stylesheet, token)
 				stylesheet.add_style_class(style_class)
 				
 				#var end_position := matching
-				#var state_marker := text.find(LCSS.STATE_STARTER, next_valid_selector["position"])
+				#var state_marker := text.find(LCSS.STATE_OPENER, next_valid_selector["position"])
 				#if next_valid_selector["position"] != -1:
 					#var state := text.substr(state_marker, open_brace - state_marker).strip_edges()
 					#var token := LCSSToken.new(LCSS.STATE, state_marker, open_brace, state)
 				#var token := LCSSToken.new(LCSS.STYLE_CLASS, open_brace, matching, selector)
-				#var anim_name := selector.trim_prefix(LCSS.KEYFRAMES_STARTER).strip_edges()
+				#var anim_name := selector.trim_prefix(LCSS.KEYFRAMES_OPENER).strip_edges()
 				#stylesheet.add_keyframes(anim_name, _parse_keyframes(text.substr(open_brace + 1, matching - open_brace - 1)))
 				position = matching + 1
 				continue
 		
-		#if selector.begins_with(LCSS.STYLE_CLASS_STARTER):
-			#var start_position := text.find(LCSS.STYLE_CLASS_STARTER, position)
+		#if selector.begins_with(LCSS.STYLE_CLASS_OPENER):
+			#var start_position := text.find(LCSS.STYLE_CLASS_OPENER, position)
 			#var matching := _find_matching_brace(text, open_brace)
 			#if matching == -1:
 				#push_error("[LCSSParser] Unclosed Style Class at position %s"%[open_brace])
@@ -134,22 +128,22 @@ func parse(text: String) -> LCSSStyleSheet:
 			#stylesheet.add_style_class(style_class)
 			#
 			##var end_position := matching
-			##var state_marker := text.find(LCSS.STATE_STARTER, start_position)
+			##var state_marker := text.find(LCSS.STATE_OPENER, start_position)
 			##if start_position != -1:
 				##var state := text.substr(state_marker, open_brace - state_marker).strip_edges()
 				##var token := LCSSToken.new(LCSS.STATE, state_marker, open_brace, state)
 			##var token := LCSSToken.new(LCSS.STYLE_CLASS, open_brace, matching, selector)
-			##var anim_name := selector.trim_prefix(LCSS.KEYFRAMES_STARTER).strip_edges()
+			##var anim_name := selector.trim_prefix(LCSS.KEYFRAMES_OPENER).strip_edges()
 			##stylesheet.add_keyframes(anim_name, _parse_keyframes(text.substr(open_brace + 1, matching - open_brace - 1)))
 			#position = matching + 1
 			#continue
 
-		#if selector.begins_with(LCSS.KEYFRAMES_STARTER):
+		#if selector.begins_with(LCSS.KEYFRAMES_OPENER):
 			#var matching := _find_matching_brace(text, open_brace)
 			#if matching == -1:
 				#push_error("[LCSSParser] Unclosed @keyframes at position %s"%[open_brace])
 				#break
-			#var anim_name := selector.trim_prefix(LCSS.KEYFRAMES_STARTER).strip_edges()
+			#var anim_name := selector.trim_prefix(LCSS.KEYFRAMES_OPENER).strip_edges()
 			#stylesheet.add_keyframes(anim_name, _parse_keyframes(text.substr(open_brace + 1, matching - open_brace - 1)))
 			#position = matching + 1
 			#continue
@@ -161,20 +155,20 @@ func parse(text: String) -> LCSSStyleSheet:
 		#var properties := _parse_properties(body)
 		#stylesheet.add_rule(LCSSRule.new(selector, properties))
 		
-		var close_brace := _find_matching_brace(text, open_brace)
+		var close_brace := _find_matching_brace(stylesheet, text, open_brace)
 		if close_brace == -1:
 			push_error("[LCSSParser] Invalid brace not closed at '%s'" % open_brace)
 			break
 		position = close_brace + 1
-	stylesheet.comments = _comments
+
 	return stylesheet
 
 
-static func _find_matching_brace(text: String, open_brace: int, check_inside_comment: bool = true) -> int:
+static func _find_matching_brace(stylesheet: LCSSStyleSheet, text: String, open_brace: int, check_inside_comment: bool = true) -> int:
 	var depth := 0
 	for i in range(open_brace, text.length()):
 		if check_inside_comment:
-			var end_of_comment := _is_inside_comment(open_brace)
+			var end_of_comment := _get_comment_end_position(stylesheet, open_brace)
 			if end_of_comment >= 0:
 				i = end_of_comment + 1
 		match text[i]:
@@ -195,13 +189,13 @@ static func parse_keyframes(keyframe: LCSSKeyframes) -> LCSSKeyframes:
 	if first_brace == -1:
 		push_error("[LCSSKeyframes] Invalid format")
 		return
-	keyframe.name = body.substr(0, first_brace).replace(LCSS.KEYFRAMES_STARTER, "").strip_edges()
+	keyframe.name = body.substr(0, first_brace).replace(LCSS.KEYFRAMES_OPENER, "").strip_edges()
 	pos = first_brace + LCSS.BRACKET_OPENER.length()
 	while pos < body.length():
 		var open := body.find(LCSS.BRACKET_OPENER, pos)
 		if open == -1:
 			break
-		var close :=  _find_matching_brace(body, open, false)
+		var close :=  _find_matching_brace(keyframe.style_sheet, body, open, false)
 		if close == -1:
 			break
 		
@@ -213,11 +207,13 @@ static func parse_keyframes(keyframe: LCSSKeyframes) -> LCSSKeyframes:
 				offset = 0.0
 			elif key == LCSS.TO:
 				offset = 1.0
+			# check if is percentage
 			elif key.ends_with("%") and key.trim_suffix("%").is_valid_float():
 				offset = clampf(key.trim_suffix("%").to_float() / 100.0, 0.0, 1.0)
 			if offset >= 0.0:
 				keyframe.add_frame(offset, props)
 		pos = close + 1
+	
 	return keyframe
 
 
@@ -225,33 +221,45 @@ static func parse_style_class(style_class: LCSSStyleClass) -> LCSSStyleClass:
 	var body := style_class.token.value
 	var pos := 0
 	
-	var first_brace := body.find(LCSS.BRACKET_OPENER, pos)
-	if first_brace == -1:
-		push_error("[LCSSStyleClass] Invalid format")
-		return
-	style_class.name = body.substr(0, first_brace).replace(LCSS.STYLE_CLASS_STARTER, "").strip_edges()
+	_parse_style_class_name_and_state(style_class)
 	
 	while pos < body.length():
 		var open := body.find(LCSS.BRACKET_OPENER, pos)
 		if open == -1:
 			break
-		var close :=  _find_matching_brace(body, open, false)
+		var close :=  _find_matching_brace(style_class.style_sheet, body, open, false)
 		if close == -1:
 			break
 		
 		var props := body.substr(open + 1, close - open - 1)
 		var properties := parse_properties(props)
-		print(style_class.name)
-		print(properties)
-		print("\n\n")
-		var rule := LCSSRule.new(body, properties)
-	
-		#print(rule.selector.parts)
-		#print(rule.properties)
 		
+		for property: LCSSProperty in properties.values():
+			style_class.add_property(property)
 		pos = close + 1
 	
-	return null
+	return style_class
+
+
+static func _parse_style_class_name_and_state(style_class: LCSSStyleClass) -> void:
+	var body := style_class.token.value
+	var first_brace := body.find(LCSS.BRACKET_OPENER, 0)
+	if first_brace == -1:
+		push_error("[LCSSStyleClass] Invalid format")
+		return
+	var selector_parts = body.substr(0, first_brace).replace(LCSS.STYLE_CLASS_OPENER, "").strip_edges().split(LCSS.STATE_OPENER)
+	match selector_parts.size():
+		1:
+			style_class.set_name(selector_parts[0])
+			return
+		2:
+			style_class.set_name(selector_parts[0])
+			style_class.add_state(LCSSState.new(selector_parts[1]))
+			return
+		_:
+			push_error("[LCSSStyleClass] Invalid format")
+			return
+
 
 static func parse_properties(body: String) -> Dictionary[StringName, LCSSProperty]:
 	var properties: Dictionary[StringName, LCSSProperty] = {}

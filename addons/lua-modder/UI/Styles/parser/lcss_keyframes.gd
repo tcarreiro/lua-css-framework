@@ -2,11 +2,13 @@ class_name LCSSKeyframes extends RefCounted
 ## Quadros de um @keyframes: offset de 0 a 1 -> propriedades.
 
 #var frames: Array[Dictionary] = []   # { "offset": float, "properties": Dictionary }
+var style_sheet: LCSSStyleSheet
 var token: LCSSToken
 var name: StringName
 var frames: Array[LCSSFrame] = []
 
-func _init(_token: LCSSToken) -> void:
+func _init(_style_sheet: LCSSStyleSheet, _token: LCSSToken) -> void:
+	style_sheet = _style_sheet
 	token = _token
 	parse()
 
@@ -32,8 +34,16 @@ func property_names() -> Array[StringName]:
 
 ## [{ offset, value }] em ordem.
 func frames_for(property: StringName) -> Array:
-	var out: Array[LCSSFrame] = []
+	var out: Array = []
 	for frame:LCSSFrame in frames:
-		if frame.properties.has(property):
-			out.append({"offset": frame.offset, "value": frame.properties[property].value})
+		var found_props := frame.properties.values().filter(func(prop: LCSSProperty): return prop.name == property)
+		if found_props.size() > 0:
+			for prop in found_props:
+				out.append({"offset": frame.offset, "value": prop.value})
 	return out
+
+
+func _to_string() -> String:
+	return "LCSSKeyframes(name=%s, frames=%s)" % [
+		name, frames
+	]

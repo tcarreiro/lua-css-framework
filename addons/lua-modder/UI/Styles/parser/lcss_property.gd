@@ -9,7 +9,4 @@ func _init(_name: StringName, _value: Variant) -> void:
 
 
 func _to_string() -> String:
-	var sb := []
-	sb.append("LCSSProperty(Name: %s"%[name])
-	sb.append("Value: %s)"%[value])
-	return ", ".join(sb)
+	return "LCSSProperty(name=%s, value=%s)" % [name, value]

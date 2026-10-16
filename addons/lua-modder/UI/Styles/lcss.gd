@@ -13,16 +13,16 @@ const KIND := [
 const FROM = &"from"
 const TO = &"to"
 
-const STYLE_CLASS_STARTER := "."
-const STATE_STARTER := ":"
-const KEYFRAMES_STARTER := "@keyframes"
+const STYLE_CLASS_OPENER := "."
+const STATE_OPENER := ":"
+const KEYFRAMES_OPENER := "@keyframes"
 const BRACKET_OPENER := "{"
 const BRACKET_CLOSER := "}"
 const PROPERTY_SEPARATOR := ":"
 const PROPERTY_CLOSER := ";"
 
 const SINGLE_LINE_COMMENT = "//"
-const MULTI_LINE_COMMENT_STARTER = "/*"
+const MULTI_LINE_COMMENT_OPENER = "/*"
 const MULTI_LINE_COMMENT_CLOSER = "*/"
 
 const KEYFRAMES_OFFSET_OPTIONS := {

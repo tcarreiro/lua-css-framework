@@ -13,9 +13,6 @@ func _init(_kind: StringName, _start: int, _end: int, _value: String) -> void:
 
 
 func _to_string() -> String:
-	var sb:= []
-	sb.append("value: %s"%value)
-	sb.append("start: %s"%start_position)
-	sb.append("end: %s"%end_position)
-	sb.append("kind: %s"%kind)
-	return " | ".join(sb)
+	return "LCSSToken(start_position=%s, end_position=%s, value=%s, kind=%s)" % [
+		start_position, end_position, value, kind
+	]

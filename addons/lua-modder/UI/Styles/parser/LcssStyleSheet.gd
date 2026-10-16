@@ -1,31 +1,27 @@
 class_name LCSSStyleSheet extends RefCounted
 
-var rules: Array[LCSSRule] = []
-var _keyframes: Dictionary = {}   # nome -> LCSSKeyframes
-
 var style_classes: Dictionary[StringName, LCSSStyleClass] = {}
 var keyframes: Dictionary[StringName, LCSSKeyframes] = {}
 var comments: Array[LCSSToken] = []
-var parts: Array[String] = []
 
 
 func add_style_class(style_class: LCSSStyleClass) -> void:
 	style_classes[style_class.name] = style_class
 
 
-func add_rule(rule: LCSSRule) -> void:
-	rules.append(rule)
-
-
-func get_rules() -> Array[LCSSRule]:
-	return rules.duplicate()
-
-
 func add_keyframes(anim_name: String, frames: LCSSKeyframes) -> void:
 	keyframes[anim_name] = frames
 
 
-#
+func add_comment(comment: LCSSToken) -> void:
+	comments.append(comment)
+
+
+func _to_string() -> String:
+	return "LCSSStyleSheet(style_classes=%s, keyframes=%s, comments=%s)" % [
+		style_classes, keyframes, comments
+	]
+
 #func parse(selector: String) -> void:
 	#parts.clear()
 #
