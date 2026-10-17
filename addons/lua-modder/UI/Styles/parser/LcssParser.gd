@@ -91,7 +91,7 @@ static func parse(text: String) -> LCSSStyleSheet:
 				var val = text.substr(next_valid_selector["position"], matching - next_valid_selector["position"] + LCSS.BRACKET_CLOSER.length())
 				var token := LCSSToken.new(LCSS.KEYFRAMES, open_brace, matching, val)
 				var keyframes := LCSSKeyframes.new(stylesheet, token)
-				stylesheet.add_keyframes("kf_%s"%str(next_valid_selector["position"]), keyframes)
+				stylesheet.add_keyframes(keyframes)
 				position = matching + 1
 				continue
 			LCSS.STYLE_CLASS_OPENER:
@@ -104,56 +104,8 @@ static func parse(text: String) -> LCSSStyleSheet:
 				var token := LCSSToken.new(LCSS.STYLE_CLASS, open_brace, matching, val)
 				var style_class := LCSSStyleClass.new(stylesheet, token)
 				stylesheet.add_style_class(style_class)
-				
-				#var end_position := matching
-				#var state_marker := text.find(LCSS.STATE_OPENER, next_valid_selector["position"])
-				#if next_valid_selector["position"] != -1:
-					#var state := text.substr(state_marker, open_brace - state_marker).strip_edges()
-					#var token := LCSSToken.new(LCSS.STATE, state_marker, open_brace, state)
-				#var token := LCSSToken.new(LCSS.STYLE_CLASS, open_brace, matching, selector)
-				#var anim_name := selector.trim_prefix(LCSS.KEYFRAMES_OPENER).strip_edges()
-				#stylesheet.add_keyframes(anim_name, _parse_keyframes(text.substr(open_brace + 1, matching - open_brace - 1)))
 				position = matching + 1
 				continue
-		
-		#if selector.begins_with(LCSS.STYLE_CLASS_OPENER):
-			#var start_position := text.find(LCSS.STYLE_CLASS_OPENER, position)
-			#var matching := _find_matching_brace(text, open_brace)
-			#if matching == -1:
-				#push_error("[LCSSParser] Unclosed Style Class at position %s"%[open_brace])
-				#break
-			#
-			#var token := LCSSToken.new(LCSS.STYLE_CLASS, open_brace, matching, selector)
-			#var style_class := LCSSStyleClass.new(token)
-			#stylesheet.add_style_class(style_class)
-			#
-			##var end_position := matching
-			##var state_marker := text.find(LCSS.STATE_OPENER, start_position)
-			##if start_position != -1:
-				##var state := text.substr(state_marker, open_brace - state_marker).strip_edges()
-				##var token := LCSSToken.new(LCSS.STATE, state_marker, open_brace, state)
-			##var token := LCSSToken.new(LCSS.STYLE_CLASS, open_brace, matching, selector)
-			##var anim_name := selector.trim_prefix(LCSS.KEYFRAMES_OPENER).strip_edges()
-			##stylesheet.add_keyframes(anim_name, _parse_keyframes(text.substr(open_brace + 1, matching - open_brace - 1)))
-			#position = matching + 1
-			#continue
-
-		#if selector.begins_with(LCSS.KEYFRAMES_OPENER):
-			#var matching := _find_matching_brace(text, open_brace)
-			#if matching == -1:
-				#push_error("[LCSSParser] Unclosed @keyframes at position %s"%[open_brace])
-				#break
-			#var anim_name := selector.trim_prefix(LCSS.KEYFRAMES_OPENER).strip_edges()
-			#stylesheet.add_keyframes(anim_name, _parse_keyframes(text.substr(open_brace + 1, matching - open_brace - 1)))
-			#position = matching + 1
-			#continue
-		#var close_brace := text.find(LCSS.BRACKET_CLOSER, open_brace + 1)
-		#if close_brace == -1:
-			#push_error("[LCSSParser] bloco não fechado para selector '%s'" % selector)
-			#break
-		#var body := text.substr(open_brace + 1, close_brace - open_brace - 1)
-		#var properties := _parse_properties(body)
-		#stylesheet.add_rule(LCSSRule.new(selector, properties))
 		
 		var close_brace := _find_matching_brace(stylesheet, text, open_brace)
 		if close_brace == -1:

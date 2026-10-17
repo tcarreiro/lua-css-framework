@@ -97,8 +97,20 @@ func _find_matching_ancestor(from_component: LuaComponent, match_states: bool) -
 				return component
 
 		node = node.get_parent()
-
 	return null
+
+
+func get_specificity() -> int:
+	var specificity := 0
+
+	for part in selectors:
+		specificity += 1 # accounting for "name"
+		if part.state != null:
+			specificity += 1
+		#specificity += part["classes"].size()
+		#specificity += part["states"].size()
+
+	return specificity
 
 
 func _to_string() -> String:

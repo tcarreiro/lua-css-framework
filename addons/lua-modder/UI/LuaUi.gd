@@ -80,6 +80,7 @@ func _lua_call_method(ref: Variant, method: Variant, args: Variant = null) -> Va
 func _lua_mount(el: Variant) -> void:
 	var element: UIElement = el
 	if _root and element:
+		print("Mount")
 		_root.add_child(ComponentRegistry.instantiate(element))
 
 

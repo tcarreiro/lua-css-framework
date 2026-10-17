@@ -13,7 +13,6 @@ UI.defineComponent("MainMenu", {
 			label = label,
 			class = "menu-button",
 			on_pressed = function()
-				UI.callMethod('click_fx', 'set_param', { 'intensity', 0.9 })
 				UI.playSoundEffect("click")
 				go(navigation_target)
 			end,
@@ -31,8 +30,6 @@ UI.defineComponent("MainMenu", {
 		}
 	end
 	
-	local click_particle = ParticleEmitter{ ref = "click_fx", amount = 100, color = '#7a8cff', blend = 'add', one_shot = true }
-
 	return Body{
 		children = {
 			Div{

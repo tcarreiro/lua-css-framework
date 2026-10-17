@@ -373,7 +373,10 @@ static func _copy(v: Variant) -> Variant:
 
 #region Config
 func _read_transition(style: LCSSStyle, overrides: Dictionary) -> Transition:
-	var duration: Variant = _resolve(style, overrides, ComponentProps.TRANSITION_DURATION)
+	var dur: Variant = _resolve(style, overrides, ComponentProps.TRANSITION_DURATION)
+	var duration = dur
+	if dur is LCSSProperty:
+		duration = dur.value
 	if duration == null or float(duration) <= 0.0:
 		return null
 	var t := Transition.new()
@@ -409,7 +412,7 @@ func _resolve(style: LCSSStyle, overrides: Dictionary, context: StringName) -> V
 
 func _style_value(style: LCSSStyle, context: StringName) -> Variant:
 	if style != null and style.has_effective_property(context):
-		return style.get_effective_property(context)
+		return style.get_effective_property(context).value
 	return null
 
 #endregion
