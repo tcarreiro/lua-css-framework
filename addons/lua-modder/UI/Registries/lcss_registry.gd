@@ -51,7 +51,7 @@ func get_stylesheet_count() -> int:
 # equally named keyframes are registered?
 func find_keyframes(anim_name: StringName) -> LCSSKeyframes:
 	for i in range(get_stylesheet_count() - 1, -1, -1):
-		var found: Variant = _stylesheets[i].get_keyframes().get(String(anim_name))
+		var found: LCSSKeyframes = _stylesheets[i].get_keyframes().get(anim_name)
 		if found != null:
 			return found
 	return null

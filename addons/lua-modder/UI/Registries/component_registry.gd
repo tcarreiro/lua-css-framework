@@ -101,7 +101,6 @@ func register_lua(component_name: String, definition: Dictionary) -> bool:
 
 ## Nome duplicado é ignorado com aviso: vale o primeiro que foi registrado.
 func _register(def: ComponentDefinition) -> bool:
-	print("Register component %s"%def)
 	var component_name: String = def.name
 	if _defs.has(component_name):
 		push_warning("[ComponentRegistry] '%s' já registrado (%s), ignorando." % [component_name, _defs[component_name].source])
@@ -220,7 +219,6 @@ func instantiate(el: UIElement, depth := 0) -> Control:
 	if def == null:
 		push_error("[ComponentRegistry] componente desconhecido: '%s'" % el.component_name)
 		return null
-	print("Instantiating %s of kind %s"%[def.name, Kind.keys()[def.kind]])
 	match def.kind:
 		Kind.SCENE:
 			return _instantiate_scene(def, el, depth)

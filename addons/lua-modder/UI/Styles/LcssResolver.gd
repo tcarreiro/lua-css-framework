@@ -4,11 +4,10 @@ static func resolve(component: LuaComponent, registry: LCSSRegistry) -> LCSSStyl
 	var matched: Array[Dictionary] = []  
 	var order := 0
 	for sheet in registry.get_stylesheets():
-		for style_class:LCSSStyleClass in sheet.get_style_classes():
+		for style_class: LCSSStyleClass in sheet.get_style_classes():
 			if style_class.matches(component, false):
 				matched.append({LCSS.STYLE_CLASS: style_class, "order": order})
 			order += 1
-
 
 	matched.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var sa: int = (a[LCSS.STYLE_CLASS] as LCSSStyleClass).get_specificity()
@@ -19,11 +18,11 @@ static func resolve(component: LuaComponent, registry: LCSSRegistry) -> LCSSStyl
 
 	var style := LCSSStyle.new()
 	for entry in matched:
-		var style_class : LCSSStyleClass = entry[LCSS.STYLE_CLASS]
-		var state := _own_state(style_class)
+		var style_class: LCSSStyleClass = entry[LCSS.STYLE_CLASS]
+		var state := style_class.get_own_state()
 		var target: LCSSStyle = style if state == &"" else style.ensure_state(state)
 		for property: StringName in style_class.properties:
-			target.set_property(property, style_class.properties[property])
+			target.set_property(property, (style_class.properties[property] as LCSSProperty).value)
 	return style
 
 

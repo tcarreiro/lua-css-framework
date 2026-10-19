@@ -1,4 +1,10 @@
 class_name LCSSStyleClass extends RefCounted
+## Uma regra do .lcss: seletor + propriedades.
+##
+## `selectors` é a cadeia de trechos separados por espaço (descendente):
+##   .a.b:hover .c  ->  [ { classes: [a, b], states: [hover] }, { classes: [c], states: [] } ]
+## Dentro de um trecho, tudo que está colado exige o MESMO componente.
+## Entre trechos, cada um precisa ser achado em um ancestral, nessa ordem.
 
 var style_sheet: LCSSStyleSheet
 var token: LCSSToken
@@ -8,15 +14,24 @@ var properties: Dictionary[StringName, LCSSProperty] = {}
 
 class LCSSStyleSelector:
 	extends RefCounted
-	var name: StringName
-	var state: StringName
+	var classes: Array[StringName] = []
+	var states: Array[StringName] = []
 	
-	func _init(_name: StringName, _state: StringName = &"") -> void:
-		name = _name
-		state = _state
-	
+	func matches(component: LuaComponent, match_states: bool) -> bool:
+		for style_class in classes:
+			if not component.has_class(style_class):
+				return false
+		if match_states:
+			for state in states:
+				if not component.is_style_state_active(state):
+					return false
+		return true
+
+	func get_specificity() -> int:
+		return classes.size() + states.size()
+
 	func _to_string() -> String:
-		return "LCSSStyleSelector(name=%s, state=%s,)" % [name, state]
+		return "LCSSStyleSelector(classes=%s, states=%s)" % [classes, states]
 
 
 func _init(_style_sheet: LCSSStyleSheet, _token: LCSSToken) -> void:
@@ -29,14 +44,6 @@ func parse() -> void:
 	LCSSParser.parse_style_class(self)
 
 
-#func set_name(new_name: StringName)-> void:
-	#name = new_name
-#
-#
-#func add_state(_state: LCSSState) -> void:
-	#states[_state.name] = _state
-
-
 func add_style_selector(_style_selector: LCSSStyleSelector) -> void:
 	selectors.append(_style_selector)
 
@@ -45,70 +52,50 @@ func add_property(_property: LCSSProperty) -> void:
 	properties[_property.name] = _property
 
 
+## O último trecho é o componente alvo. Os anteriores são procurados nos ancestrais, do mais
+## próximo para cima (com só o combinador de descendente, o ancestral mais próximo basta).
 func matches(component: LuaComponent, match_states: bool = true) -> bool:
-	if component == null:
+	if component == null or selectors.is_empty():
 		return false
 
-	var part_index := selectors.size() - 1
+	var index := selectors.size() - 1
+	if not selectors[index].matches(component, match_states):
+		return false
+
 	var current: LuaComponent = component
-
-	if not _matches_part(current, match_states):
-		return false
-
-	part_index -= 1
-
-	while part_index >= 0:
-		current = _find_matching_ancestor(current, match_states)
-
+	index -= 1
+	while index >= 0:
+		current = _find_matching_ancestor(selectors[index], current, match_states)
 		if current == null:
 			return false
-
-		part_index -= 1
-
+		index -= 1
 	return true
 
 
-func _matches_part(component: LuaComponent, match_states: bool) -> bool:
-	var classes := selectors.map(func(s: LCSSStyleSelector): return s.name)
-	var states := selectors.map(func(s: LCSSStyleSelector): return s.state)
-	for style_class: StringName in classes:
-		if not component.has_class(style_class):
-			return false
-
-	if match_states:
-		for state: StringName in states:
-			if not component.is_style_state_active(state):
-				return false
-
-	return true
-
-
-func _find_matching_ancestor(from_component: LuaComponent, match_states: bool) -> LuaComponent:
+func _find_matching_ancestor(selector: LCSSStyleSelector, from_component: LuaComponent, match_states: bool) -> LuaComponent:
 	var node := from_component.get_parent()
-
 	while node != null:
-		if node is LuaComponent:
-			var component := node as LuaComponent
-
-			if _matches_part(component, match_states):
-				return component
-
+		var component := node as LuaComponent
+		if component != null and selector.matches(component, match_states):
+			return component
 		node = node.get_parent()
 	return null
 
 
 func get_specificity() -> int:
-	var specificity := 0
+	var total := 0
+	for selector in selectors:
+		total += selector.get_specificity()
+	return total
 
-	for part in selectors:
-		specificity += 1 # accounting for "name"
-		if part.state != &"":
-			specificity += 1
 
-	return specificity
+## Estado da regra = o do último trecho. Só o primeiro estado é usado.
+func get_own_state() -> StringName:
+	if selectors.is_empty():
+		return &""
+	var last := selectors[selectors.size() - 1]
+	return last.states[0] if not last.states.is_empty() else &""
 
 
 func _to_string() -> String:
-	return "LCSSStyleClass(selectors=%s, properties=%s)" % [
-		selectors, properties.values()
-	]
+	return "LCSSStyleClass(selectors=%s, properties=%s)" % [selectors, properties.values()]

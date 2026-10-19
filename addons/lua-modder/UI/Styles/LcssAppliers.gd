@@ -335,13 +335,14 @@ static func _apply_image_field(target: Control, property: StringName, value: Var
 	if target == null or value == null:
 		return
 	var box := _tex_box(target)
-	var path_prefix := "res://"
 	match property:
 		PropertyDefinition.BACKGROUND_IMAGE:
-			var path := path_prefix+str(value)
-			if path == path_prefix:
+			var path := str(value)
+			if path == "":
 				_remove_image(target)
 				return
+			if not path.begins_with("res://") and not path.begins_with("user://"):
+				path = "res://" + path
 			var texture := load(path) as Texture2D
 			if texture == null:
 				push_warning("[LCSSAppliers] background_image não encontrada: '%s'" % path)

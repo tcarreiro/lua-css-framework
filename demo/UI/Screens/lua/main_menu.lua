@@ -11,22 +11,14 @@ UI.defineComponent("MainMenu", {
 			id = btn_id,
 			ref = btn_id,
 			label = label,
-			class = "menu-screen menu-button",
+			class = "menu-button " .. class_on_hover,
 			on_pressed = function()
 				UI.playSoundEffect("click")
 				go(navigation_target)
 			end,
 			on_mouse_entered = function()
-				if class_on_hover then
-					UI.callMethod(btn_id, "add_class", { class_on_hover })
-				end
 				UI.playSoundEffect("hover")
 			end,
-			on_mouse_exited = function()
-				if class_on_hover then
-					UI.callMethod(btn_id, "remove_class", { class_on_hover })
-				end
-			end
 		}
 	end
 	
@@ -63,8 +55,8 @@ UI.defineComponent("MainMenu", {
 									Div{flex_grow = 1},
 									Div{ flex_grow = 1, gap = 20, alignment = 'end',
 										children = {
-											button("play_btn", "PLAY", "play", nil),
-											button("settings_btn", "SETTINGS", "settings", nil),
+											button("play_btn", "PLAY", "play", ""),
+											button("settings_btn", "SETTINGS", "settings", ""),
 											button("quit_btn", "QUIT", "quit", "text-color-red"),
 										}
 									},

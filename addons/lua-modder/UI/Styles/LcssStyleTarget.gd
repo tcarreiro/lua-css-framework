@@ -413,7 +413,7 @@ func _resolve(style: LCSSStyle, overrides: Dictionary, context: StringName) -> V
 
 func _style_value(style: LCSSStyle, context: StringName) -> Variant:
 	if style != null and style.has_effective_property(context):
-		return style.get_effective_property(context).value
+		return style.get_effective_property(context)
 	return null
 
 #endregion
