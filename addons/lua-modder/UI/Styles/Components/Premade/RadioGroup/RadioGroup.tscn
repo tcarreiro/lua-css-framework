@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://ny8vomfy58vj"]
 
 [ext_resource type="Script" uid="uid://ctg166p3iueq3" path="res://addons/lua-modder/UI/Styles/Components/Premade/RadioGroup/RadioGroup.gd" id="1_ic7ft"]
-[ext_resource type="Script" uid="uid://bspsj7f8qcc7d" path="res://addons/lua-modder/UI/Styles/Components/LuaFlowBox.gd" id="2_j4c1m"]
+[ext_resource type="Script" uid="uid://bspsj7f8qcc7d" path="res://addons/lua-modder/UI/Styles/Components/Classes/LuaFlowBox.gd" id="2_j4c1m"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_h0j6j"]
 

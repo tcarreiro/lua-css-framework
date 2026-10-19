@@ -11,21 +11,21 @@ var _checked := false
 
 func get_schema() -> Dictionary:
 	var names: Array = [
-		ComponentProps.CHECKED, ComponentProps.LABEL, ComponentProps.RADIO, ComponentProps.DISABLED,
-		ComponentProps.MODEL, ComponentProps.INDICATOR_SIZE, ComponentProps.MARK_INSET, ComponentProps.GAP,
+		PropertyDefinition.CHECKED, PropertyDefinition.LABEL, PropertyDefinition.RADIO, PropertyDefinition.DISABLED,
+		PropertyDefinition.MODEL, PropertyDefinition.INDICATOR_SIZE, PropertyDefinition.MARK_INSET, PropertyDefinition.GAP,
 	]
 	names.append_array(LuaStyledBox.box_names())
-	var props := ComponentProps.pick(names, {ComponentProps.GAP: 8})
-	props.merge(ComponentProps.pick(ComponentProps.PANEL, {}, "box_"))
-	props.merge(ComponentProps.pick(ComponentProps.PANEL, {}, "mark_"))
-	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "label_"))
+	var props := PropertyDefinition.pick(names, {PropertyDefinition.GAP: 8})
+	props.merge(PropertyDefinition.pick(PropertyDefinition.PANEL, {}, "box_"))
+	props.merge(PropertyDefinition.pick(PropertyDefinition.PANEL, {}, "mark_"))
+	props.merge(PropertyDefinition.pick(PropertyDefinition.FONT, {}, "label_"))
 	return {"name": "Checkbox", "props": props, "events": ["changed"], "methods": ["toggle"]}
 
 
 func _setup_style_target() -> void:
-	_style_target.register_group(ComponentProps.PANEL, _box, "box_")
-	_style_target.register_group(ComponentProps.PANEL, _mark, "mark_")
-	_style_target.register_group(ComponentProps.FONT, _label, "label_")
+	_style_target.register_group(PropertyDefinition.PANEL, _box, "box_")
+	_style_target.register_group(PropertyDefinition.PANEL, _mark, "mark_")
+	_style_target.register_group(PropertyDefinition.FONT, _label, "label_")
 
 
 func _component_ready() -> void:
@@ -36,23 +36,23 @@ func _component_ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		ComponentProps.CHECKED:
+		PropertyDefinition.CHECKED:
 			if not _has_model():
 				_set_checked(bool(value), false)
-		ComponentProps.MODEL:
+		PropertyDefinition.MODEL:
 			if value != null:
 				_set_checked(bool(value), false)
-		ComponentProps.LABEL:
+		PropertyDefinition.LABEL:
 			_label.text = str(value)
 			_label.visible = str(value) != ""
-		ComponentProps.GAP:
+		PropertyDefinition.GAP:
 			_row.add_theme_constant_override("separation", maxi(int(value), 0))
-		ComponentProps.INDICATOR_SIZE:
+		PropertyDefinition.INDICATOR_SIZE:
 			_box.custom_minimum_size = Vector2.ONE * maxi(int(value), 1)
-		ComponentProps.MARK_INSET:
+		PropertyDefinition.MARK_INSET:
 			for side in ["margin_left", "margin_top", "margin_right", "margin_bottom"]:
 				_inset.add_theme_constant_override(side, maxi(int(value), 0))
-		ComponentProps.DISABLED:
+		PropertyDefinition.DISABLED:
 			set_state(&"disabled", bool(value))
 			_background.focus_mode = Control.FOCUS_NONE if value else Control.FOCUS_ALL
 		_:

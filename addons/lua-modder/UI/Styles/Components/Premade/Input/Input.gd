@@ -20,16 +20,16 @@ var value: ReactiveString = ReactiveString.new("")
 
 func get_schema() -> Dictionary:
 	var names: Array = [
-		ComponentProps.VALUE, ComponentProps.INPUT_TYPE, ComponentProps.DECIMALS,
-		ComponentProps.THOUSAND_SEPARATOR, ComponentProps.DECIMAL_SEPARATOR,
-		ComponentProps.LABEL, ComponentProps.ICON, ComponentProps.ICON_SIDE,
-		ComponentProps.CURSOR, ComponentProps.WIDTH, ComponentProps.HEIGHT,
-		ComponentProps.MODEL,
+		PropertyDefinition.VALUE, PropertyDefinition.INPUT_TYPE, PropertyDefinition.DECIMALS,
+		PropertyDefinition.THOUSAND_SEPARATOR, PropertyDefinition.DECIMAL_SEPARATOR,
+		PropertyDefinition.LABEL, PropertyDefinition.ICON, PropertyDefinition.ICON_SIDE,
+		PropertyDefinition.CURSOR, PropertyDefinition.WIDTH, PropertyDefinition.HEIGHT,
+		PropertyDefinition.MODEL,
 	]
 	names.append_array(LuaStyledBox.box_names())
-	var props: Dictionary = ComponentProps.pick(names, {ComponentProps.CURSOR: ComponentProps.TEXT})
-	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "input_"))   # input_font_color, ...
-	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "label_"))   # label_font_color, ...
+	var props: Dictionary = PropertyDefinition.pick(names, {PropertyDefinition.CURSOR: PropertyDefinition.TEXT})
+	props.merge(PropertyDefinition.pick(PropertyDefinition.FONT, {}, "input_"))   # input_font_color, ...
+	props.merge(PropertyDefinition.pick(PropertyDefinition.FONT, {}, "label_"))   # label_font_color, ...
 	return {
 		"name": "Input",
 		"props": props,
@@ -38,8 +38,8 @@ func get_schema() -> Dictionary:
 
 
 func _setup_style_target() -> void:
-	_style_target.register_group(ComponentProps.FONT, _line_edit, "input_")
-	_style_target.register_group(ComponentProps.FONT, _label, "label_")
+	_style_target.register_group(PropertyDefinition.FONT, _line_edit, "input_")
+	_style_target.register_group(PropertyDefinition.FONT, _label, "label_")
 
 
 func _component_ready() -> void:
@@ -71,42 +71,42 @@ func _on_background_click_focus(event: InputEvent) -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		ComponentProps.VALUE:
+		PropertyDefinition.VALUE:
 			_set_display_value(str(value))
-		ComponentProps.WIDTH:
+		PropertyDefinition.WIDTH:
 			if int(value) >= 0:
 				_wrapper.custom_minimum_size.x = value
-		ComponentProps.HEIGHT:
+		PropertyDefinition.HEIGHT:
 			if int(value) >= 0:
 				_wrapper.custom_minimum_size.y = value
-		ComponentProps.INPUT_TYPE:
+		PropertyDefinition.INPUT_TYPE:
 			_type = InputType.get(str(value).to_upper(), InputType.TEXT)
 			_line_edit.secret = (_type == InputType.SECRET)
 			_refresh_display()
-		ComponentProps.MODEL:
+		PropertyDefinition.MODEL:
 			if _is_ready and value != null:
 				_apply_model_value(value)
-		ComponentProps.DECIMALS:
+		PropertyDefinition.DECIMALS:
 			_decimals = int(value)
 			_refresh_display()
-		ComponentProps.THOUSAND_SEPARATOR:
+		PropertyDefinition.THOUSAND_SEPARATOR:
 			_thousand_sep = str(value)
-		ComponentProps.DECIMAL_SEPARATOR:
+		PropertyDefinition.DECIMAL_SEPARATOR:
 			_decimal_sep = str(value)
-		ComponentProps.DISABLED:
+		PropertyDefinition.DISABLED:
 			_line_edit.editable = not value
 			set_state(&"disabled", value)
-		ComponentProps.LABEL:
+		PropertyDefinition.LABEL:
 			_label.text = str(value)
 			_label.visible = (str(value) != "")
-		ComponentProps.ICON:
+		PropertyDefinition.ICON:
 			_icon_path = str(value)
 			_refresh_icon()
-		ComponentProps.ICON_SIDE:
+		PropertyDefinition.ICON_SIDE:
 			_icon_side = str(value)
 			_refresh_icon()
-		ComponentProps.CURSOR:
-			_set_cursor(ComponentProps.CURSORS.get(StringName(value), Control.CURSOR_IBEAM))
+		PropertyDefinition.CURSOR:
+			_set_cursor(PropertyDefinition.CURSORS.get(StringName(value), Control.CURSOR_IBEAM))
 		_:
 			super._apply_prop(key, value)
 

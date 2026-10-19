@@ -2,24 +2,21 @@ class_name LCSSStyleClass extends RefCounted
 
 var style_sheet: LCSSStyleSheet
 var token: LCSSToken
+# A StyleClass can have multiple selectors, like .main-menu.primary-button:hover {}
 var selectors: Array[LCSSStyleSelector] = []
-#var name: StringName
-#var states: Dictionary[StringName, LCSSState] = {}
 var properties: Dictionary[StringName, LCSSProperty] = {}
 
 class LCSSStyleSelector:
 	extends RefCounted
 	var name: StringName
-	var state: LCSSState
+	var state: StringName
 	
-	func _init(_name: StringName, _state: LCSSState = null) -> void:
+	func _init(_name: StringName, _state: StringName = &"") -> void:
 		name = _name
 		state = _state
 	
 	func _to_string() -> String:
-		return "LCSSStyleSelector(name=%s, state=%s,)" % [
-			name, state
-		]
+		return "LCSSStyleSelector(name=%s, state=%s,)" % [name, state]
 
 
 func _init(_style_sheet: LCSSStyleSheet, _token: LCSSToken) -> void:
@@ -105,10 +102,8 @@ func get_specificity() -> int:
 
 	for part in selectors:
 		specificity += 1 # accounting for "name"
-		if part.state != null:
+		if part.state != &"":
 			specificity += 1
-		#specificity += part["classes"].size()
-		#specificity += part["states"].size()
 
 	return specificity
 

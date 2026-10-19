@@ -16,26 +16,26 @@ var _dragging := false
 
 func get_schema() -> Dictionary:
 	var names: Array = [
-		ComponentProps.VALUE, ComponentProps.MODEL, ComponentProps.MIN, ComponentProps.MAX, ComponentProps.STEP,
-		ComponentProps.DECIMALS, ComponentProps.LABEL, ComponentProps.SHOW_VALUE, ComponentProps.TRACK_HEIGHT,
-		ComponentProps.THUMB_SIZE, ComponentProps.WIDTH, ComponentProps.GAP, ComponentProps.DISABLED,
-		ComponentProps.CURSOR,
+		PropertyDefinition.VALUE, PropertyDefinition.MODEL, PropertyDefinition.MIN, PropertyDefinition.MAX, PropertyDefinition.STEP,
+		PropertyDefinition.DECIMALS, PropertyDefinition.LABEL, PropertyDefinition.SHOW_VALUE, PropertyDefinition.TRACK_HEIGHT,
+		PropertyDefinition.THUMB_SIZE, PropertyDefinition.WIDTH, PropertyDefinition.GAP, PropertyDefinition.DISABLED,
+		PropertyDefinition.CURSOR,
 	]
 	names.append_array(LuaStyledBox.box_names())
-	var props := ComponentProps.pick(names, {ComponentProps.GAP: 12, ComponentProps.CURSOR: ComponentProps.POINTER})
+	var props := PropertyDefinition.pick(names, {PropertyDefinition.GAP: 12, PropertyDefinition.CURSOR: PropertyDefinition.POINTER})
 	for prefix in ["track_", "fill_", "thumb_"]:
-		props.merge(ComponentProps.pick(ComponentProps.PANEL, {}, prefix))
-	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "label_"))
-	props.merge(ComponentProps.pick(ComponentProps.FONT, {}, "value_"))
+		props.merge(PropertyDefinition.pick(PropertyDefinition.PANEL, {}, prefix))
+	props.merge(PropertyDefinition.pick(PropertyDefinition.FONT, {}, "label_"))
+	props.merge(PropertyDefinition.pick(PropertyDefinition.FONT, {}, "value_"))
 	return {"name": "Slider", "props": props, "events": ["changed", "released"]}
 
 
 func _setup_style_target() -> void:
-	_style_target.register_group(ComponentProps.PANEL, _track, "track_")
-	_style_target.register_group(ComponentProps.PANEL, _fill, "fill_")
-	_style_target.register_group(ComponentProps.PANEL, _thumb, "thumb_")
-	_style_target.register_group(ComponentProps.FONT, _label, "label_")
-	_style_target.register_group(ComponentProps.FONT, _value_label, "value_")
+	_style_target.register_group(PropertyDefinition.PANEL, _track, "track_")
+	_style_target.register_group(PropertyDefinition.PANEL, _fill, "fill_")
+	_style_target.register_group(PropertyDefinition.PANEL, _thumb, "thumb_")
+	_style_target.register_group(PropertyDefinition.FONT, _label, "label_")
+	_style_target.register_group(PropertyDefinition.FONT, _value_label, "value_")
 	# visual padrão: sem nenhum .lcss o slider já aparece
 	_style_target.set_default(&"track_background_color", Color("3a3f55"))
 	_style_target.set_default(&"track_border_radius", 3)
@@ -62,27 +62,27 @@ func _component_ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		ComponentProps.VALUE, ComponentProps.MODEL, ComponentProps.MIN, ComponentProps.MAX, ComponentProps.STEP:
+		PropertyDefinition.VALUE, PropertyDefinition.MODEL, PropertyDefinition.MIN, PropertyDefinition.MAX, PropertyDefinition.STEP:
 			_sync()
-		ComponentProps.DECIMALS:
+		PropertyDefinition.DECIMALS:
 			_refresh_texts()
-		ComponentProps.LABEL:
+		PropertyDefinition.LABEL:
 			_label.text = str(value)
 			_label.visible = str(value) != ""
-		ComponentProps.SHOW_VALUE:
+		PropertyDefinition.SHOW_VALUE:
 			_refresh_texts()
-		ComponentProps.TRACK_HEIGHT, ComponentProps.THUMB_SIZE, ComponentProps.WIDTH:
+		PropertyDefinition.TRACK_HEIGHT, PropertyDefinition.THUMB_SIZE, PropertyDefinition.WIDTH:
 			_update_rail_size()
 			_layout()
-		ComponentProps.GAP:
+		PropertyDefinition.GAP:
 			_row.add_theme_constant_override("separation", maxi(int(value), 0))
-		ComponentProps.DISABLED:
+		PropertyDefinition.DISABLED:
 			set_state(&"disabled", bool(value))
 			_rail.focus_mode = Control.FOCUS_NONE if value else Control.FOCUS_ALL
 			if value:
 				_end_drag()
-		ComponentProps.CURSOR:
-			_rail.mouse_default_cursor_shape = ComponentProps.CURSORS.get(StringName(str(value)), Control.CURSOR_POINTING_HAND)
+		PropertyDefinition.CURSOR:
+			_rail.mouse_default_cursor_shape = PropertyDefinition.CURSORS.get(StringName(str(value)), Control.CURSOR_POINTING_HAND)
 		_:
 			super._apply_prop(key, value)
 

@@ -4,25 +4,25 @@ extends LuaComponent
 
 
 func get_schema() -> Dictionary:
-	var names: Array = [ComponentProps.TEXT, ComponentProps.WIDTH, ComponentProps.HEIGHT,
-			ComponentProps.MAX_WIDTH, ComponentProps.MAX_HEIGHT]
-	names.append_array(ComponentProps.TEXT_LAYOUT)
-	names.append_array(ComponentProps.RICH_ONLY)
-	names.append_array(ComponentProps.FONT)
-	names.append_array(ComponentProps.TEXT_SHADOW)
+	var names: Array = [PropertyDefinition.TEXT, PropertyDefinition.WIDTH, PropertyDefinition.HEIGHT,
+			PropertyDefinition.MAX_WIDTH, PropertyDefinition.MAX_HEIGHT]
+	names.append_array(PropertyDefinition.TEXT_LAYOUT)
+	names.append_array(PropertyDefinition.RICH_ONLY)
+	names.append_array(PropertyDefinition.FONT)
+	names.append_array(PropertyDefinition.TEXT_SHADOW)
 	return {
 		"name": "RichTextLabel",
-		"props": ComponentProps.pick(names, {ComponentProps.AUTOWRAP: "word_smart"}),
+		"props": PropertyDefinition.pick(names, {PropertyDefinition.AUTOWRAP: "word_smart"}),
 		"events": ["meta_clicked", "meta_hover_started", "meta_hover_ended"],
 		"methods": ["append_text", "scroll_to_line", "scroll_to_end", "clear_text"],
 	}
 
 
 func _ready() -> void:
-	_style_target.register_group(ComponentProps.FONT, self)
-	_style_target.register_group(ComponentProps.TEXT_SHADOW, self)
-	for prop in [ComponentProps.LINE_SPACING, ComponentProps.PARAGRAPH_SPACING,
-			ComponentProps.SELECTION_COLOR, ComponentProps.SELECTED_FONT_COLOR]:
+	_style_target.register_group(PropertyDefinition.FONT, self)
+	_style_target.register_group(PropertyDefinition.TEXT_SHADOW, self)
+	for prop in [PropertyDefinition.LINE_SPACING, PropertyDefinition.PARAGRAPH_SPACING,
+			PropertyDefinition.SELECTION_COLOR, PropertyDefinition.SELECTED_FONT_COLOR]:
 		_style_target.register_property(prop, self)
 	super._ready()
 
@@ -37,47 +37,47 @@ func _apply_prop(key: String, value: Variant) -> void:
 	if not value:
 		return
 	match StringName(key):
-		ComponentProps.TEXT, ComponentProps.BBCODE_ENABLED:
+		PropertyDefinition.TEXT, PropertyDefinition.BBCODE_ENABLED:
 			_refresh_text()
-		ComponentProps.TEXT_ALIGN:
-			_rt.horizontal_alignment = ComponentProps.H_ALIGNS.get(StringName(str(value)), HORIZONTAL_ALIGNMENT_LEFT)
-		ComponentProps.TEXT_VALIGN:
-			_rt.vertical_alignment = ComponentProps.V_ALIGNS.get(StringName(str(value)), VERTICAL_ALIGNMENT_TOP)
-		ComponentProps.AUTOWRAP:
-			_rt.autowrap_mode = ComponentProps.AUTOWRAP_MODES.get(StringName(str(value)), TextServer.AUTOWRAP_WORD_SMART)
-		ComponentProps.FIT_CONTENT:
+		PropertyDefinition.TEXT_ALIGN:
+			_rt.horizontal_alignment = PropertyDefinition.H_ALIGNS.get(StringName(str(value)), HORIZONTAL_ALIGNMENT_LEFT)
+		PropertyDefinition.TEXT_VALIGN:
+			_rt.vertical_alignment = PropertyDefinition.V_ALIGNS.get(StringName(str(value)), VERTICAL_ALIGNMENT_TOP)
+		PropertyDefinition.AUTOWRAP:
+			_rt.autowrap_mode = PropertyDefinition.AUTOWRAP_MODES.get(StringName(str(value)), TextServer.AUTOWRAP_WORD_SMART)
+		PropertyDefinition.FIT_CONTENT:
 			_rt.fit_content = bool(value)
-		ComponentProps.SCROLL_ACTIVE:
+		PropertyDefinition.SCROLL_ACTIVE:
 			_rt.scroll_active = bool(value)
-		ComponentProps.SCROLL_FOLLOWING:
+		PropertyDefinition.SCROLL_FOLLOWING:
 			_rt.scroll_following = bool(value)
-		ComponentProps.SCROLL_FOLLOWING_VISIBLE:
+		PropertyDefinition.SCROLL_FOLLOWING_VISIBLE:
 			_rt.scroll_following_visible_characters = bool(value)
-		ComponentProps.SELECTION_ENABLED:
+		PropertyDefinition.SELECTION_ENABLED:
 			_rt.selection_enabled = bool(value)
-		ComponentProps.META_UNDERLINED:
+		PropertyDefinition.META_UNDERLINED:
 			_rt.meta_underlined = bool(value)
-		ComponentProps.HINT_UNDERLINED:
+		PropertyDefinition.HINT_UNDERLINED:
 			_rt.hint_underlined = bool(value)
-		ComponentProps.TAB_SIZE:
+		PropertyDefinition.TAB_SIZE:
 			_rt.tab_size = int(value)
-		ComponentProps.VISIBLE_CHARACTERS:
+		PropertyDefinition.VISIBLE_CHARACTERS:
 			_rt.visible_characters = int(value)
-		ComponentProps.VISIBLE_RATIO:
+		PropertyDefinition.VISIBLE_RATIO:
 			_rt.visible_ratio = float(value)
-		ComponentProps.AUTO_FONT_SIZE:
+		PropertyDefinition.AUTO_FONT_SIZE:
 			_rt.resize_font_to_fit = bool(value)
-		ComponentProps.MIN_FONT_SIZE:
+		PropertyDefinition.MIN_FONT_SIZE:
 			_rt.minimum_font_size = int(value)
-		ComponentProps.MAX_FONT_SIZE:
+		PropertyDefinition.MAX_FONT_SIZE:
 			_rt.maximum_font_size = int(value)
-		ComponentProps.WIDTH:
+		PropertyDefinition.WIDTH:
 			if int(value) >= 0: custom_minimum_size.x = value
-		ComponentProps.HEIGHT:
+		PropertyDefinition.HEIGHT:
 			if int(value) >= 0: custom_minimum_size.y = value
-		ComponentProps.MAX_WIDTH:
+		PropertyDefinition.MAX_WIDTH:
 			custom_maximum_size.x = float(value)   # < 0 = sem limite
-		ComponentProps.MAX_HEIGHT:
+		PropertyDefinition.MAX_HEIGHT:
 			custom_maximum_size.y = float(value)
 		_:
 			super._apply_prop(key, value)

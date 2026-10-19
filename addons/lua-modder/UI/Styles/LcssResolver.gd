@@ -32,4 +32,4 @@ static func _own_state(style_class: LCSSStyleClass) -> StringName:
 	if style_class.selectors.is_empty():
 		return &""
 	var last = style_class.selectors[style_class.selectors.size() - 1]
-	return last.state.name if last.state != null else &""
+	return last.state

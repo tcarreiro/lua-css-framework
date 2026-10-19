@@ -17,11 +17,11 @@ var _loop := true
 func get_schema() -> Dictionary:
 	return {
 		"name": "Sprite",
-		"props": ComponentProps.pick([
-			ComponentProps.TEXTURE, ComponentProps.HFRAMES, ComponentProps.VFRAMES,
-			ComponentProps.FRAME_COUNT, ComponentProps.FRAME, ComponentProps.FPS,
-			ComponentProps.DURATION, ComponentProps.LOOP, ComponentProps.PLAYING,
-			ComponentProps.WIDTH, ComponentProps.HEIGHT,
+		"props": PropertyDefinition.pick([
+			PropertyDefinition.TEXTURE, PropertyDefinition.HFRAMES, PropertyDefinition.VFRAMES,
+			PropertyDefinition.FRAME_COUNT, PropertyDefinition.FRAME, PropertyDefinition.FPS,
+			PropertyDefinition.DURATION, PropertyDefinition.LOOP, PropertyDefinition.PLAYING,
+			PropertyDefinition.WIDTH, PropertyDefinition.HEIGHT,
 		]),
 		"events": ["finished", "frame_changed"],
 		"methods": ["play", "pause", "stop", "set_frame"],
@@ -36,16 +36,16 @@ func _ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		ComponentProps.TEXTURE, ComponentProps.HFRAMES, ComponentProps.VFRAMES, ComponentProps.FRAME_COUNT:
+		PropertyDefinition.TEXTURE, PropertyDefinition.HFRAMES, PropertyDefinition.VFRAMES, PropertyDefinition.FRAME_COUNT:
 			_rebuild()
-		ComponentProps.FRAME:
+		PropertyDefinition.FRAME:
 			set_frame(int(value))
-		ComponentProps.LOOP:
+		PropertyDefinition.LOOP:
 			_loop = bool(value)
-		ComponentProps.PLAYING:
+		PropertyDefinition.PLAYING:
 			_playing = bool(value)
 			_refresh_processing()
-		ComponentProps.WIDTH, ComponentProps.HEIGHT:
+		PropertyDefinition.WIDTH, PropertyDefinition.HEIGHT:
 			_update_size()
 		_:
 			super._apply_prop(key, value)

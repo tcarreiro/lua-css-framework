@@ -28,10 +28,13 @@ const LCSS_FILE := ["res://demo/UI/Screens/screens.lcss", "res://addons/lua-modd
 	#}
 	#
 	#"""
-	
+	#LuaUi.lcss.register(text)
+	#LuaUi.load_file(LUA_DIR + LUA_FILES[1])
+	#var el := ComponentRegistry.make_element("MainMenu", {"on_navigate": Callable(self, "_on_navigate")})
+	#_screen = ComponentRegistry.instantiate(el) as LuaComponent
+	#add_child(_screen)
 	#var style_sheet := LCSSParser.parse(text)
-	#LuaUi.load_file(LUA_DIR + "main_menu.lua")
-	#show_screen("MainMenu")
+
 
 var settings := ReactiveDictionary.new({
 	"resolution_options": [
@@ -61,17 +64,18 @@ func _ready() -> void:
 	show_screen("MainMenu")
 
 
-func show_screen(component: String) -> void:
+func show_screen(component_name: String) -> void:
 	if is_instance_valid(_screen):
 		_screen.dispose()
 		_screen = null
 	LuaUi.release_drafts()
-	var el := ComponentRegistry.make_element(component, {"on_navigate": Callable(self, "_on_navigate")})
+	var el := ComponentRegistry.make_element(component_name, {"on_navigate": Callable(self, "_on_navigate")})
 	_screen = ComponentRegistry.instantiate(el) as LuaComponent
 	add_child(_screen)
 
 
 func _on_navigate(target: Variant) -> void:
+	# TODO: Add transition
 	match str(target):
 		"main_menu": show_screen("MainMenu")
 		"settings": show_screen("SettingsScreen")

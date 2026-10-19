@@ -1,5 +1,18 @@
+.menu-button {
+	background_image: texture('demo/assets/images/background.png');
+	scale: 1.0;
+}
+
+.menu-button:hover {
+	scale: 1.05;
+}
+
+.text-color-red {
+	font_color: #DE0000;
+}
+
 // ---------- telas ----------
-.menu-screen {
+/*.menu-screen {
 	//background_image: texture('demo/assets/images/background.png');
 	//background_image_slice: 24;
 	background_color: #000000;
@@ -161,3 +174,4 @@
 	drop_shadow_size: 16;
 }
 .dialog-message { font_size: 20; font_color: #e8ecff; }
+*/

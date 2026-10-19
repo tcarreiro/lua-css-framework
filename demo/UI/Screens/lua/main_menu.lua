@@ -11,7 +11,7 @@ UI.defineComponent("MainMenu", {
 			id = btn_id,
 			ref = btn_id,
 			label = label,
-			class = "menu-button",
+			class = "menu-screen menu-button",
 			on_pressed = function()
 				UI.playSoundEffect("click")
 				go(navigation_target)

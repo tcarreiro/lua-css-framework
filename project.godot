@@ -20,7 +20,7 @@ buses/default_bus_layout=""
 
 [autoload]
 
-ComponentRegistry="*res://addons/lua-modder/UI/Registries/ComponentRegistry.gd"
+ComponentRegistry="*res://addons/lua-modder/UI/Registries/component_registry.gd"
 LuaUi="*res://addons/lua-modder/UI/LuaUi.gd"
 LuaBridgeRegistry="*res://addons/lua-modder/LuaBridgeRegistry.gd"
 
