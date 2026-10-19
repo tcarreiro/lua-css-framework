@@ -7,6 +7,9 @@ UI.defineComponent("MainMenu", {
 	end
 
 	local function button(btn_id, label, navigation_target, class_on_hover)
+		if class_on_hover == nil then
+			class_on_hover = ""
+		end
 		return Button{ 
 			id = btn_id,
 			ref = btn_id,
@@ -34,15 +37,15 @@ UI.defineComponent("MainMenu", {
 						children = {
 							-- 60%: a logo
 							Div{ class = 'menu-logo', flex_grow = 60, align_items = 'center', children = {
-								--Sprite{ texture = 'demo/assets/images/logo.png', width = 800, height = 500 }, -- get texture path from GameConfig
+								--Sprite{ texture = 'res://demo/assets/images/logo.png', width = 800, height = 500 }, -- get texture path from GameConfig
 								Stack{ 
 									children = {
 										ParticleEmitter{ amount = 40, color = '#7a8cff', blend = 'add', particle_scale = { 0.5, 0.8 } },
-										Sprite{ texture = 'demo/assets/images/logo.png', width = 800, height = 500 },
+										Sprite{ texture = 'res://demo/assets/images/logo.png', width = 800, height = 500 },
 										ShaderEffect{ ref = 'hero_fx', effect = 'scanlines', params = { intensity = 0.6 } },
 										ShaderEffect{ ref = 'hero_fx', effect = 'vignette', params = { intensity = 1 } },
 										ParticleEmitter{
-											amount = 40, texture = "demo/assets/images/T_VFX_RoundSmoke71.png", emit_angle = -90, -- get texture path from GameConfig
+											amount = 40, texture = "res://demo/assets/images/T_VFX_RoundSmoke71.png", emit_angle = -90, -- get texture path from GameConfig
 											spread = 30, speed = { 40, 80 }, color = '#ffd27a',
 											color_end = '#ff4000', blend = 'add', particle_scale = { 0.2, 0.3 },
 										},
