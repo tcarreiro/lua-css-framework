@@ -2,7 +2,7 @@
 extends EditorPlugin
 
 const AUTOLOAD_COMPONENT_REGISTRY_NAME := "ComponentRegistry"
-const AUTOLOAD_COMPONENT_REGISTRY_PATH := "res://addons/lua-modder/UI/Registries/ComponentRegistry.gd"
+const AUTOLOAD_COMPONENT_REGISTRY_PATH := "res://addons/lua-modder/UI/Registries/component_registry.gd"
 
 const AUTOLOAD_LUA_UI_NAME := "LuaUi"
 const AUTOLOAD_LUA_UI_PATH := "res://addons/lua-modder/UI/LuaUi.gd"

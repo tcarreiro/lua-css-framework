@@ -29,7 +29,7 @@ const _TYPE_NAMES := {
 ## Cache das props base, montado na primeira consulta (ver base_props()).
 static var _base_props: Dictionary = {}
 
-var _defs: Dictionary = {}   # nome -> definição
+var _defs: Dictionary[StringName, ComponentDefinition] = {}   # component_name -> definição
 var _refs: Dictionary = {}   # ref -> WeakRef(LuaComponent)
 
 
@@ -71,52 +71,54 @@ func register_scene_path(path: String, name_override := "") -> bool:
 ## Registra uma cena cuja raiz herda LuaComponent. O nome vem, nesta ordem, de
 ## `name_override`, do `name` do schema ou do nome do arquivo.
 func register_scene(scene: PackedScene, name_override := "", source := "") -> bool:
-	# a instância "sonda" só serve para ler o schema; nunca entra na árvore
-	var probe := scene.instantiate()
-	if not probe is LuaComponent:
+	var schema := _extract_schema_from_scene(scene)
+	if schema.is_empty():
 		push_error("[ComponentRegistry] raiz de '%s' precisa herdar LuaComponent" % source)
-		probe.free()
-		return false
-	var schema := normalize_schema(probe.get_schema())
-	probe.free()
-
-	var component := name_override
-	if component == "":
-		component = schema.get("name", "")
-	if component == "" and source != "":
-		component = source.get_file().get_basename()
-	if component == "":
-		push_error("[ComponentRegistry] componente sem nome (%s)" % source)
 		return false
 
-	return _register({
-		"name": component, "kind": Kind.SCENE, "schema": schema,
-		"scene": scene, "source": source,
-	})
+	var component_name := name_override
+	if component_name == "":
+		component_name = schema.get("name", "")
+	if component_name == "" and source != "":
+		component_name = source.get_file().get_basename()
+	if component_name == "":
+		push_error("[ComponentRegistry] Please, supply a component name on: (%s)" % source)
+		return false
+	return _register(ComponentDefinition.new(component_name, Kind.SCENE,
+			schema, source, scene))
 
 
 ## Registra um componente definido em Lua. `definition` é a tabela já normalizada:
 ## { props, events, hooks, methods, slots, render }. O `render` é obrigatório.
-func register_lua(component: String, definition: Dictionary) -> bool:
+func register_lua(component_name: String, definition: Dictionary) -> bool:
 	var render := LuaHelper.make_callable(definition.get("render"))
 	if not render.is_valid():
-		push_error("[ComponentRegistry] '%s': definição Lua sem função `render`" % component)
+		push_error("[ComponentRegistry] '%s': definição Lua sem função `render`" % component_name)
 		return false
-	return _register({
-		"name": component, "kind": Kind.LUA, "schema": normalize_schema(definition),
-		"render": render, "source": "lua",
-	})
+	return _register(ComponentDefinition.new(component_name, Kind.LUA,
+			normalize_schema(definition), "lua", null, render))
 
 
 ## Nome duplicado é ignorado com aviso: vale o primeiro que foi registrado.
-func _register(def: Dictionary) -> bool:
-	var component: String = def.name
-	if _defs.has(component):
-		push_warning("[ComponentRegistry] '%s' já registrado (%s), ignorando." % [component, _defs[component].source])
+func _register(def: ComponentDefinition) -> bool:
+	var component_name: String = def.name
+	if _defs.has(component_name):
+		push_warning("[ComponentRegistry] '%s' já registrado (%s), ignorando." % [component_name, _defs[component_name].source])
 		return false
-	_defs[component] = def
-	component_registered.emit(component)
+	_defs[component_name] = def
+	component_registered.emit(component_name)
 	return true
+
+
+func _extract_schema_from_scene(scene: PackedScene) -> Dictionary:
+	# a instância "sonda" só serve para ler o schema; nunca entra na árvore
+	var probe := scene.instantiate()
+	if not probe is LuaComponent:
+		probe.free()
+		return {}
+	var schema := normalize_schema(probe.get_schema())
+	probe.free()
+	return schema
 #endregion
 
 
@@ -137,11 +139,11 @@ static func get_prop_def(schema: Dictionary, key: String) -> Dictionary:
 
 #region Base props
 ## Props que TODO componente aceita, sem precisar declarar no schema. Quem as aplica
-## é o LuaComponent. A lista fica em ComponentProps.BASE e as definições (tipo, default,
+## é o LuaComponent. A lista fica em PropertyDefinition.BASE e as definições (tipo, default,
 ## doc) vêm do catálogo, para existir uma fonte de verdade só.
 static func base_props() -> Dictionary:
 	if _base_props.is_empty():
-		_base_props = ComponentProps.pick(ComponentProps.BASE)
+		_base_props = PropertyDefinition.pick(PropertyDefinition.BASE)
 	return _base_props
 #endregion
 
@@ -154,14 +156,15 @@ static func base_props() -> Dictionary:
 ##   on_<evento>     -> handler (evento declarado em schema.events)
 ##   <hook>          -> handler (declarado em schema.hooks)
 ## Chave que o schema não declara gera aviso, mas segue adiante para não perder o valor.
-func make_element(component: String, raw: Dictionary) -> UIElement:
-	var def: Dictionary = _defs.get(component, {})
-	if def.is_empty():
-		push_error("[ComponentRegistry] componente desconhecido: '%s'" % component)
+func make_element(component_name: String, raw: Dictionary) -> UIElement:
+	# Raw represents overriden props as dictionary
+	var def: ComponentDefinition = _defs.get(component_name, null)
+	if def == null:
+		push_error("[ComponentRegistry] componente desconhecido: '%s'" % component_name)
 		return null
 	var schema: Dictionary = def.schema
 	var base := base_props()
-	var el := UIElement.new(component)
+	var el := UIElement.new(component_name)
 
 	for key: String in raw:
 		var value: Variant = raw[key]
@@ -183,7 +186,7 @@ func make_element(component: String, raw: Dictionary) -> UIElement:
 				elif base.has(key) or schema.props.has(key):
 					el.props[key] = value
 				else:
-					push_warning("[ComponentRegistry] '%s' não declara '%s'" % [component, key])
+					push_warning("[ComponentRegistry] '%s' não declara '%s'" % [component_name, key])
 					if key.begins_with("on_"):
 						el.handlers[key] = LuaHelper.make_callable(value)
 					else:
@@ -210,11 +213,11 @@ func instantiate(el: UIElement, depth := 0) -> Control:
 	if el == null:
 		return null
 	if depth > MAX_DEPTH:
-		push_error("[ComponentRegistry] profundidade máxima excedida (render recursivo?) em '%s'" % el.component)
+		push_error("[ComponentRegistry] profundidade máxima excedida (render recursivo?) em '%s'" % el.component_name)
 		return null
-	var def: Dictionary = _defs.get(el.component, {})
-	if def.is_empty():
-		push_error("[ComponentRegistry] componente desconhecido: '%s'" % el.component)
+	var def: ComponentDefinition = _defs.get(el.component_name, null)
+	if def == null:
+		push_error("[ComponentRegistry] componente desconhecido: '%s'" % el.component_name)
 		return null
 	match def.kind:
 		Kind.SCENE:
@@ -226,13 +229,13 @@ func instantiate(el: UIElement, depth := 0) -> Control:
 
 ## Cena: instancia o PackedScene, entrega props já resolvidas e handlers pelo setup()
 ## (antes de entrar na árvore) e pendura os filhos nos slots declarados no schema.
-func _instantiate_scene(def: Dictionary, el: UIElement, depth: int) -> Control:
+func _instantiate_scene(def: ComponentDefinition, el: UIElement, depth: int) -> Control:
 	var node := (def.scene as PackedScene).instantiate() as LuaComponent
-	node.setup(el.component, resolve_props(def.schema, el.props), el.handlers, def.schema, el.bindings)
+	node.setup(el.component_name, resolve_props(def.schema, el.props), el.handlers, def.schema, el.bindings)
 	for slot_name: String in el.slots:
 		var host := node.get_slot(slot_name)
 		if host == null:
-			push_error("[ComponentRegistry] '%s' não tem o slot '%s'" % [el.component, slot_name])
+			push_error("[ComponentRegistry] '%s' não tem o slot '%s'" % [el.component_name, slot_name])
 			continue
 		for child_el: UIElement in el.slots[slot_name]:
 			var child := instantiate(child_el, depth + 1)
@@ -245,7 +248,7 @@ func _instantiate_scene(def: Dictionary, el: UIElement, depth: int) -> Control:
 ## Lua: chama o render() com props, handlers, children e slots, e instancia o
 ## UIElement que ele devolve. Não cria nó nenhum: o resultado é sempre uma cena
 ## (ou mais um componente Lua, que repete o processo).
-func _instantiate_lua(def: Dictionary, el: UIElement, depth: int) -> Control:
+func _instantiate_lua(def: ComponentDefinition, el: UIElement, depth: int) -> Control:
 	var args := resolve_props(def.schema, el.props)
 	args.merge(el.handlers)
 	args["children"] = el.slots.get("default", [])
@@ -257,7 +260,7 @@ func _instantiate_lua(def: Dictionary, el: UIElement, depth: int) -> Control:
 
 	var result: Variant = (def.render as Callable).call(args)
 	if not result is UIElement:
-		push_error("[ComponentRegistry] render de '%s' deve retornar um componente (retornou %s)" % [el.component, result])
+		push_error("[ComponentRegistry] render de '%s' deve retornar um componente (retornou %s)" % [el.component_name, result])
 		return null
 	# o ref passa para o elemento renderizado, então aponta sempre para um nó real
 	if el.ref != "" and result.ref == "":
@@ -267,7 +270,7 @@ func _instantiate_lua(def: Dictionary, el: UIElement, depth: int) -> Control:
 
 
 #region Refs (Lua -> métodos expostos)
-## Guarda o nó por nome. A referência é fraca e some sozinha quando o nó sai da árvore.
+## Guarda o nó por nome
 func _track_ref(node: LuaComponent, ref: String) -> void:
 	if ref == "":
 		return

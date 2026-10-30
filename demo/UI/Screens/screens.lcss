@@ -33,11 +33,11 @@
 .menu-button:hover {
 	background_color: #3a4260;
 	scale: 1.08;
-	rotate: -2;
 	animation_name: hang;
-	animation_duration: 1.2s;
+	animation_duration: 5s;
 	animation_easing: ease_in_out;
 	animation_iterations: infinite;
+	transform_origin: 0.5 -0.5;
 }
 
 .menu-button:pressed {
@@ -48,7 +48,7 @@
 
 .menu-button:disabled { background_color: #20232d; border_color: #2e3345; font_color: #6b7088; }
 
-.text-color-red {
+.menu-button.text-color-red:hover {
 	font_color: #DE0000;
 }
 
@@ -61,9 +61,10 @@
 @keyframes wobble { from { rotate: -3; } to { rotate: 3; } }
 
 @keyframes hang {
-	0% { rotate: -3; }
-	33% { rotate: 0; }
-	67% {rotate: 3;}
+	0% { rotate: 0; }
+	25% { rotate: -8; }
+	50% {rotate: 0;}
+	75% {rotate: 8;}
 	100% { rotate: 0; }
 }
 

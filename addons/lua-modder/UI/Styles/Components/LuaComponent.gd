@@ -1,7 +1,6 @@
 class_name LuaComponent extends Control
-## Raiz de todo componente. NÃO força tamanho/posição — quem decide isso é o
-## pai (LuaFlowBox aplica block/flex; um componente fora de um slot flow usa
-## o tamanho natural do próprio root, como sempre foi no Godot).
+## Raiz de todo componente. Um componente fora de um slot flow usa
+## o tamanho natural do próprio root
 
 signal prop_changed(key: String, value: Variant)
 signal disposing
@@ -12,9 +11,9 @@ const BASE_METHODS: Array[String] = ["add_class", "remove_class", "toggle_class"
 const DRAG_EVENTS := ["drag_started", "drag_ended"]
 
 var component_name: String = ""
+var component_id: String = ""
 var props: Dictionary = {}
 var handlers: Dictionary = {}
-var component_id: String = ""
 
 ## Classes LCSS atribuídas via prop "class".
 var style_classes: Array[StringName] = []
@@ -96,30 +95,30 @@ func set_prop(key: String, value: Variant) -> void:
 
 
 func _apply_prop_internal(key: String, value: Variant) -> void:
-	if ComponentProps.DRAG_GRP.has(StringName(key)):
+	if PropertyDefinition.DRAG_GRP.has(StringName(key)):
 		_apply_drag_prop(StringName(key))
 		return
 	match key:
-		ComponentProps.ID:
+		PropertyDefinition.ID:
 			component_id = value
 			if value != "":
 				name = value
-		ComponentProps.CLASS:
+		PropertyDefinition.CLASS:
 			style_classes = LuaHelper.parse_style_classes(value)
 			_refresh_style(true, _is_ready)
-		ComponentProps.VISIBLE:
+		PropertyDefinition.VISIBLE:
 			visible = value
-		ComponentProps.TOOLTIP:
+		PropertyDefinition.TOOLTIP:
 			tooltip_text = value
-		ComponentProps.FLEX_GROW:
+		PropertyDefinition.FLEX_GROW:
 			_apply_flex_grow(float(value))
-		ComponentProps.ALIGN_SELF:
+		PropertyDefinition.ALIGN_SELF:
 			_apply_align_self(StringName(str(value)))
-		ComponentProps.JUSTIFY_SELF:
+		PropertyDefinition.JUSTIFY_SELF:
 			_apply_justify_self(StringName(str(value)))
-		ComponentProps.POINTER_EVENTS:
+		PropertyDefinition.POINTER_EVENTS:
 			mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED if str(value) == "none" else Control.MOUSE_BEHAVIOR_INHERITED
-		ComponentProps.EFFECTS:
+		PropertyDefinition.EFFECTS:
 			_apply_effects(value)
 		_:
 			_apply_prop(key, value)
@@ -161,7 +160,7 @@ func _drag_handle_node() -> Control:
 
 
 func _apply_drag_prop(key: StringName) -> void:
-	if key == ComponentProps.DRAG_HANDLE:
+	if key == PropertyDefinition.DRAG_HANDLE:
 		if _is_ready:
 			_notify_ancestor_drag()   # handle novo ou removido em runtime
 		return
@@ -194,7 +193,7 @@ func _refresh_drag() -> void:
 		enabled,
 		StringName(str(props.get("drag_mode", "hold"))),
 		StringName(str(props.get("drag_bounds", "viewport"))),
-		ComponentProps.CURSORS.get(StringName(str(props.get("drag_cursor", "move"))), Control.CURSOR_MOVE))
+		PropertyDefinition.CURSORS.get(StringName(str(props.get("drag_cursor", "move"))), Control.CURSOR_MOVE))
 	_refresh_drag_handles()
 
 
@@ -368,12 +367,12 @@ func _on_binding_changed(key: String, binding: LuaBinding) -> void:
 
 #region Model
 func _has_model() -> bool:
-	return _bindings.has(String(ComponentProps.MODEL))
+	return _bindings.has(String(PropertyDefinition.MODEL))
 
 
 ## Componentes de valor chamam isto quando o USUÁRIO muda o valor.
 func _write_model(value: Variant) -> void:
-	var model := _bindings.get(String(ComponentProps.MODEL)) as LuaModel
+	var model := _bindings.get(String(PropertyDefinition.MODEL)) as LuaModel
 	if model != null:
 		model.write(value)
 #endregion
@@ -381,12 +380,12 @@ func _write_model(value: Variant) -> void:
 
 #region Flow (layout dentro de um LuaFlowBox)
 func _apply_flex_grow(grow: float) -> void:
-	set_meta(ComponentProps.FLEX_GROW, grow)
+	set_meta(PropertyDefinition.FLEX_GROW, grow)
 	_refresh_in_parent_flow()
 
 
 func _apply_align_self(value: StringName) -> void:
-	set_meta(ComponentProps.ALIGN_SELF, value)
+	set_meta(PropertyDefinition.ALIGN_SELF, value)
 	_refresh_in_parent_flow()
 
 

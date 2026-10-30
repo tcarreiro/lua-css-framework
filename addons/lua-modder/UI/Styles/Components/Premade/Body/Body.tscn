@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c36k3q5jgjgfo"]
 
 [ext_resource type="Script" uid="uid://d3d02iy87b8ji" path="res://addons/lua-modder/UI/Styles/Components/Premade/Body/Body.gd" id="1_853n7"]
-[ext_resource type="Script" uid="uid://bspsj7f8qcc7d" path="res://addons/lua-modder/UI/Styles/Components/LuaFlowBox.gd" id="2_x4o8t"]
+[ext_resource type="Script" uid="uid://bspsj7f8qcc7d" path="res://addons/lua-modder/UI/Styles/Components/Classes/LuaFlowBox.gd" id="2_x4o8t"]
 
 [node name="Body" type="Control" unique_id=267961683]
 layout_mode = 3

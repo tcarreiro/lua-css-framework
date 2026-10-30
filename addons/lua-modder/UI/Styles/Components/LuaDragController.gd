@@ -12,8 +12,8 @@ var _default_handle: Control
 var _custom_handles: Array[Control] = []
 
 var _enabled := false
-var _mode: StringName = ComponentProps.HOLD
-var _bounds: StringName = ComponentProps.VIEWPORT
+var _mode: StringName = PropertyDefinition.HOLD
+var _bounds: StringName = PropertyDefinition.VIEWPORT
 var _hover_cursor: Control.CursorShape = Control.CURSOR_MOVE
 
 var _connected: Dictionary = {}     # handle -> Callable (gui_input)
@@ -128,15 +128,15 @@ func _input(event: InputEvent) -> void:
 	if not _dragging:
 		return
 	if event is InputEventMouseMotion:
-		if _mode == ComponentProps.HOLD and not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		if _mode == PropertyDefinition.HOLD and not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 			_stop()   # soltou fora da janela do jogo
 			return
 		_update()
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if _mode == ComponentProps.HOLD and not event.pressed:
+		if _mode == PropertyDefinition.HOLD and not event.pressed:
 			_update()
 			_stop()
-		elif _mode == ComponentProps.TOGGLE and event.pressed:
+		elif _mode == PropertyDefinition.TOGGLE and event.pressed:
 			get_viewport().set_input_as_handled()
 			_update()
 			_stop()
@@ -144,7 +144,7 @@ func _input(event: InputEvent) -> void:
 
 func _update() -> void:
 	var mouse := _moving.get_global_mouse_position()
-	if _bounds == ComponentProps.VIEWPORT:
+	if _bounds == PropertyDefinition.VIEWPORT:
 		var screen := get_viewport().get_visible_rect()
 		mouse = mouse.clamp(screen.position, screen.end)
 	var delta := mouse - _grab_mouse

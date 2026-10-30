@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://drshul4x3q63p"]
 
 [ext_resource type="Script" uid="uid://d0v5fk8gmvud4" path="res://addons/lua-modder/UI/Styles/Components/Premade/Stack/Stack.gd" id="1_4o532"]
-[ext_resource type="Script" uid="uid://qlxtfsxtx83g" path="res://addons/lua-modder/UI/Styles/Components/LuaStackBox.gd" id="2_g6vwg"]
+[ext_resource type="Script" uid="uid://qlxtfsxtx83g" path="res://addons/lua-modder/UI/Styles/Components/Classes/LuaStackBox.gd" id="2_g6vwg"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_h0j6j"]
 

@@ -79,7 +79,11 @@ static func parse_color(value) -> Color:
 	return Color.WHITE
 
 
-static func parse_distributable(value) -> Array:
+static func parse_distributable(_val) -> Array:
+	var value = _val
+	if _val is LCSSProperty:
+		value = _val.value
+	
 	if value == null:
 		return [0.0, 0.0, 0.0, 0.0]
 

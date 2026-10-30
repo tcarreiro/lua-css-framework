@@ -1,4 +1,4 @@
-class_name ComponentProps extends RefCounted
+class_name PropertyDefinition extends RefCounted
 ## Catálogo de props de componente. Os componentes escolhem o que aceitam
 ## via pick() e só podem sobrescrever o default.
 
@@ -566,7 +566,7 @@ static func pick(names: Array, defaults: Dictionary = {}, prefix: String = "") -
 	for n in expand(names):
 		var key := String(n)
 		if not all.has(key):
-			push_warning("[ComponentProps] prop desconhecida: '%s'" % key)
+			push_warning("[PropertyDefinition] prop desconhecida: '%s'" % key)
 			continue
 		var def: Dictionary = all[key].duplicate(true)
 		if overrides.has(key):
@@ -575,7 +575,7 @@ static func pick(names: Array, defaults: Dictionary = {}, prefix: String = "") -
 
 	for key in overrides:
 		if not out.has(prefix + key):
-			push_warning("[ComponentProps] default para prop que não está no pick: '%s'" % key)
+			push_warning("[PropertyDefinition] default para prop que não está no pick: '%s'" % key)
 	return out
 
 

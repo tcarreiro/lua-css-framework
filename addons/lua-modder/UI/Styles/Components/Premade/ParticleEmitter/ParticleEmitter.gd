@@ -10,13 +10,13 @@ var _additive: CanvasItemMaterial
 func get_schema() -> Dictionary:
 	return {
 		"name": "ParticleEmitter",
-		"props": ComponentProps.pick([
-			ComponentProps.EMITTING, ComponentProps.AMOUNT, ComponentProps.LIFETIME, ComponentProps.ONE_SHOT,
-			ComponentProps.EXPLOSIVENESS, ComponentProps.RANDOMNESS, ComponentProps.PREWARM,
-			ComponentProps.SHAPE, ComponentProps.EMIT_ANGLE, ComponentProps.SPREAD, ComponentProps.SPEED,
-			ComponentProps.GRAVITY, ComponentProps.PARTICLE_SCALE, ComponentProps.COLOR, ComponentProps.COLOR_END,
-			ComponentProps.BLEND, ComponentProps.TEXTURE, ComponentProps.CLIP,
-			ComponentProps.WIDTH, ComponentProps.HEIGHT,
+		"props": PropertyDefinition.pick([
+			PropertyDefinition.EMITTING, PropertyDefinition.AMOUNT, PropertyDefinition.LIFETIME, PropertyDefinition.ONE_SHOT,
+			PropertyDefinition.EXPLOSIVENESS, PropertyDefinition.RANDOMNESS, PropertyDefinition.PREWARM,
+			PropertyDefinition.SHAPE, PropertyDefinition.EMIT_ANGLE, PropertyDefinition.SPREAD, PropertyDefinition.SPEED,
+			PropertyDefinition.GRAVITY, PropertyDefinition.PARTICLE_SCALE, PropertyDefinition.COLOR, PropertyDefinition.COLOR_END,
+			PropertyDefinition.BLEND, PropertyDefinition.TEXTURE, PropertyDefinition.CLIP,
+			PropertyDefinition.WIDTH, PropertyDefinition.HEIGHT,
 		]),
 		"methods": ["restart"],
 	}
@@ -30,10 +30,10 @@ func _component_ready() -> void:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	match StringName(key):
-		ComponentProps.WIDTH:
+		PropertyDefinition.WIDTH:
 			if int(value) >= 0:
 				custom_minimum_size.x = value
-		ComponentProps.HEIGHT:
+		PropertyDefinition.HEIGHT:
 			if int(value) >= 0:
 				custom_minimum_size.y = value
 		_:
@@ -59,7 +59,7 @@ func _configure() -> void:
 	_particles.explosiveness = clampf(float(props.get("explosiveness", 0.0)), 0.0, 1.0)
 	_particles.randomness = clampf(float(props.get("randomness", 0.0)), 0.0, 1.0)
 	_particles.preprocess = maxf(float(props.get("prewarm", 0.0)), 0.0)
-	_particles.emission_shape = ComponentProps.EMIT_SHAPES.get(
+	_particles.emission_shape = PropertyDefinition.EMIT_SHAPES.get(
 		StringName(str(props.get("shape", "box"))), CPUParticles2D.EMISSION_SHAPE_RECTANGLE)
 	_particles.direction = Vector2.from_angle(deg_to_rad(float(props.get("emit_angle", -90.0))))
 	_particles.spread = float(props.get("spread", 25.0))
@@ -77,16 +77,16 @@ func _configure() -> void:
 
 	if _additive == null:
 		_additive = CanvasItemMaterial.new()
-	match str(props.get(ComponentProps.BLEND, ComponentProps.MIX)):
-		ComponentProps.ADD:
+	match str(props.get(PropertyDefinition.BLEND, PropertyDefinition.MIX)):
+		PropertyDefinition.ADD:
 			_additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-		ComponentProps.MULTIPLY:
+		PropertyDefinition.MULTIPLY:
 			_additive.blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
-		ComponentProps.MIX:
+		PropertyDefinition.MIX:
 			_additive.blend_mode = CanvasItemMaterial.BLEND_MODE_MIX
-		ComponentProps.PREMULTIPLIED_ALPHA:
+		PropertyDefinition.PREMULTIPLIED_ALPHA:
 			_additive.blend_mode = CanvasItemMaterial.BLEND_MODE_PREMULT_ALPHA
-		ComponentProps.SUBTRACT:
+		PropertyDefinition.SUBTRACT:
 			_additive.blend_mode = CanvasItemMaterial.BLEND_MODE_SUB
 	_particles.material = _additive
 

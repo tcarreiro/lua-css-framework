@@ -7,32 +7,24 @@ UI.defineComponent("MainMenu", {
 	end
 
 	local function button(btn_id, label, navigation_target, class_on_hover)
+		if class_on_hover == nil then
+			class_on_hover = ""
+		end
 		return Button{ 
 			id = btn_id,
 			ref = btn_id,
 			label = label,
-			class = "menu-button",
+			class = "menu-button " .. class_on_hover,
 			on_pressed = function()
-				UI.callMethod('click_fx', 'set_param', { 'intensity', 0.9 })
 				UI.playSoundEffect("click")
 				go(navigation_target)
 			end,
 			on_mouse_entered = function()
-				if class_on_hover then
-					UI.callMethod(btn_id, "add_class", { class_on_hover })
-				end
 				UI.playSoundEffect("hover")
 			end,
-			on_mouse_exited = function()
-				if class_on_hover then
-					UI.callMethod(btn_id, "remove_class", { class_on_hover })
-				end
-			end
 		}
 	end
 	
-	local click_particle = ParticleEmitter{ ref = "click_fx", amount = 100, color = '#7a8cff', blend = 'add', one_shot = true }
-
 	return Body{
 		children = {
 			Div{
@@ -45,15 +37,15 @@ UI.defineComponent("MainMenu", {
 						children = {
 							-- 60%: a logo
 							Div{ class = 'menu-logo', flex_grow = 60, align_items = 'center', children = {
-								--Sprite{ texture = 'demo/assets/images/logo.png', width = 800, height = 500 }, -- get texture path from GameConfig
+								--Sprite{ texture = 'res://demo/assets/images/logo.png', width = 800, height = 500 }, -- get texture path from GameConfig
 								Stack{ 
 									children = {
 										ParticleEmitter{ amount = 40, color = '#7a8cff', blend = 'add', particle_scale = { 0.5, 0.8 } },
-										Sprite{ texture = 'demo/assets/images/logo.png', width = 800, height = 500 },
+										Sprite{ texture = 'res://demo/assets/images/logo.png', width = 800, height = 500 },
 										ShaderEffect{ ref = 'hero_fx', effect = 'scanlines', params = { intensity = 0.6 } },
 										ShaderEffect{ ref = 'hero_fx', effect = 'vignette', params = { intensity = 1 } },
 										ParticleEmitter{
-											amount = 40, texture = "demo/assets/images/T_VFX_RoundSmoke71.png", emit_angle = -90, -- get texture path from GameConfig
+											amount = 40, texture = "res://demo/assets/images/T_VFX_RoundSmoke71.png", emit_angle = -90, -- get texture path from GameConfig
 											spread = 30, speed = { 40, 80 }, color = '#ffd27a',
 											color_end = '#ff4000', blend = 'add', particle_scale = { 0.2, 0.3 },
 										},
@@ -66,8 +58,8 @@ UI.defineComponent("MainMenu", {
 									Div{flex_grow = 1},
 									Div{ flex_grow = 1, gap = 20, alignment = 'end',
 										children = {
-											button("play_btn", "PLAY", "play", nil),
-											button("settings_btn", "SETTINGS", "settings", nil),
+											button("play_btn", "PLAY", "play", ""),
+											button("settings_btn", "SETTINGS", "settings", ""),
 											button("quit_btn", "QUIT", "quit", "text-color-red"),
 										}
 									},
