@@ -120,6 +120,8 @@ func register_transitions() -> void:
 ## a partir dele
 func enable_transitions() -> void:
 	_transitions_enabled = true
+	if _last_style != null:
+		_update_animation(_last_style, _last_overrides)
 
 
 func unregister_property(context: StringName) -> void:

@@ -1,29 +1,29 @@
 UI.defineComponent("MainMenu", {
-  events = { "navigate" }, -- Declara o evento 'navigate'. Quem usa o componente recebe o handler em p.on_navigate
-  render = function(p)
+	events = { "navigate" }, -- Declara o evento 'navigate'. Quem usa o componente recebe o handler em p.on_navigate
+	render = function(p)
 
-	local function go(target)
-		if p.on_navigate then p.on_navigate(target) end
-	end
-
-	local function button(btn_id, label, navigation_target, class_on_hover)
-		if class_on_hover == nil then
-			class_on_hover = ""
+		local function go(target)
+			if p.on_navigate then p.on_navigate(target) end
 		end
-		return Button{ 
-			id = btn_id,
-			ref = btn_id,
-			label = label,
-			class = "menu-button " .. class_on_hover,
-			on_pressed = function()
-				UI.playSoundEffect("click")
-				go(navigation_target)
-			end,
-			on_mouse_entered = function()
-				UI.playSoundEffect("hover")
-			end,
-		}
-	end
+
+		local function button(btn_id, label, navigation_target, class_on_hover)
+			if class_on_hover == nil then
+				class_on_hover = ""
+			end
+			return Button{ 
+				id = btn_id,
+				ref = btn_id,
+				label = label,
+				class = "menu-button " .. class_on_hover,
+				on_pressed = function()
+					UI.playSoundEffect("click")
+					go(navigation_target)
+				end,
+				on_mouse_entered = function()
+					UI.playSoundEffect("hover")
+				end,
+			}
+		end
 	
 	return Body{
 		children = {
