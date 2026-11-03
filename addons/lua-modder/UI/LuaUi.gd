@@ -50,6 +50,7 @@ func load_lcss(path: String) -> void:
 ## O host registra o que o Lua pode enxergar. Nada fora desta lista é acessível.
 func expose_store(store_name: String, store: ReactiveDictionary) -> void:
 	_stores[store_name] = store
+	_root_handles.erase(store_name)   # sem isto, UI.store() devolveria o handle da store ANTIGA
 
 
 func make_draft(source: LuaStoreHandle) -> Dictionary:
