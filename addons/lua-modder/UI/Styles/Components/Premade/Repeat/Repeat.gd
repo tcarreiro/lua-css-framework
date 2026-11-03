@@ -47,13 +47,13 @@ func _rebuild(items: Array) -> void:
 
 	var render_item: Callable = handlers.get("render_item", Callable())
 	if not render_item.is_valid():
-		push_warning("[Repeat] falta o hook render_item")
+		push_warning("[Repeat] render_item hook missing")
 		return
 
 	for i in items.size():
 		var el: Variant = render_item.call(items[i], i)
 		if not el is UIElement:
-			push_warning("[Repeat] render_item deve retornar um componente (item %d)" % i)
+			push_warning("[Repeat] render_item must return a LuaComponent (item %d)" % i)
 			continue
 		var node := ComponentRegistry.instantiate(el as UIElement)
 		if node != null:

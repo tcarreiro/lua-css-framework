@@ -1,5 +1,7 @@
 class_name LuaHelper extends RefCounted
 
+static var error_hook: Callable = Callable()
+
 static func call_by_name(lua_state: LuaState, function_name: String, args: Array = []):
 	var fn = lua_state.globals[function_name]
 	if not (fn is LuaFunction):
@@ -14,7 +16,14 @@ static func call_by_name(lua_state: LuaState, function_name: String, args: Array
 	return result
 
 
-static func make_callable(value) -> Callable:
+static func report_error(context: String, error: LuaError) -> void:
+	var where := context if context != "" else "função Lua"
+	push_error("[Lua] %s: %s" % [where, error.message])
+	if error_hook.is_valid():
+		error_hook.call(where, str(error.message))
+
+
+static func make_callable(value, context := "") -> Callable:
 	if value is Callable:
 		return value
 
@@ -22,11 +31,12 @@ static func make_callable(value) -> Callable:
 		return func(...args):
 			var r = value.invoke.callv(args)
 			if r is LuaError:
-				push_error("[LuaHelper] erro ao chamar função Lua: %s" % r)
+				report_error(context, r)
 				return null
 			return r
 
-	push_warning("[LuaHelper] Unexpected callback value: %s" % typeof(value))
+	if value != null:
+		push_warning("[LuaHelper] %s: lua function expected. Instead, %s" % [context if context != "" else "callback", type_string(typeof(value))])
 	return Callable()
 
 
@@ -77,6 +87,27 @@ static func parse_color(value) -> Color:
 		return Color(float(value[0]), float(value[1]), float(value[2]), alpha)
 
 	return Color.WHITE
+
+
+static func parse_padding(value) -> Array:
+	if value == null:
+		return [0.0, 0.0, 0.0, 0.0]
+
+	if value is int or value is float:
+		var v := float(value)
+		return [v, v, v, v]
+
+	if value is Array:
+		if value.size() == 2:
+			var h := float(value[0])
+			var v := float(value[1])
+			return [h, v, h, v]
+
+		if value.size() == 4:
+			return [float(value[0]), float(value[1]), float(value[2]), float(value[3])]
+
+	push_warning("[LuaUiFactory] padding inválido: %s" % str(value))
+	return [0.0, 0.0, 0.0, 0.0]
 
 
 static func parse_distributable(_val) -> Array:
