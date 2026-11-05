@@ -181,7 +181,7 @@ func make_element(component_name: String, raw: Dictionary) -> UIElement:
 			"ref":
 				el.ref = str(value)
 			_:
-				if (key.begins_with("on_") and key.substr(3) in schema.events) or key in schema.hooks:
+				if (key.begins_with("on_") and (key.substr(3) in schema.events or key.substr(3) in LuaComponent.BASE_EVENTS)) or key in schema.hooks:
 					el.handlers[key] = LuaHelper.make_callable(value, "%s.%s" % [component_name, key])
 				elif base.has(key) or schema.props.has(key):
 					el.props[key] = value
