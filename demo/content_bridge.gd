@@ -23,7 +23,7 @@ func _register_state() -> void:
 	LuaBridgeRegistry.register_state(STATE_NAME, get_lua_state())
 	
 	LuaBridgeRegistry.lua_register(STATE_NAME, CONTENT_NAMESPACE, "getFactorLevel", lua_get_factor_level)
-	LuaBridgeRegistry.lua_register(STATE_NAME, CONTENT_NAMESPACE, "doPlaySound", lua_do_play_sound)
+	LuaBridgeRegistry.lua_register(STATE_NAME, CONTENT_NAMESPACE, "playSoundEffect", lua_do_play_sound)
 	LuaBridgeRegistry.lua_register(STATE_NAME, CONTENT_NAMESPACE, "doChangeFactorLevel", lua_do_change_factor_level)
 	LuaBridgeRegistry.lua_register(STATE_NAME, CONTENT_NAMESPACE, "doTriggerEvent", lua_do_trigger_event)
 	register_action(STATE_NAME, CONTENT_NAMESPACE)
