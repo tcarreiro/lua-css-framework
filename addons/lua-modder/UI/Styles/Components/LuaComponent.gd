@@ -321,7 +321,7 @@ func _dnd_accepts(data: Variant) -> bool:
 
 func _dnd_can_drop(_at_position: Vector2, data: Variant) -> bool:
 	if not _dnd_accepts(data):
-		_dnd_set_feedback(&"")
+		_dnd_clear_feedback()
 		return false
 	var ok := true
 	var hook: Callable = handlers.get("on_can_drop", Callable())
@@ -332,7 +332,7 @@ func _dnd_can_drop(_at_position: Vector2, data: Variant) -> bool:
 
 
 func _dnd_drop(_at_position: Vector2, data: Variant) -> void:
-	_dnd_set_feedback(&"")
+	_dnd_clear_feedback()
 	# adiado: o on_drop costuma mudar a store, e isso recria a lista inteira; fazer isso
 	# no meio do despacho de entrada do Godot (com a origem e o alvo ainda em uso) é arriscado
 	_dnd_emit_drop.call_deferred(data["payload"], _dnd_modifiers())

@@ -98,7 +98,7 @@ UI.defineComponent("SettingsScreen", {
 						label = "APPLY", class = "menu-button", disabled = not_dirty,
 						on_mouse_entered = function()
 							if draft_store.dirty() then
-								UI.playSoundEffect("som")
+								--Content.playSoundEffect("som")
 							end
 						end,
 						on_pressed = function() 
@@ -111,7 +111,7 @@ UI.defineComponent("SettingsScreen", {
 						label = "SAVE", class = "menu-button", disabled = not_dirty,
 						on_mouse_entered = function()
 							if draft_store.dirty() then
-								UI.playSoundEffect("som")
+								--Content.playSoundEffect("som")
 							end
 						end,
 						on_pressed = function()
