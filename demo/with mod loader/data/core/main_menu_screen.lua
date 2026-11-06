@@ -1,13 +1,13 @@
 local function on_tutorial_selected()
-	UI.playSoundEffect("click")
+	--Content.playSoundEffect("click")
 end
 
 local function on_play_selected()
-	UI.playSoundEffect("click")
+	--Content.playSoundEffect("click")
 end
 
 local function on_button_hovered()
-	UI.playSoundEffect("hover")
+	--Content.playSoundEffect("hover")
 end
 
 local function on_button_lost_hover()

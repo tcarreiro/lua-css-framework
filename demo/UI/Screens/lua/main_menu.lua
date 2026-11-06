@@ -1,3 +1,34 @@
+UI.defineComponent("mainMenuButton", {
+	props = {class = "string"},
+	events = {mouse_entered, mouse_exited, click, pressed},
+	render = function(props)
+		return Button{
+			id = props.id,
+			class = props.class,
+			background_color = "#FF0000",
+			label = props.label,
+			on_pressed = props.on_pressed,
+			on_mouse_entered = props.on_mouse_entered,
+			on_mouse_exited = props.on_mouse_exited,
+		}
+	end
+})
+
+--, {
+	--render = function(props)
+		--return Button{
+			--id = props.id,
+			--class = props.class,
+			--background_color = "#FF0000",
+			--label = props.label,
+			--on_pressed = props.on_pressed,
+			--on_mouse_entered = props.on_mouse_entered,
+			--on_mouse_exited = props.on_mouse_exited,
+		--}
+	--end
+--})
+
+
 UI.defineComponent("MainMenu", {
 	events = { "navigate" }, -- Declara o evento 'navigate'. Quem usa o componente recebe o handler em p.on_navigate
 	render = function(p)
@@ -16,11 +47,11 @@ UI.defineComponent("MainMenu", {
 				label = label,
 				class = "menu-button " .. class_on_hover,
 				on_pressed = function()
-					UI.playSoundEffect("click")
+					--Content.playSoundEffect("click")
 					go(navigation_target)
 				end,
 				on_mouse_entered = function()
-					UI.playSoundEffect("hover")
+					--Content.playSoundEffect("hover")
 				end,
 			}
 		end
@@ -58,9 +89,14 @@ UI.defineComponent("MainMenu", {
 									Div{flex_grow = 1},
 									Div{ flex_grow = 1, gap = 20, alignment = 'end',
 										children = {
-											button("play_btn", "PLAY", "play", ""),
-											button("settings_btn", "SETTINGS", "settings", ""),
-											button("quit_btn", "QUIT", "quit", "text-color-red"),
+											--UI.getComponent("mainMenuButton",
+												--{ id = "MM_TUTORIAL", label = "MM_TUTORIAL" },
+												--{ }
+											--)
+											mainMenuButton{label = "OIOIOI"}
+											--button("play_btn", "PLAY", "play", ""),
+											--button("settings_btn", "SETTINGS", "settings", ""),
+											--button("quit_btn", "QUIT", "quit", "text-color-red"),
 										}
 									},
 									Div{flex_grow = 1},

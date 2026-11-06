@@ -8,6 +8,7 @@ var _root: Control
 var _stores: Dictionary = {}          # name -> ReactiveDictionary registered by host
 var _readonly_stores: Dictionary = {} # name -> bool (true = readonly)
 var _root_handles: Dictionary = {}    # name -> handle's Dictionary
+var _component_handlers: Dictionary = {}
 var _handles: Dictionary = {}         # id -> LuaStoreHandle
 var _next_handle_id := 0
 
@@ -60,6 +61,10 @@ func expose_store(store_name: String, store: ReactiveDictionary, readonly := fal
 	_root_handles.erase(store_name)
 
 
+func get_store(store_name: String) -> ReactiveDictionary:
+	return _stores.get(store_name)
+
+
 func make_draft(source: LuaStoreHandle) -> Dictionary:
 	return _register_handle(ReactiveDictionary.new(source.store.value.duplicate(true)), source.store, false, source.readonly)
 
@@ -88,6 +93,15 @@ func _lua_call_method(ref: Variant, method: Variant, args: Variant = null) -> Va
 func _lua_mount(el: Variant) -> void:
 	var element: UIElement = el
 	if _root and element:
+		if element.ref != null and element.ref != "":
+			var _handler_id := element.ref
+			if (not _component_handlers.has(_handler_id) or _component_handlers[_handler_id] == null):
+				_component_handlers.erase(_handler_id)
+				_component_handlers[_handler_id] = ComponentRegistry.instantiate(element)
+				_root.add_child(_component_handlers[_handler_id])
+			else:
+				_component_handlers[_handler_id].queue_free()
+			return
 		_root.add_child(ComponentRegistry.instantiate(element))
 
 
