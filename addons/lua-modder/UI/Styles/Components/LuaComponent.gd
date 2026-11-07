@@ -36,6 +36,10 @@ var _binding_links: Array = []   # [binding, callable]
 var _drag: LuaDragController
 var _drag_refresh_queued := false
 
+var _style_batch := false         # durante o _ready: as props de estilo são juntadas e aplicadas UMA vez no fim
+var _style_batch_dirty := false   # há estilo para resolver/aplicar quando o lote fechar
+var _ancestor_signature := ""   # as classes deste componente que as regras usam como ancestral (ver _descendants_depend_on_my_classes)
+
 const DND_KEY := &"lua_drag_type"
 var _dnd_installed := false
 var _dnd_source := false
@@ -49,7 +53,11 @@ func _apply_prop(key: String, value: Variant) -> void:
 	var prop := StringName(key)
 	if value != null and _style_target.has_property(prop):
 		_style_overrides[prop] = value
-		_style_target.apply_style(_style, _style_overrides)
+		if _style_batch:
+			_style_batch_dirty = true   # aplica tudo junto no fim do _ready
+		else:
+			_style_target.apply_style(_style, _style_overrides)
+
 
 func _component_ready() -> void:
 	pass
@@ -67,8 +75,11 @@ func setup(p_name: String, p_props: Dictionary, p_handlers: Dictionary, p_schema
 
 func _ready() -> void:
 	_style_target.register_transitions()
+	_style_batch = true
 	for key: String in props:
 		_apply_prop_internal(key, props[key])
+	_style_batch = false
+	_flush_style_batch()
 	_is_ready = true
 	_component_ready()
 	_style_target.enable_transitions()
@@ -103,12 +114,13 @@ func set_prop(key: String, value: Variant) -> void:
 
 
 func _apply_prop_internal(key: String, value: Variant) -> void:
-	if PropertyDefinition.DND_GRP.has(StringName(key)):
-		_refresh_dnd()
-		return
-	if PropertyDefinition.DRAG_GRP.has(StringName(key)):
-		_apply_drag_prop(StringName(key))
-		return
+	match _special_group_of(key):
+		1:
+			_refresh_dnd()
+			return
+		2:
+			_apply_drag_prop(StringName(key))
+			return
 	match key:
 		PropertyDefinition.ID:
 			component_id = value
@@ -116,7 +128,10 @@ func _apply_prop_internal(key: String, value: Variant) -> void:
 				name = value
 		PropertyDefinition.CLASS:
 			style_classes = LuaHelper.parse_style_classes(value)
-			_refresh_style(true, _is_ready)
+			if _style_batch:
+				_style_batch_dirty = true
+			else:
+				_refresh_style(true, _is_ready)
 		PropertyDefinition.VISIBLE:
 			visible = value
 		PropertyDefinition.TOOLTIP:
@@ -134,16 +149,50 @@ func _apply_prop_internal(key: String, value: Variant) -> void:
 		_:
 			_apply_prop(key, value)
 
-func _refresh_style(deep := false, animate := true) -> void:
-	# o resolve cria um LCSSStyle novo: preserva os estados ativos (hover etc.)
-	
-	var active: Array = _style.get_active_states() if _style != null else []
-	_style = LCSSResolver.resolve(self, LuaUi.lcss)
-	for state in active:
-		_style.set_state_active(state, true)
-	_style_target.apply_style(_style, _style_overrides, animate)
-	if deep:
+## Fecha o lote do _ready: resolve o estilo e aplica classes + props de estilo juntos, uma única vez
+## (antes cada prop de estilo disparava uma aplicação completa).
+func _flush_style_batch() -> void:
+	if not _style_batch_dirty:
+		return
+	_style_batch_dirty = false
+	_refresh_style(true, false, true)
+
+
+## 1 = props de drag & drop de dados, 2 = props de arrastar o componente, 0 = as demais.
+static var _special_groups: Dictionary = {}
+
+static func _special_group_of(key: String) -> int:
+	if _special_groups.is_empty():
+		for name in PropertyDefinition.DND_GRP:
+			_special_groups[String(name)] = 1
+		for name in PropertyDefinition.DRAG_GRP:
+			_special_groups[String(name)] = 2
+	return _special_groups.get(key, 0)
+
+
+func _refresh_style(deep := false, animate := true, force_apply := false) -> void:
+	var prototype := LCSSResolver.resolve_prototype(self, LuaUi.lcss)
+	# Mesmo protótipo = mesmo estilo: não há o que reaplicar (os estados ativos, hover etc., ficam no _style atual).
+	# needs_apply cobre bindings registrados depois do último apply_style; force_apply, overrides novos.
+	if force_apply or _style == null or _style.proto != prototype or _style_target.needs_apply:
+		var active: Array = _style.get_active_states() if _style != null else []
+		_style = LCSSStyle.instance_of(prototype)
+		for state in active:
+			_style.set_state_active(state, true)
+		_style_target.apply_style(_style, _style_overrides, animate)
+	if deep and _descendants_depend_on_my_classes():
 		_refresh_descendant_styles(self, animate)
+
+
+## Só vale refazer os descendentes quando alguma regra usa uma classe DESTE componente como ancestral
+## ("pai filho") e essa parte do conjunto mudou desde a última vez. Sem regras assim, o estilo de um filho
+## não depende do pai e o refresh profundo era trabalho jogado fora.
+func _descendants_depend_on_my_classes() -> bool:
+	var signature := LuaUi.lcss.ancestor_signature(style_classes)
+	if signature == _ancestor_signature:
+		return false
+	_ancestor_signature = signature
+	return true
 
 
 func _refresh_descendant_styles(node: Node, animate: bool) -> void:

@@ -1,5 +1,5 @@
 UI.defineComponent("mainMenuButton", {
-	props = {class = "string"},
+	props = {class = "string", label = "string"},
 	events = {mouse_entered, mouse_exited, click, pressed},
 	render = function(props)
 		return Button{
@@ -58,6 +58,14 @@ UI.defineComponent("MainMenu", {
 	
 	return Body{
 		children = {
+			Hotkey{
+				key = "ui_accept",
+				on_press = function()
+					local t0 = UI.getTime()
+					UI.mount(PerfModal{ ref = "perf_modal", count = 100, columns = 6 })
+					print((UI.getTime() - t0) / 1000.0)
+				end,
+			},
 			Div{
 				class = "menu-screen",
 				flex_grow = 1,
@@ -90,13 +98,12 @@ UI.defineComponent("MainMenu", {
 									Div{ flex_grow = 1, gap = 20, alignment = 'end',
 										children = {
 											--UI.getComponent("mainMenuButton",
-												--{ id = "MM_TUTORIAL", label = "MM_TUTORIAL" },
-												--{ }
+												--{ id = "MM_TUTORIAL", label = "MM_TUTORIAL" }
 											--)
-											mainMenuButton{label = "OIOIOI"}
-											--button("play_btn", "PLAY", "play", ""),
-											--button("settings_btn", "SETTINGS", "settings", ""),
-											--button("quit_btn", "QUIT", "quit", "text-color-red"),
+											--mainMenuButton{label = "OIOIOI"}
+											button("play_btn", "PLAY", "play", ""),
+											button("settings_btn", "SETTINGS", "settings", ""),
+											button("quit_btn", "QUIT", "quit", "text-color-red"),
 										}
 									},
 									Div{flex_grow = 1},

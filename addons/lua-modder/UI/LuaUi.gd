@@ -20,6 +20,7 @@ func _ready() -> void:
 	state.globals["dofile"] = null
 	state.globals["loadfile"] = null
 	state.globals["UI"] = {
+		"getTime": _lua_get_current_time,
 		"defineComponent": _lua_define_component,
 		"getComponent": _lua_get_component,
 		"mount": _lua_mount,
@@ -77,6 +78,10 @@ func release_drafts() -> void:
 
 
 #region Lua-facing API
+func _lua_get_current_time() -> int:
+	return Time.get_ticks_usec()
+
+
 func _lua_define_component(component_name: Variant, definition: Variant) -> void:
 	ComponentRegistry.register_lua(str(component_name), LuaHelper.as_dict(definition))
 

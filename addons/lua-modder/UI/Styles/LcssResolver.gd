@@ -1,6 +1,24 @@
 class_name LCSSResolver extends RefCounted
 
+## Estilo do componente: uma instância leve de um protótipo CACHEADO por conjunto de classes relevantes
+## (ver LCSSRegistry.cache_key_for). Resolver de verdade (varrer todas as regras) só acontece na primeira vez
+## que aquele conjunto aparece; 28 slots iguais custam UMA resolução, não 28.
 static func resolve(component: LuaComponent, registry: LCSSRegistry) -> LCSSStyle:
+	return LCSSStyle.instance_of(resolve_prototype(component, registry))
+
+
+## O protótipo compartilhado (nunca altere o que ele devolve). Dois componentes com o mesmo protótipo têm o mesmo estilo.
+static func resolve_prototype(component: LuaComponent, registry: LCSSRegistry) -> LCSSStyle:
+	var key := registry.cache_key_for(component)
+	var cached := registry.get_cached_style(key)
+	if cached != null:
+		return cached
+	var prototype := _build(component, registry)
+	registry.cache_style(key, prototype)
+	return prototype
+
+
+static func _build(component: LuaComponent, registry: LCSSRegistry) -> LCSSStyle:
 	var matched: Array[Dictionary] = []  
 	var order := 0
 	for sheet in registry.get_stylesheets():

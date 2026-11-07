@@ -1,4 +1,4 @@
-extends "res://addons/lua-modder/UI/Styles/Components/Premade/Div/Div.gd"
+extends Div
 ## Repeat: um Div cujos filhos vêm de uma lista reativa.
 ##
 ##   Repeat{
@@ -9,12 +9,12 @@ extends "res://addons/lua-modder/UI/Styles/Components/Premade/Div/Div.gd"
 ##     end,
 ##   }
 ##
-## Quando `items` muda, TODOS os filhos são destruídos e `render_item` roda de novo para cada item.
-## Se a lista chegar igual à anterior (comparação por valor), nada é refeito.
+## Quando `items` muda, só os índices cujo item mudou são recriados (ver LuaRepeatBuilder): o resto dos filhos
+## continua como está. Lista igual à anterior (por valor): nada é refeito.
+## render_item tem de ser função de (item, index); se o que ele desenha depende de outro estado, use UI.bind.
 ## O Repeat é dono dos próprios filhos: `children` estáticos são descartados na primeira montagem.
 
-var _built := false
-var _last_items: Array = []
+var _builder := LuaRepeatBuilder.new()
 
 
 func get_schema() -> Dictionary:
@@ -27,34 +27,6 @@ func get_schema() -> Dictionary:
 
 func _apply_prop(key: String, value: Variant) -> void:
 	if key == "items":
-		_rebuild(value if value is Array else [])
+		_builder.sync(_items, value if value is Array else [], handlers.get("render_item", Callable()))
 		return
 	super._apply_prop(key, value)
-
-
-func _rebuild(items: Array) -> void:
-	if _built and items == _last_items:
-		return
-	_built = true
-	_last_items = items.duplicate(true)
-
-	for child in _items.get_children():
-		_items.remove_child(child)
-		if child is LuaComponent:
-			(child as LuaComponent).dispose()
-		else:
-			child.queue_free()
-
-	var render_item: Callable = handlers.get("render_item", Callable())
-	if not render_item.is_valid():
-		push_warning("[Repeat] render_item hook missing")
-		return
-
-	for i in items.size():
-		var el: Variant = render_item.call(items[i], i)
-		if not el is UIElement:
-			push_warning("[Repeat] render_item must return a LuaComponent (item %d)" % i)
-			continue
-		var node := ComponentRegistry.instantiate(el as UIElement)
-		if node != null:
-			_items.add_child(node)

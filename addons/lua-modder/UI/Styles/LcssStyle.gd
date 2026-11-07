@@ -13,11 +13,47 @@ var _properties: Dictionary[StringName, Variant] = {}
 var _states: Dictionary[StringName, LCSSStyle] = {}
 var _active_states: Array[StringName] = []
 
+## Protótipo (resolvido e CACHEADO) de que esta instância veio; null = estilo próprio. Duas instâncias com o
+## mesmo `proto` têm exatamente as mesmas propriedades: serve para saber se reaplicar o estilo mudaria algo.
+var proto: LCSSStyle
+var _shared := false
+
+
+## Instância leve de um estilo resolvido: compartilha as propriedades e os estados do protótipo (que nunca são
+## alterados depois de cacheados) e tem só os estados ATIVOS próprios (hover, pressed...). Qualquer mutação
+## copia antes (copy-on-write), então mexer numa instância jamais corrompe o cache.
+static func instance_of(prototype: LCSSStyle) -> LCSSStyle:
+	var style := LCSSStyle.new()
+	style._properties = prototype._properties
+	style._states = prototype._states
+	style._shared = true
+	style.proto = prototype
+	return style
+
+
+func _unshare() -> void:
+	if not _shared:
+		return
+	_shared = false
+	proto = null
+	_properties = _properties.duplicate()
+	var own: Dictionary[StringName, LCSSStyle] = {}
+	for state in _states:
+		var state_style := _states[state]
+		if state_style == null:
+			own[state] = null
+			continue
+		var copied := state_style.copy()
+		copied.changed.connect(_on_state_changed)
+		own[state] = copied
+	_states = own
+
 
 func set_property(property: StringName, value: Variant) -> void:
 	if _properties.get(property) == value:
 		return
 
+	_unshare()
 	_properties[property] = value
 	changed.emit()
 
@@ -26,6 +62,7 @@ func remove_property(property: StringName) -> void:
 	if not _properties.has(property):
 		return
 
+	_unshare()
 	_properties.erase(property)
 	changed.emit()
 
@@ -43,6 +80,7 @@ func get_properties() -> Dictionary[StringName, Variant]:
 
 
 func ensure_state(state: StringName) -> LCSSStyle:
+	_unshare()   # devolve um estilo que o chamador pode alterar
 	if not _states.has(state):
 		var style := LCSSStyle.new()
 		style.changed.connect(_on_state_changed)
@@ -55,6 +93,7 @@ func set_state_style(state: StringName, style: LCSSStyle) -> void:
 	if _states.get(state) == style:
 		return
 
+	_unshare()
 	if _states.has(state):
 		var previous := _states[state]
 
@@ -73,7 +112,14 @@ func has_state(state: StringName) -> bool:
 	return _states.has(state)
 
 
+## Para alterar o estado: desprende a instância do protótipo compartilhado antes (copy-on-write).
 func get_state(state: StringName) -> LCSSStyle:
+	_unshare()
+	return _states.get(state)
+
+
+## Só para LER o estado, sem desprender do protótipo. NÃO altere o que devolve: pode ser compartilhado.
+func peek_state(state: StringName) -> LCSSStyle:
 	return _states.get(state)
 
 
@@ -87,6 +133,7 @@ func remove_state(state: StringName) -> void:
 	if not _states.has(state):
 		return
 
+	_unshare()
 	var style := _states[state]
 
 	if style != null and style.changed.is_connected(_on_state_changed):

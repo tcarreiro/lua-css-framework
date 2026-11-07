@@ -12,6 +12,7 @@ class_name LCSSStyleTarget extends RefCounted
 
 enum Kind { NONE, COLOR, NUMBER, VECTOR, FAMILY }
 
+var needs_apply := true
 
 #region Internal classes
 class Binding extends RefCounted:
@@ -73,6 +74,7 @@ func register_property(property: StringName, target: Node, context: StringName =
 	if family != &"":
 		push_warning("[LCSSStyleTarget] '%s' é parte de uma família; registre o atalho '%s'." % [property, family])
 		return
+	needs_apply = true
 	var binding := Binding.new()
 	binding.property = property
 	binding.target = target
@@ -85,6 +87,7 @@ func register_family(family: StringName, target: Node, context: StringName = &""
 	if not PropertyDefinition.FAMILIES.has(family):
 		push_warning("[LCSSStyleTarget] '%s' não é uma família." % family)
 		return
+	needs_apply = true
 	var fb := FamilyBinding.new()
 	fb.family = family
 	fb.target = target
@@ -174,6 +177,7 @@ func apply_property(context: StringName, value: Variant, handler: Callable) -> b
 #region Application
 ## `animate = false` aplica direto, sem tween (usado no boot e ao re-resolver descendentes).
 func apply_style(style: LCSSStyle, overrides: Dictionary[StringName, Variant] = {}, animate := true) -> void:
+	needs_apply = false
 	_last_style = style
 	_last_overrides = overrides
 	var transition: Transition = _read_transition(style, overrides) if (_transitions_enabled and animate) else null

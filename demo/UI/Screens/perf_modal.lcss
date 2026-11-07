@@ -1,0 +1,31 @@
+// ---------- teste de carga (perf_modal.lua) ----------
+.perf-modal-body { padding: 16; }
+
+.perf-slot { padding: 2; }
+
+// seletor descendente de propósito: obriga o resolver a subir pelos ancestrais
+.perf-modal .perf-slot .perf-frame {
+	background_color: #232838;
+	border_color: #4a5270;
+	border_width: 1;
+	border_radius: 4;
+	padding: 4;
+	transition_duration: 120ms;
+}
+.perf-frame.perf-uncommon { border_color: #4aff7a; }
+.perf-frame.perf-rare { border_color: #4aa3ff; }
+.perf-frame.perf-epic { border_color: #b04aff; }
+
+.perf-frame-label { font_size: 14; font_color: #e8ecff; }
+
+.perf-slot-btn {
+	border_color: #4a5270;
+	border_width: 1;
+	border_radius: 4;
+	padding: 2;
+	font_size: 12;
+	font_color: #e8ecff;
+	transition_duration: 120ms;
+}
+.perf-slot-btn:hover { background_color: #3a4260; scale: 1.05; }
+.perf-slot-btn:pressed { background_color: #1f2433; }

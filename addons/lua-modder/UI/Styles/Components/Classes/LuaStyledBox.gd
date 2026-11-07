@@ -36,7 +36,7 @@ func _ready() -> void:
 
 
 func _apply_prop(key: String, value: Variant) -> void:
-	match StringName(key):
+	match key:
 		PropertyDefinition.WIDTH:
 			if int(value) >= 0 or _is_ready:
 				custom_minimum_size.x = maxf(float(value), 0.0)
