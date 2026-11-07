@@ -5,6 +5,8 @@ class_name LuaComponent extends Control
 signal prop_changed(key: String, value: Variant)
 signal disposing
 
+static var debug_skip_style := false
+
 # Common methods allowd in UI.callMethod()
 const BASE_METHODS: Array[String] = ["add_class", "remove_class", "toggle_class", "set_state", "get_state", "set_prop",
 		"set_effect_param", "tween_effect_param"]
@@ -15,12 +17,16 @@ var component_id: String = ""
 var props: Dictionary = {}
 var handlers: Dictionary = {}
 
+var _given: Dictionary = {}
+var _has_given := false
+
 ## Classes LCSS atribuídas via prop "class".
 var style_classes: Array[StringName] = []
 
 var _style: LCSSStyle
 var _style_target := LCSSStyleTarget.new()
 var _style_overrides: Dictionary[StringName, Variant] = {}
+var _batching := false
 
 var _fx_material: ShaderMaterial
 var _fx_specs: Array = []
@@ -49,7 +55,8 @@ func _apply_prop(key: String, value: Variant) -> void:
 	var prop := StringName(key)
 	if value != null and _style_target.has_property(prop):
 		_style_overrides[prop] = value
-		_style_target.apply_style(_style, _style_overrides)
+		if not _batching:
+			_style_target.apply_style(_style, _style_overrides)
 
 func _component_ready() -> void:
 	pass
@@ -57,18 +64,31 @@ func _component_ready() -> void:
 
 
 #region Lifecycle
-func setup(p_name: String, p_props: Dictionary, p_handlers: Dictionary, p_schema: Dictionary, p_bindings: Dictionary = {}) -> void:
+func setup(p_name: String, p_props: Dictionary, p_handlers: Dictionary, p_schema: Dictionary, p_bindings: Dictionary = {}, p_given: Variant = null) -> void:
 	component_name = p_name
 	props = p_props
 	handlers = p_handlers
 	_schema = p_schema
 	_bindings = p_bindings
+	# disponíveis antes de entrar na árvore: resolve único e correto no _ready
+	var cls = props.get(PropertyDefinition.CLASS)
+	if cls != null:
+		style_classes = LuaHelper.parse_style_classes(cls)
+	if p_given != null:
+		_given = p_given
+		_has_given = true
 
 
 func _ready() -> void:
 	_style_target.register_transitions()
+	_batching = true
+	var base := ComponentRegistry.base_props()
 	for key: String in props:
+		if _has_given and not _given.has(key) and base.has(key) and key != PropertyDefinition.VISIBLE:
+			continue
 		_apply_prop_internal(key, props[key])
+	_batching = false
+	_refresh_style(false, false)
 	_is_ready = true
 	_component_ready()
 	_style_target.enable_transitions()
@@ -116,7 +136,8 @@ func _apply_prop_internal(key: String, value: Variant) -> void:
 				name = value
 		PropertyDefinition.CLASS:
 			style_classes = LuaHelper.parse_style_classes(value)
-			_refresh_style(true, _is_ready)
+			if not _batching:
+				_refresh_style(true, _is_ready)
 		PropertyDefinition.VISIBLE:
 			visible = value
 		PropertyDefinition.TOOLTIP:
@@ -135,8 +156,9 @@ func _apply_prop_internal(key: String, value: Variant) -> void:
 			_apply_prop(key, value)
 
 func _refresh_style(deep := false, animate := true) -> void:
+	if debug_skip_style:
+		return
 	# o resolve cria um LCSSStyle novo: preserva os estados ativos (hover etc.)
-	
 	var active: Array = _style.get_active_states() if _style != null else []
 	_style = LCSSResolver.resolve(self, LuaUi.lcss)
 	for state in active:

@@ -20,6 +20,7 @@ func _ready() -> void:
 	state.globals["dofile"] = null
 	state.globals["loadfile"] = null
 	state.globals["UI"] = {
+		"getTime": _lua_get_current_time,
 		"defineComponent": _lua_define_component,
 		"getComponent": _lua_get_component,
 		"mount": _lua_mount,
@@ -89,6 +90,9 @@ func _lua_call_method(ref: Variant, method: Variant, args: Variant = null) -> Va
 	var a: Variant = LuaHelper.normalize_lua(args)
 	return ComponentRegistry.call_method(str(ref), str(method), a if a is Array else [])
 
+func _lua_get_current_time() -> int:
+	return Time.get_ticks_usec()
+
 
 func _lua_mount(el: Variant) -> void:
 	var element: UIElement = el
@@ -99,6 +103,7 @@ func _lua_mount(el: Variant) -> void:
 				_component_handlers.erase(_handler_id)
 				_component_handlers[_handler_id] = ComponentRegistry.instantiate(element)
 				_root.add_child(_component_handlers[_handler_id])
+				Perf.dump()
 			else:
 				_component_handlers[_handler_id].queue_free()
 			return

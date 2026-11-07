@@ -4,7 +4,7 @@ extends "res://addons/lua-modder/UI/Styles/Components/Premade/Div/Div.gd"
 ##   Repeat{
 ##     gap = 6,
 ##     items = UI.bind(store, "gauntlets"),          -- lista (Array) vinda de uma store
-##     render_item = function(item, index)           -- index começa em 0 (como os Array do Godot)
+##     render_item =F function(item, index)           -- index começa em 0 (como os Array do Godot)
 ##       return Button{ label = item.name }
 ##     end,
 ##   }
