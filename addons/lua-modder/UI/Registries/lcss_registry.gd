@@ -70,6 +70,7 @@ func cache_style(key: String, style: LCSSStyle) -> void:
 
 func _invalidate_cache() -> void:
 	_resolve_cache.clear()
+	LCSSResolver.invalidate()
 	_index_dirty = true
 
 

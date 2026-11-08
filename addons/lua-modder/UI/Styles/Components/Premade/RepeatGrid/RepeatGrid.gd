@@ -17,17 +17,11 @@ extends Grid
 
 var _builder := LuaRepeatBuilder.new()
 
-
 func get_schema() -> Dictionary:
-	var schema := super.get_schema()
-	schema["name"] = "RepeatGrid"
-	schema["props"]["items"] = {"type": "array", "default": []}
-	schema["hooks"] = ["render_item"]
-	return schema
-
+	return LuaRepeatBuilder.extend_schema(super.get_schema(), "RepeatGrid")
 
 func _apply_prop(key: String, value: Variant) -> void:
 	if key == "items":
-		_builder.sync(_items, value if value is Array else [], handlers.get("render_item", Callable()))
+		_builder.sync_for(self, _items, value)
 		return
 	super._apply_prop(key, value)

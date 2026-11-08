@@ -101,6 +101,7 @@ UI.defineComponent("PerfModal", {
 								children = {
 									RepeatGrid{
 										async = not p.sync,
+										loading_until = 24,
 										columns = cols,
 										gap = GRID_GAP,
 										items = make_items(n),

@@ -175,6 +175,9 @@ func clear_active_states() -> void:
 
 
 func has_effective_property(property: StringName) -> bool:
+	if _active_states.is_empty():
+		return _properties.has(property)
+	
 	if _properties.has(property):
 		return true
 
@@ -188,6 +191,9 @@ func has_effective_property(property: StringName) -> bool:
 
 
 func get_effective_property(property: StringName, default: Variant = null) -> Variant:
+	if _active_states.is_empty():
+		return _properties.get(property, default)
+	
 	for state in _STATE_PRIORITY:
 		if _active_states.has(state):
 			var state_style := _states.get(state)
