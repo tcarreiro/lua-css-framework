@@ -322,16 +322,11 @@ func _dnd_begin(_at_position: Vector2) -> Variant:
 	return {DND_KEY: str(props.get(PropertyDefinition.DRAG_TYPE, "")), "payload": (payload as Dictionary).duplicate(true)}
 
 
+## O fantasma vive numa camada própria, sempre acima de modais e popups (ver LuaDragGhost).
 func _dnd_set_preview(element: UIElement) -> void:
 	var node := ComponentRegistry.instantiate(element) as Control
-	if node == null:
-		return
-	var wrapper := Control.new()
-	wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	wrapper.add_child(node)
-	set_drag_preview(wrapper)   # entra na árvore agora: o componente roda o _ready
-	node.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	node.position = -node.get_combined_minimum_size() * 0.5   # centrado no cursor
+	if node != null:
+		LuaDragGhost.spawn(node)
 
 
 func _dnd_accepts(data: Variant) -> bool:

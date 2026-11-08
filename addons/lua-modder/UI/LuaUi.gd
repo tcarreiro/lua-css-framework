@@ -12,6 +12,8 @@ var _component_handlers: Dictionary = {}
 var _handles: Dictionary = {}         # id -> LuaStoreHandle
 var _next_handle_id := 0
 
+var _drag_layer: CanvasLayer
+
 func _ready() -> void:
 	state = LuaState.new()
 	state.open_libraries(LuaState.LUA_BASE | LuaState.LUA_TABLE | LuaState.LUA_STRING
@@ -64,6 +66,16 @@ func expose_store(store_name: String, store: ReactiveDictionary, readonly := fal
 
 func get_store(store_name: String) -> ReactiveDictionary:
 	return _stores.get(store_name)
+
+
+## Camada do fantasma do drag de dados: acima dos modais (camada 1) e dos popups (LuaPopupLayer.LAYER_INDEX).
+func get_drag_layer() -> CanvasLayer:
+	if not is_instance_valid(_drag_layer):
+		_drag_layer = CanvasLayer.new()
+		_drag_layer.name = "DragLayer"
+		_drag_layer.layer = LuaPopupLayer.LAYER_INDEX + 1
+		add_child(_drag_layer)
+	return _drag_layer
 
 
 func make_draft(source: LuaStoreHandle) -> Dictionary:

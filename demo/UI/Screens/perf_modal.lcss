@@ -18,14 +18,22 @@
 
 .perf-frame-label { font_size: 14; font_color: #e8ecff; }
 
+// Button transparente por cima do slot: recebe o mouse e desenha a borda de destaque.
+// A largura da borda é SEMPRE 3 (só a cor muda): borda faz parte da margem interna do painel, então
+// trocar a largura no meio do arraste mudaria o tamanho do slot e faria o grid se mexer.
 .perf-slot-btn {
-	border_color: #4a5270;
-	border_width: 1;
-	border_radius: 4;
-	padding: 2;
+	background_color: #00000000;
+	border_color: #00000000;
+	border_width: 3;
+	border_radius: 6;
 	font_size: 12;
 	font_color: #e8ecff;
 	transition_duration: 120ms;
 }
-.perf-slot-btn:hover { background_color: #3a4260; scale: 1.05; }
-.perf-slot-btn:pressed { background_color: #1f2433; }
+.perf-slot-btn:hover { background_color: #ffffff14; }
+.perf-slot-btn:pressed { background_color: #00000033; }
+
+// classes automáticas do drag & drop de dados (LuaComponent)
+.perf-slot-btn.dragging { background_color: #00000088; }   // na ORIGEM, enquanto o fantasma existe
+.perf-slot-btn.drop-ok { border_color: #ffd400; }           // no ALVO sob o fantasma: borda amarela de largura 3
+.perf-slot-btn.drop-deny { border_color: #ff4040; }         // só aparece se um on_can_drop devolver false

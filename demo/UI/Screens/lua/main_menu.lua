@@ -62,7 +62,8 @@ UI.defineComponent("MainMenu", {
 				key = "ui_accept",
 				on_press = function()
 					local t0 = UI.getTime()
-					UI.mount(PerfModal{ ref = "perf_modal", count = 100, columns = 6 })
+					UI.mount(PerfModal{ ref = "perf_modal", count = 100, windowed = false, columns = 6, margin = {0, 0, 650, 0} })
+					UI.mount(PerfModal{ ref = "perf_modal2", count = 100, windowed = true, columns = 6, margin = {650, 0, 0, 0} })
 					print((UI.getTime() - t0) / 1000.0)
 				end,
 			},

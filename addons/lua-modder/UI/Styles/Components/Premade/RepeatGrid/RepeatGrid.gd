@@ -1,4 +1,4 @@
-extends "res://addons/lua-modder/UI/Styles/Components/Premade/Grid/Grid.gd"
+extends Grid
 ## RepeatGrid: um Grid cujos filhos vêm de uma lista reativa.
 ##
 ##   RepeatGrid{

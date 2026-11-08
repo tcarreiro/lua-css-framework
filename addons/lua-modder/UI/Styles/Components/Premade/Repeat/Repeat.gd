@@ -1,4 +1,4 @@
-extends "res://addons/lua-modder/UI/Styles/Components/Premade/Div/Div.gd"
+extends Div
 ## Repeat: um Div cujos filhos vêm de uma lista reativa.
 ##
 ##   Repeat{
