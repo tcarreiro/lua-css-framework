@@ -61,11 +61,11 @@
 @keyframes wobble { from { rotate: -3; } to { rotate: 3; } }
 
 @keyframes hang {
-	0% { rotate: 0; }
+	//0% { rotate: 0; }
 	25% { rotate: -8; }
-	50% {rotate: 0;}
+	//50% {rotate: 0;}
 	75% {rotate: 8;}
-	100% { rotate: 0; }
+	//100% { rotate: 0; }
 }
 
 

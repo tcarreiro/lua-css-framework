@@ -3,8 +3,8 @@ extends Control
 ## reativas e troca de tela destruindo os componentes antigos e criando os novos.
 
 const LUA_DIR := "res://demo/UI/Screens/lua/"
-const LUA_FILES := ["confirm_dialog.lua", "main_menu.lua", "settings.lua"]
-const LCSS_FILE := ["res://demo/UI/Screens/screens.lcss", "res://addons/lua-modder/UI/Styles/layout.lcss"]
+const LUA_FILES := ["confirm_dialog.lua", "perf_modal.lua", "main_menu.lua", "settings.lua"]
+const LCSS_FILE := ["res://demo/UI/Screens/perf_modal.lcss", "res://demo/UI/Screens/screens.lcss", "res://addons/lua-modder/UI/Styles/layout.lcss"]
 
 ## Cena aberta pelo PLAY.
 @export_file("*.tscn") var play_scene: String = ""
